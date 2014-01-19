@@ -1,0 +1,4 @@
+scpromise
+=========
+
+Simple Compliant Promise
