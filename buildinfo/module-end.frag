@@ -1,0 +1,3 @@
+
+  return require("scpromise/promise");
+}));

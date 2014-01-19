@@ -1,0 +1,22 @@
+{
+  "name": "scpromise",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": "Miguel Castillo <mahchagnu@gmail.com>",
+  "title": "scpromise",
+  "description": "Simple Compliant Promise",
+  "homepage": "https://github.com/MiguelCastillo/scpromise",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/MiguelCastillo/scpromise.git"
+  },
+  "bugs": {
+    "email": "manchagnu@gmail.com",
+    "url": "https://github.com/MiguelCastillo/scpromise/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-requirejs": "~0.4.1"
+  },
+  "private": true
+}
