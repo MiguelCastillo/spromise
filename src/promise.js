@@ -48,21 +48,25 @@ define([
       // Create a new promise to properly create a promise chain
       var promise = scpromise();
 
-      setTimeout(function() {
-        try {
-          // Handle done callback
-          target.done(function() {
-            _resolver.call( this, promise, actions.resolve, onFulfilled, arguments );
-          });
+      try {
+        // Handle done callback
+        target.done(function() {
+          var context = this, args = arguments;
+          setTimeout(function() {
+            _resolver.call( context, promise, actions.resolve, onFulfilled, args );
+          }, 1);
+        });
 
-          target.fail(function() {
-            _resolver.call( this, promise, actions.reject, onRejected, arguments );
-          });
-        }
-        catch( ex ) {
-          promise.reject(ex);
-        }
-      }, 1);
+        target.fail(function() {
+          var context = this, args = arguments;
+          setTimeout(function() {
+            _resolver.call( context, promise, actions.reject, onRejected, args );
+          }, 1);
+        });
+      }
+      catch( ex ) {
+        promise.reject(ex);
+      }
 
       return promise;
     }
