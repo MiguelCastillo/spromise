@@ -29,7 +29,8 @@ define(["libs/js/rjasmine", "../libs/js/jquery-1.10.1"], function(rjasmine) {
   // rjasmine needs to wait for reporters to be loaded...
   _rjasmine.ready(function() {
     require([
-      "specs/promise"
+      "specs/promise",
+      "specs/when"
     ], _rjasmine.execute);
   });
 });

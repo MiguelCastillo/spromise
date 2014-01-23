@@ -5,12 +5,16 @@
 
 
 (function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
+  if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
+    // CommonJS support
+    module.exports = factory();
+  }
+  else if (typeof define === 'function' && define.amd) {
     // Do AMD support
     define(factory);
   } else {
     // Non AMD loading
-    root.rjasmine = factory();
+    root.scpromise = factory();
   }
 }(this, function () {
 
@@ -512,12 +516,11 @@ define('scpromise/promise',[
         try {
           // Handle done callback
           target.done(function() {
-            _thenResolver.call( this, promise, actions.resolve, onFulfilled, arguments );
+            _resolver.call( this, promise, actions.resolve, onFulfilled, arguments );
           });
 
-          // Handle fail callback
           target.fail(function() {
-            _thenResolver.call( this, promise, actions.reject, onRejected, arguments );
+            _resolver.call( this, promise, actions.reject, onRejected, arguments );
           });
         }
         catch( ex ) {
@@ -551,7 +554,7 @@ define('scpromise/promise',[
 
     function resolve( ) {
       if ( !isPending() ) {
-        throw "Promise is already resolved";
+        return target;
       }
 
       _context = this;
@@ -562,7 +565,7 @@ define('scpromise/promise',[
 
     function reject( ) {
       if ( !isPending() ) {
-        throw "Promise is already resolved";
+        return target;
       }
 
       _context = this;
@@ -597,6 +600,9 @@ define('scpromise/promise',[
     }
 
 
+    /**
+    * Promise API
+    */
     return extender.mixin(target, {
       always: always,
       done: done,
@@ -647,40 +653,65 @@ define('scpromise/promise',[
     function _updateState( state, value ) {
       _state = state;
       _value = value;
-      _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
-      _notify( _queues[queues.always] );
+      setTimeout(function() {
+        _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
+        _notify( _queues[queues.always] );
+      }, 1);
     }
 
 
     // Routine to resolve a thenable
-    function _thenResolver( promise, action, handler, data ) {
-      var result = (handler && handler.apply( this, data ));
+    function _resolver( promise, action, handler, data ) {
+      var result  = (typeof handler === "function" && handler.apply( this, data )) || (data && data[0]);
+      var then    = result && result.then;
 
       // Make sure we handle the promise object being the same as the
       // returned value of the handler.
-      if ( handler && result === promise ) {
+      if ( result === promise ) {
         throw new TypeError();
       }
-      // Handle thenable chains
-      else if ( handler && result && typeof result.then === "function" ) {
-        result.then.call(data, function(){
-          promise.resolve.apply(this, arguments);
-        }, function() {
-          promise.reject.apply(this, arguments);
+      // Handle thenable chains.
+      else if ( typeof then === "function" ) {
+        then.call(result, function resolvePromise () {
+          _resolver( promise, actions.resolve, null, arguments );
+        }, function rejectPromise () {
+          _resolver( promise, actions.reject, null, arguments );
         });
       }
       // Handle direct callbacks
       else {
-        promise[action].apply( this, ((result && [result]) || data) );
+        promise[action].apply( this, (result && [result]) );
       }
     }
+
   }
 
+
+  // Expose enums for the states
+  scpromise.states = states;
+
+
+  return scpromise;
+});
+
+/**
+ * scpromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ *
+ * Simple Compliant Promise
+ * https://github.com/MiguelCastillo/scpromise
+ */
+
+
+define('scpromise/when',[
+  "scpromise/promise"
+], function(scpromise) {
+  
 
   /**
   * Interface to allow multiple promises to be synchronized
   */
-  scpromise.when = function( ) {
+  function when( ) {
     // The input is the queue of items that need to be resolved.
     var queue   = Array.prototype.slice.call(arguments),
         promise = scpromise(),
@@ -746,12 +777,55 @@ define('scpromise/promise',[
   };
 
 
-  // Expose enums for the states
-  scpromise.states = states;
+  return when;
 
-
-  return scpromise;
 });
 
-  return require("scpromise/promise");
+
+/**
+ * scpromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ *
+ * Simple Compliant Promise
+ * https://github.com/MiguelCastillo/scpromise
+ */
+
+
+define('scpromise/deferred',[
+  "scpromise/promise"
+], function(scpromise) {
+  
+
+  function deferred() {
+    var promise = scpromise();
+    return {
+      promise: promise,
+      resolve: promise.resolve,
+      reject: promise.reject
+    };
+  }
+
+  return deferred;
+
+});
+
+
+/**
+ * scpromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
+
+define('scpromise/core',[
+  "scpromise/promise",
+  "scpromise/when",
+  "scpromise/deferred"
+], function(promise, when, deferred) {
+  promise.when = when;
+  promise.deferred = deferred;
+  return promise;
+});
+
+
+  return require("scpromise/core");
 }));

@@ -11,7 +11,7 @@ module.exports = function(grunt) {
             "scpromise": "src"
           },
           name: "libs/js/almond",
-          include: ["scpromise/promise"],
+          include: ["scpromise/core"],
           out: 'dist/scpromise-debug.js',
           optimize: 'none',
           preserveLicenseComments: true,
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
             "scpromise": "src"
           },
           name: "libs/js/almond",
-          include: ["scpromise/promise"],
+          include: ["scpromise/core"],
           out: 'dist/scpromise.js',
           optimize: 'uglify',
           preserveLicenseComments: true,

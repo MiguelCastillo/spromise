@@ -16,7 +16,8 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-contrib-requirejs": "~0.4.1"
+    "grunt-contrib-requirejs": "~0.4.1",
+    "promises-aplus-tests": "~2.0.3"
   },
   "private": true
 }

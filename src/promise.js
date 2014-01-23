@@ -52,12 +52,11 @@ define([
         try {
           // Handle done callback
           target.done(function() {
-            _thenResolver.call( this, promise, actions.resolve, onFulfilled, arguments );
+            _resolver.call( this, promise, actions.resolve, onFulfilled, arguments );
           });
 
-          // Handle fail callback
           target.fail(function() {
-            _thenResolver.call( this, promise, actions.reject, onRejected, arguments );
+            _resolver.call( this, promise, actions.reject, onRejected, arguments );
           });
         }
         catch( ex ) {
@@ -91,7 +90,7 @@ define([
 
     function resolve( ) {
       if ( !isPending() ) {
-        throw "Promise is already resolved";
+        return target;
       }
 
       _context = this;
@@ -102,7 +101,7 @@ define([
 
     function reject( ) {
       if ( !isPending() ) {
-        throw "Promise is already resolved";
+        return target;
       }
 
       _context = this;
@@ -137,6 +136,9 @@ define([
     }
 
 
+    /**
+    * Promise API
+    */
     return extender.mixin(target, {
       always: always,
       done: done,
@@ -187,103 +189,38 @@ define([
     function _updateState( state, value ) {
       _state = state;
       _value = value;
-      _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
-      _notify( _queues[queues.always] );
+      setTimeout(function() {
+        _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
+        _notify( _queues[queues.always] );
+      }, 1);
     }
 
 
     // Routine to resolve a thenable
-    function _thenResolver( promise, action, handler, data ) {
-      var result = (handler && handler.apply( this, data ));
+    function _resolver( promise, action, handler, data ) {
+      var result  = (typeof handler === "function" && handler.apply( this, data )) || (data && data[0]);
+      var then    = result && result.then;
 
       // Make sure we handle the promise object being the same as the
       // returned value of the handler.
-      if ( handler && result === promise ) {
+      if ( result === promise ) {
         throw new TypeError();
       }
-      // Handle thenable chains
-      else if ( handler && result && typeof result.then === "function" ) {
-        result.then.call(data, function(){
-          promise.resolve.apply(this, arguments);
-        }, function() {
-          promise.reject.apply(this, arguments);
+      // Handle thenable chains.
+      else if ( typeof then === "function" ) {
+        then.call(result, function resolvePromise () {
+          _resolver( promise, actions.resolve, null, arguments );
+        }, function rejectPromise () {
+          _resolver( promise, actions.reject, null, arguments );
         });
       }
       // Handle direct callbacks
       else {
-        promise[action].apply( this, ((result && [result]) || data) );
+        promise[action].apply( this, (result && [result]) );
       }
     }
+
   }
-
-
-  /**
-  * Interface to allow multiple promises to be synchronized
-  */
-  scpromise.when = function( ) {
-    // The input is the queue of items that need to be resolved.
-    var queue   = Array.prototype.slice.call(arguments),
-        promise = scpromise(),
-        context = this,
-        i, item, remaining, queueLength;
-
-    if ( !queue.length ) {
-      return promise.resolve(null);
-    }
-
-    //
-    // Check everytime a new resolved promise occurs if we are done processing all
-    // the dependent promises.  If they are all done, then resolve the when promise
-    //
-    function checkPending() {
-      if ( remaining ) {
-        remaining--;
-      }
-
-      if ( !remaining ) {
-        promise.resolve.apply(context, queueLength === 1 ? queue[0] : queue);
-      }
-    }
-
-    // Wrap the resolution to keep track of the proper index in the closure
-    function resolve( index ) {
-      return function() {
-        // We will replace the item in the queue with result to make
-        // it easy to send all the data into the resolve interface.
-        queue[index] = arguments;
-        context = this;
-        checkPending();
-      };
-    }
-
-    function reject() {
-      promise.reject.apply(this, arguments);
-    }
-
-    function processQueue() {
-      try {
-        queueLength = remaining = queue.length;
-        for ( i = 0; i < queueLength; i++ ) {
-          item = queue[i];
-
-          if ( item && typeof item.then === "function" ) {
-            item.then(resolve(i), reject);
-          }
-          else {
-            queue[i] = item;
-            checkPending();
-          }
-        }
-      }
-      catch( ex ) {
-        reject(ex);
-      }
-    }
-
-    // Process the promises and callbacks
-    setTimeout(processQueue, 1);
-    return promise;
-  };
 
 
   // Expose enums for the states
