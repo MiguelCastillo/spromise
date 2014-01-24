@@ -514,25 +514,6 @@ define( 'scpromise/async',[],function() {
   }
 
 
-  /**
-  * Like curry
-  */
-  function curry( ) {
-    // Default arguments when calling func
-    var args   = Array.prototype.slice.call(arguments),
-        func   = args.shift(),
-        isFunc = typeof func === "function";
-
-    return function() {
-      var _args = args.slice(0);
-      _args.push.apply(_args, Array.prototype.slice.call(arguments));
-      if ( isFunc ) {
-        return func.apply(this, _args);
-      }
-    };
-  }
-
-
   return async;
 
 });
