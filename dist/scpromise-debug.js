@@ -465,6 +465,81 @@ define('scpromise/extender',[],function() {
 /**
  * scpromise Copyright (c) 2014 Miguel Castillo.
  * Licensed under MIT
+ */
+
+
+define( 'scpromise/async',[],function() {
+
+  /**
+  * Handle exceptions in a setTimeout.
+  * @func <function> to be called when timeout finds cycles to execute it
+  * @err  <function> to be called when there is an exception thrown.  If
+  *  no function is provided then the exception will be rethrown outside
+  *  of the setTimeout scope
+  */
+  function async( ) {
+    var args     = Array.prototype.slice.call(arguments),
+        func     = args.shift(),
+        context  = this,
+        error    = function(){};
+
+
+    function runner() {
+      return function() {
+        try {
+          func.apply(context, args[0]);
+        }
+        catch( ex ) {
+          setTimeout(thrown(ex), 1);
+        }
+      };
+    }
+
+    function thrown(err) {
+      return function() {
+        error(err);
+      };
+    }
+
+    function fail(cb) {
+      error = cb;
+    }
+
+    // Schedule for running...
+    setTimeout(runner(), 1);
+
+    return {
+      fail: fail
+    };
+  }
+
+
+  /**
+  * Like curry
+  */
+  function curry( ) {
+    // Default arguments when calling func
+    var args   = Array.prototype.slice.call(arguments),
+        func   = args.shift(),
+        isFunc = typeof func === "function";
+
+    return function() {
+      var _args = args.slice(0);
+      _args.push.apply(_args, Array.prototype.slice.call(arguments));
+      if ( isFunc ) {
+        return func.apply(this, _args);
+      }
+    };
+  }
+
+
+  return async;
+
+});
+
+/**
+ * scpromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
  *
  * Simple Compliant Promise
  * https://github.com/MiguelCastillo/scpromise
@@ -472,8 +547,9 @@ define('scpromise/extender',[],function() {
 
 
 define('scpromise/promise',[
-  "scpromise/extender"
-], function(extender) {
+  "scpromise/extender",
+  "scpromise/async"
+], function(extender, async) {
   
 
   var states = {
@@ -482,12 +558,10 @@ define('scpromise/promise',[
     "rejected": 2
   };
 
-
   var actions = {
     resolve: "resolve",
     reject: "reject"
   };
-
 
   var queues = {
     always: "always",
@@ -496,6 +570,14 @@ define('scpromise/promise',[
   };
 
 
+  function isFunction(func) {
+    return typeof func === "function";
+  }
+
+
+  /**
+  * Simple Compliant Promise
+  */
   function scpromise( target ) {
     target = target || {}; // Make sure we have a target object
     var _state   = states.pending, // Current state
@@ -507,31 +589,14 @@ define('scpromise/promise',[
         }, _value;                // Resolved/Rejected value.
 
 
-    // Then promise interface
+    /**
+    * Then promise interface
+    */
     function then( onFulfilled, onRejected ) {
       // Create a new promise to properly create a promise chain
       var promise = scpromise();
-
-      try {
-        // Handle done callback
-        target.done(function() {
-          var context = this, args = arguments;
-          setTimeout(function() {
-            _resolver.call( context, promise, actions.resolve, onFulfilled, args );
-          }, 1);
-        });
-
-        target.fail(function() {
-          var context = this, args = arguments;
-          setTimeout(function() {
-            _resolver.call( context, promise, actions.reject, onRejected, args );
-          }, 1);
-        });
-      }
-      catch( ex ) {
-        promise.reject(ex);
-      }
-
+      target.done(_thenHandler( promise, actions.resolve, onFulfilled ));
+      target.fail(_thenHandler( promise, actions.reject, onRejected ));
       return promise;
     }
 
@@ -625,8 +690,8 @@ define('scpromise/promise',[
     // Queue will figure out if the promise is resolved/rejected and do something
     // with the callback based on that.  It also verifies that there is a callback
     // function
-    function _queue( type, cb ) {
-      if ( typeof cb !== "function" ) {
+    function _queue ( type, cb ) {
+      if ( !isFunction( cb ) ) {
         throw "Callback must be a valid function";
       }
 
@@ -636,16 +701,18 @@ define('scpromise/promise',[
       }
       else if((queues.resolved === type && isResolved()) ||
               (queues.rejected === type && isRejected())) {
-        cb.apply(_context, _value);
+        async(function() {cb.apply(_context, _value);}).fail(target.reject);
+        //async(function() {cb(_value[0]);}, target.reject)();
       }
     }
 
 
     // Tell everyone and tell them we are resolved/rejected
-    function _notify( queue ) {
+    function _notify ( queue ) {
       var i, length;
       for ( i = 0, length = queue.length; i < length; i++ ) {
         queue[i].apply(_context, _value);
+        //queue[i](_value[0]);
       }
 
       // Empty out the array
@@ -654,40 +721,51 @@ define('scpromise/promise',[
 
 
     // Sets the state of the promise and call the callbacks as appropriate
-    function _updateState( state, value ) {
+    function _updateState ( state, value ) {
       _state = state;
       _value = value;
-      setTimeout(function() {
+      async(function() {
         _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
         _notify( _queues[queues.always] );
-      }, 1);
+      }).fail(target.reject);
+    }
+
+
+    // Promise.then handler DRYs onfulfilled and onrejected
+    function _thenHandler ( promise, action, handler ) {
+      return function( ) {
+        try {
+          var data = (isFunction(handler) && handler.apply(this, arguments));
+          data = (data && [data]) || arguments;
+          async(_resolver, [promise, data, action]).fail(promise.reject);
+        }
+        catch( ex ) {
+          promise.reject(ex);
+        }
+      };
     }
 
 
     // Routine to resolve a thenable
-    function _resolver( promise, action, handler, data ) {
-      var result  = (typeof handler === "function" && handler.apply( this, data )) || (data && data[0]);
-      var then    = result && result.then;
+    function _resolver ( promise, data, action ) {
+      var then = data[0] && data[0].then;
 
       // Make sure we handle the promise object being the same as the
       // returned value of the handler.
-      if ( result === promise ) {
+      if ( data[0] === promise ) {
         throw new TypeError();
       }
       // Handle thenable chains.
-      else if ( typeof then === "function" ) {
-        then.call(result, function resolvePromise () {
-          _resolver( promise, actions.resolve, null, arguments );
-        }, function rejectPromise () {
-          _resolver( promise, actions.reject, null, arguments );
-        });
+      else if ( isFunction( then ) ) {
+        then.call(data, _thenHandler( promise, actions.resolve ), _thenHandler( promise, actions.reject ));
       }
-      // Handle direct callbacks
       else {
-        promise[action].apply( this, (result && [result]) );
+        /**
+        *  Only place where a promise is resolved for a promise.then call
+        */
+        promise[action].apply( this, data );
       }
     }
-
   }
 
 

@@ -15,7 +15,7 @@ define(["scpromise/promise"], function(promise) {
     });
 
 
-    it("Promise object return itself in then call", function() {
+    it("Promise object return itself in a then call", function() {
       var promise1 = new promise();
 
       var promise2 = promise1.then(function(x) {
@@ -25,7 +25,7 @@ define(["scpromise/promise"], function(promise) {
       .fail(function(ex) {
         expect(ex).toBeDefined();
       })
-      .done(function(x) {
+      .done(function() {
         expect(this).toBe("never called");
       });
 
@@ -160,6 +160,35 @@ define(["scpromise/promise"], function(promise) {
 
       return _promise;
     });
+
+
+    it("then with a throw", function () {
+      var promise1 = promise(),
+          promise3 = promise();
+
+      var promise2 = promise1.then(function(x) {
+        console.log(x);
+        return promise().resolve("resolve promise2");
+      })
+      .then(function(x) {
+        expect(x).toBe("resolve promise2");
+        throw "My Bad";
+      })
+      .then(function(x) {
+      },function(ex) {
+        expect(ex).toBe("My Bad");
+        return promise2.resolve("===> exception handled");
+      })
+      .then(function(x) {
+        expect(x).toBe("===> exception handled");
+        promise3.resolve();
+      });
+
+      promise1.resolve("tests");
+      return promise3;
+    });
+
+
 
   });
 
