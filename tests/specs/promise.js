@@ -189,6 +189,31 @@ define(["scpromise/promise"], function(promise) {
     });
 
 
+    it("then with a throw and chained rejects", function () {
+      var promise1 = promise(),
+          promise3 = promise();
+
+      var promise2 = promise1.then(function(x) {
+        console.log(x);
+        return promise().reject("resolve promise2");
+      })
+      .then(function(){}, function(x) {
+        expect(x).toBe("resolve promise2");
+        throw "My Bad";
+      })
+      .then(function(x) {
+      },function(ex) {
+        expect(ex).toBe("My Bad");
+        return promise2.reject("===> exception handled");
+      })
+      .then(function() {}, function(x) {
+        expect(x).toBe("===> exception handled");
+        promise3.resolve();
+      });
+
+      promise1.resolve("tests");
+      return promise3;
+    });
 
   });
 
