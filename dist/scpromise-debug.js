@@ -601,22 +601,20 @@ define('scpromise/promise',[
     }
 
     function resolve( ) {
-      if ( !isPending() ) {
-        return target;
+      if ( isPending() ) {
+        _context = this;
+        _updateState( states.resolved, arguments );
       }
 
-      _context = this;
-      _updateState( states.resolved, arguments );
       return target;
     }
 
     function reject( ) {
-      if ( !isPending() ) {
-        return target;
+      if ( isPending() ) {
+        _context = this;
+        _updateState( states.rejected, arguments );
       }
 
-      _context = this;
-      _updateState( states.rejected, arguments );
       return target;
     }
 
@@ -722,18 +720,17 @@ define('scpromise/promise',[
       };
     }
 
-    // Routine to resolve a thenable
+    // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
     function _resolver ( promise, data, action ) {
-      var _data = data[0], _then = _data && _data.then;
+      var input = data[0], then = input && input.then;
 
-      // Make sure we handle the promise object being the same as the
-      // returned value of the handler.
-      if ( _data === promise ) {
+      // The resolver input must not be the promise tiself
+      if ( input === promise ) {
         throw new TypeError();
       }
-      // Handle thenable chains.
-      else if ( isFunction(_then) && (isFunction(_data) || isObject(_data)) ) {
-        _then.call(_data, _thenHandler( promise, actions.resolve ), _thenHandler( promise, actions.reject ));
+      // Is data a thenable?
+      else if ( isFunction(then) && (isFunction(input) || isObject(input)) ) {
+        then.call(input, _thenHandler( promise, actions.resolve ), _thenHandler( promise, actions.reject ));
       }
       // Resolve/Reject promise
       else {
