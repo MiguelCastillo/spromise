@@ -59,13 +59,8 @@ define([
     function then( onResolved, onRejected ) {
       // Create a new promise to properly create a promise chain
       var promise = scpromise();
-      if(  isFunction(onResolved) ) {
-        target.done(_thenHandler( promise, actions.resolve, onResolved ));
-      }
-
-      if ( isFunction(onRejected) ) {
-        target.fail(_thenHandler( promise, actions.reject, onRejected ));
-      }
+      target.done(_thenHandler( promise, actions.resolve, onResolved ));
+      target.fail(_thenHandler( promise, actions.reject, onRejected ));
       return promise;
     }
 
