@@ -5,9 +5,9 @@
 
 
 define([
-  "scpromise/promise",
-  "scpromise/when",
-  "scpromise/deferred"
+  "src/promise",
+  "src/when",
+  "src/deferred"
 ], function(promise, when, deferred) {
   promise.when = when;
   promise.deferred = deferred;

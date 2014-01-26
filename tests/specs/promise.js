@@ -1,4 +1,4 @@
-define(["scpromise/promise"], function(promise) {
+define(["src/promise"], function(promise) {
 
   describe("Promises", function() {
     var dummy = { dummy: "dummy" };

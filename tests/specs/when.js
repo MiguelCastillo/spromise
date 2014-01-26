@@ -1,4 +1,4 @@
-define(["scpromise/promise", "scpromise/when"], function(promise, when) {
+define(["src/promise", "src/when"], function(promise, when) {
 
   describe("When", function() {
 

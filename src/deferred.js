@@ -8,7 +8,7 @@
 
 
 define([
-  "scpromise/promise"
+  "src/promise"
 ], function(scpromise) {
   "use strict";
 

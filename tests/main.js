@@ -10,7 +10,7 @@ define(["libs/js/rjasmine", "../libs/js/jquery-1.10.1"], function(rjasmine) {
   // in all unit tests
   requirejs.config({
     paths: {
-      "scpromise": "../src"
+      "src": "../src"
     }
   });
 

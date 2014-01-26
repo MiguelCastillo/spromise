@@ -8,8 +8,8 @@
 
 
 define([
-  "scpromise/extender",
-  "scpromise/async"
+  "src/extender",
+  "src/async"
 ], function(extender, async) {
   "use strict";
 

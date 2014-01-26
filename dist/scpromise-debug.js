@@ -438,7 +438,7 @@ define("libs/js/almond", function(){});
  */
 
 
-define('scpromise/extender',[],function() {
+define('src/extender',[],function() {
   
 
   function extender(/*target, [source]+ */) {
@@ -468,7 +468,7 @@ define('scpromise/extender',[],function() {
  */
 
 
-define( 'scpromise/async',[],function() {
+define( 'src/async',[],function() {
 
   /**
   * Handle exceptions in a setTimeout.
@@ -527,9 +527,9 @@ define( 'scpromise/async',[],function() {
  */
 
 
-define('scpromise/promise',[
-  "scpromise/extender",
-  "scpromise/async"
+define('src/promise',[
+  "src/extender",
+  "src/async"
 ], function(extender, async) {
   
 
@@ -741,8 +741,8 @@ define('scpromise/promise',[
  */
 
 
-define('scpromise/when',[
-  "scpromise/promise"
+define('src/when',[
+  "src/promise"
 ], function(scpromise) {
   
 
@@ -829,8 +829,8 @@ define('scpromise/when',[
  */
 
 
-define('scpromise/deferred',[
-  "scpromise/promise"
+define('src/deferred',[
+  "src/promise"
 ], function(scpromise) {
   
 
@@ -854,10 +854,10 @@ define('scpromise/deferred',[
  */
 
 
-define('scpromise/core',[
-  "scpromise/promise",
-  "scpromise/when",
-  "scpromise/deferred"
+define('src/scpromise',[
+  "src/promise",
+  "src/when",
+  "src/deferred"
 ], function(promise, when, deferred) {
   promise.when = when;
   promise.deferred = deferred;
@@ -865,5 +865,5 @@ define('scpromise/core',[
 });
 
 
-  return require("scpromise/core");
+  return require("src/scpromise");
 }));

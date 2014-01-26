@@ -1,3 +1,3 @@
 
-  return require("scpromise/core");
+  return require("src/scpromise");
 }));
