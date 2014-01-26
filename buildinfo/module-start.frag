@@ -8,7 +8,7 @@
     define(factory);
   } else {
     // Non AMD loading
-    root.scpromise = factory();
+    root.spromise = factory();
   }
 }(this, function () {
 

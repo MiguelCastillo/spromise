@@ -6,7 +6,7 @@
 
 define(["libs/js/rjasmine", "../libs/js/jquery-1.10.1"], function(rjasmine) {
 
-  // Configure requirejs globably to make scpromise src available
+  // Configure requirejs globably to make spromise src available
   // in all unit tests
   requirejs.config({
     paths: {
