@@ -179,7 +179,7 @@ define([
         try {
           var data = (isFunction(handler) && handler.apply(this, arguments)) || undefined;
           data = (data !== undefined && [data]) || arguments;
-          _resolver( promise2, data, action );
+          _resolver.call( this, promise2, data, action );
         }
         catch( ex ) {
           promise2.reject(ex);
