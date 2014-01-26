@@ -1,3 +1,2 @@
-
-  return require("src/scpromise");
+  return require("src/spromise");
 }));
