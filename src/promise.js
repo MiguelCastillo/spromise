@@ -42,8 +42,8 @@ define([
   /**
   * Simple Compliant Promise
   */
-  function scpromise( target ) {
-    target = target || {}; // Make sure we have a target object
+  function scpromise( promise1 ) {
+    promise1 = promise1 || {}; // Make sure we have a promise1promise1 object
     var _state   = states.pending, // Current state
         _context = this,
         _queues  = {
@@ -58,10 +58,10 @@ define([
     */
     function then( onResolved, onRejected ) {
       // Create a new promise to properly create a promise chain
-      var promise = scpromise();
-      target.done(_thenHandler( promise, actions.resolve, onResolved ));
-      target.fail(_thenHandler( promise, actions.reject, onRejected ));
-      return promise;
+      var promise2 = scpromise();
+      promise1.done(_thenHandler( promise2, actions.resolve, onResolved ));
+      promise1.fail(_thenHandler( promise2, actions.reject, onRejected ));
+      return promise2;
     }
 
     function done( cb ) {
@@ -69,7 +69,7 @@ define([
         _queue( queues.resolved, cb );
       }
 
-      return target;
+      return promise1;
     }
 
     function fail( cb ) {
@@ -77,7 +77,7 @@ define([
         _queue( queues.rejected, cb );
       }
 
-      return target;
+      return promise1;
     }
 
     function resolve( ) {
@@ -86,7 +86,7 @@ define([
         _updateState( states.resolved, arguments );
       }
 
-      return target;
+      return promise1;
     }
 
     function reject( ) {
@@ -95,12 +95,12 @@ define([
         _updateState( states.rejected, arguments );
       }
 
-      return target;
+      return promise1;
     }
 
     function always( cb ) {
       _queue( queues.always, cb );
-      return target;
+      return promise1;
     }
 
     function state() {
@@ -123,7 +123,7 @@ define([
     /**
     * Promise API
     */
-    return extender.mixin(target, {
+    return extender.mixin(promise1, {
       always: always,
       done: done,
       fail: fail,
@@ -150,12 +150,8 @@ define([
       if ( isPending() ) {
         _queues[type].push(cb);
       }
-      else if((queues.resolved === type && isResolved()) ||
-              (queues.rejected === type && isRejected())) {
-        /// 1. Below is what's compliant
-        //async(function() {cb(_value[0]);}, target.reject)();
-        /// 2. Below is what I found more useful
-        async(function() {cb.apply(_context, _value);}).fail(target.reject);
+      else if ((queues.resolved === type && isResolved()) || (queues.rejected === type && isRejected())) {
+        async(function() {cb.apply(_context, _value);}).fail(promise1.reject);
       }
     }
 
@@ -163,9 +159,6 @@ define([
     function _notify ( queue ) {
       var i, length;
       for ( i = 0, length = queue.length; i < length; i++ ) {
-        /// 1. Below is what's compliant
-        //queue[i](_value[0]);
-        /// 2. Below is what I found more useful
         queue[i].apply(_context, _value);
       }
 
@@ -180,46 +173,44 @@ define([
       async(function() {
         _notify( _queues[state === states.resolved ? queues.resolved : queues.rejected] );
         _notify( _queues[queues.always] );
-      }).fail(target.reject);
+      }).fail(promise1.reject);
     }
 
     // Promise.then handler DRYs onresolved and onrejected
-    function _thenHandler ( promise, action, handler ) {
+    function _thenHandler ( promise2, action, handler ) {
       return function( ) {
         try {
-          var data = (isFunction(handler) && handler.apply(this, arguments));
-          /// 1. Below is what's compliant...
-          //data = typeof data === "undefined" ? arguments : [data];
-          /// 2. Below is what I found more useful
-          data = (data && [data]) || arguments;
-          async(_resolver, [promise, data, action]).fail(promise.reject);
+          var data = (isFunction(handler) && handler.apply(this, arguments)) || undefined;
+          data = (data !== undefined && [data]) || arguments;
+          _resolver( promise2, data, action );
         }
         catch( ex ) {
-          promise.reject(ex);
+          promise2.reject(ex);
         }
       };
     }
 
     // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-    function _resolver ( promise, data, action ) {
-      var input = data[0], then = input && input.then;
+    function _resolver ( promise2, data, action ) {
+      var input = data[0];
 
       // The resolver input must not be the promise tiself
-      if ( input === promise ) {
+      if ( input === promise2 ) {
         throw new TypeError();
       }
       // Is data a thenable?
-      else if ( isFunction(then) && (isFunction(input) || isObject(input)) ) {
-        then.call(input, _thenHandler( promise, actions.resolve ), _thenHandler( promise, actions.reject ));
+      else if ( (input !== null && (isFunction(input) || isObject(input))) && isFunction(input.then) ) {
+        input.then.call(input, _thenHandler( promise2, actions.resolve ), _thenHandler( promise2, actions.reject ));
       }
       // Resolve/Reject promise
       else {
-        promise[action].apply( this, data );
+        promise2[action].apply( this, data );
       }
     }
   }
 
   // Expose enums for the states
   scpromise.states = states;
+  scpromise.async  = async;
   return scpromise;
 });
