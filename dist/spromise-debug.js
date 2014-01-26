@@ -854,7 +854,7 @@ define('src/deferred',[
  */
 
 
-define('src/scpromise',[
+define('src/spromise',[
   "src/promise",
   "src/when",
   "src/deferred"
@@ -864,6 +864,5 @@ define('src/scpromise',[
   return promise;
 });
 
-
-  return require("src/scpromise");
+  return require("src/spromise");
 }));

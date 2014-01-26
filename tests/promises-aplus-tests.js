@@ -1,7 +1,7 @@
 var promisesAplusTests = require("promises-aplus-tests"),
-    scpromise = require("../dist/scpromise-debug");
+    spromise = require("../dist/spromise-debug");
 
-promisesAplusTests(scpromise, function (err) {
+promisesAplusTests(spromise, function (err) {
   console.log("=====> Errors:");
   console.log(err);
 });
