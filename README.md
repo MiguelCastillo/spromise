@@ -1,4 +1,4 @@
-scpromise
+spromise
 =========
 
-Simple Compliant Promise
+Small Promise

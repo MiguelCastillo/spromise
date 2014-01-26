@@ -1,9 +1,9 @@
 {
-  "name": "scpromise",
+  "name": "spromise",
   "version": "0.0.1",
   "license": "MIT",
   "author": "Miguel Castillo <mahchagnu@gmail.com>",
-  "title": "scpromise",
+  "title": "spromise",
   "description": "Small Promise",
   "homepage": "https://github.com/MiguelCastillo/spromise",
   "repository": {

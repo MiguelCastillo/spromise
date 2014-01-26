@@ -1,12 +1,19 @@
 /**
- * scpromise Copyright (c) 2014 Miguel Castillo.
+ * spromise Copyright (c) 2014 Miguel Castillo.
  * Licensed under MIT
+ *
+ * https://github.com/MiguelCastillo/spromise
  */
 
 /**
  * almond 0.2.6 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/almond for details
+ */
+
+/**
+ * scpromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
  */
 
 /**

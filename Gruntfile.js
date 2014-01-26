@@ -3,7 +3,7 @@
 //
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON("package.json"),
     requirejs: {
       compile: {
         options: {
@@ -11,13 +11,13 @@ module.exports = function(grunt) {
           },
           name: "libs/js/almond",
           include: ["src/spromise"],
-          out: 'dist/spromise-debug.js',
-          optimize: 'none',
+          out: "dist/spromise-debug.js",
+          optimize: "none",
           preserveLicenseComments: true,
           skipModuleInsertion: false,
           wrap: {
-            startFile: ['buildinfo/license.frag', 'buildinfo/module-start.frag'],
-            endFile: 'buildinfo/module-end.frag'
+            startFile: ["buildinfo/license.frag", "buildinfo/module-start.frag"],
+            endFile: "buildinfo/module-end.frag"
           }
         }
       },
@@ -27,19 +27,19 @@ module.exports = function(grunt) {
           },
           name: "libs/js/almond",
           include: ["src/spromise"],
-          out: 'dist/spromise.js',
-          optimize: 'uglify',
+          out: "dist/spromise.js",
+          optimize: "uglify",
           preserveLicenseComments: true,
           skipModuleInsertion: false,
           wrap: {
-            startFile: ['buildinfo/license.frag', 'buildinfo/module-start.frag'],
-            endFile: 'buildinfo/module-end.frag'
+            startFile: ["buildinfo/license.frag", "buildinfo/module-start.frag"],
+            endFile: "buildinfo/module-end.frag"
           }
         }
       }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-requirejs');
-  grunt.registerTask('default', ['requirejs']);
+  grunt.loadNpmTasks("grunt-contrib-requirejs");
+  grunt.registerTask("default", ["requirejs"]);
 };
