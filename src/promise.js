@@ -4,10 +4,7 @@
  */
 
 
-define([
-  "src/extender",
-  "src/async"
-], function(extender, async) {
+define(["src/async"], function(async) {
   "use strict";
 
   var states = {
@@ -120,15 +117,14 @@ define([
     /**
     * Promise API
     */
-    return extender.mixin(promise1, {
-      always: always,
-      done: done,
-      fail: fail,
-      resolve: resolve,
-      reject: reject,
-      then: then,
-      state: state
-    });
+    promise1.always = always;
+    promise1.done = done;
+    promise1.fail = fail;
+    promise1.resolve = resolve;
+    promise1.reject = reject;
+    promise1.then = then;
+    promise1.state = state;
+    return promise1;
 
 
     /**

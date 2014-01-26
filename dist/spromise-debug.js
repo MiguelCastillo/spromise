@@ -440,36 +440,6 @@ define("libs/js/almond", function(){});
  */
 
 
-define('src/extender',[],function() {
-  
-
-  function extender(/*target, [source]+ */) {
-    var sources = Array.prototype.slice.call(arguments),
-        target  = sources.shift();
-
-    for ( var source in sources ) {
-      source = sources[source];
-
-      // Copy properties
-      for (var property in source) {
-        target[property] = source[property];
-      }
-    }
-
-    return target;
-  }
-
-  extender.mixin = extender;
-  return extender;
-});
-
-
-/**
- * spromise Copyright (c) 2014 Miguel Castillo.
- * Licensed under MIT
- */
-
-
 define( 'src/async',[],function() {
 
   /**
@@ -526,10 +496,7 @@ define( 'src/async',[],function() {
  */
 
 
-define('src/promise',[
-  "src/extender",
-  "src/async"
-], function(extender, async) {
+define('src/promise',["src/async"], function(async) {
   
 
   var states = {
@@ -642,15 +609,14 @@ define('src/promise',[
     /**
     * Promise API
     */
-    return extender.mixin(promise1, {
-      always: always,
-      done: done,
-      fail: fail,
-      resolve: resolve,
-      reject: reject,
-      then: then,
-      state: state
-    });
+    promise1.always = always;
+    promise1.done = done;
+    promise1.fail = fail;
+    promise1.resolve = resolve;
+    promise1.reject = reject;
+    promise1.then = then;
+    promise1.state = state;
+    return promise1;
 
 
     /**
