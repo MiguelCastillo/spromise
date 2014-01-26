@@ -68,8 +68,8 @@ define([
     function then( onResolved, onRejected ) {
       // Create a new promise to properly create a promise chain
       var promise2 = promise();
-      promise1.done(_thenHandler( promise2, actions.resolve, onResolved ));
-      promise1.fail(_thenHandler( promise2, actions.reject, onRejected ));
+      promise1.done(_thenHandler(promise2, actions.resolve, onResolved));
+      promise1.fail(_thenHandler(promise2, actions.reject, onRejected));
       return promise2;
     }
 
@@ -174,7 +174,14 @@ define([
     function _thenHandler ( promise2, action, handler ) {
       return function thenHadler( ) {
         try {
-          var data = (isFunction(handler) && handler.apply(this, arguments)) || undefined;
+          var data;
+
+          if ( handler && isFunction(handler) ) {
+            data = handler.apply(this, arguments);
+          }
+
+          // Setting the data to arguments when data is undefined isn't compliant.  But I have
+          // found that this behavior is much more desired when chaining promises.
           data = (data !== undefined && [data]) || arguments;
           _resolver.call( this, promise2, data, action );
         }
