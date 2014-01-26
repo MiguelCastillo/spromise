@@ -30,12 +30,24 @@ define([
     rejected: "rejected"
   };
 
-  function isFunction(func) {
+  function isFunction( func ) {
     return typeof func === "function";
   }
 
   function isObject( obj ) {
     return typeof obj === "object";
+  }
+
+  function isResolved( state ) {
+    return state === states.resolved;
+  }
+
+  function isRejected( state ) {
+    return state === states.rejected;
+  }
+
+  function isPending( state ) {
+    return state === states.pending;
   }
 
 
@@ -65,7 +77,7 @@ define([
     }
 
     function done( cb ) {
-      if ( !isRejected() ) {
+      if ( !isRejected(_state) ) {
         _queue( queues.resolved, cb );
       }
 
@@ -73,7 +85,7 @@ define([
     }
 
     function fail( cb ) {
-      if ( !isResolved() ) {
+      if ( !isResolved(_state) ) {
         _queue( queues.rejected, cb );
       }
 
@@ -81,7 +93,7 @@ define([
     }
 
     function resolve( ) {
-      if ( isPending() ) {
+      if ( isPending(_state) ) {
         _context = this;
         _updateState( states.resolved, arguments );
       }
@@ -90,7 +102,7 @@ define([
     }
 
     function reject( ) {
-      if ( isPending() ) {
+      if ( isPending(_state) ) {
         _context = this;
         _updateState( states.rejected, arguments );
       }
@@ -105,18 +117,6 @@ define([
 
     function state() {
       return _state;
-    }
-
-    function isResolved() {
-      return _state === states.resolved;
-    }
-
-    function isRejected() {
-      return _state === states.rejected;
-    }
-
-    function isPending() {
-      return _state === states.pending;
     }
 
 
@@ -138,20 +138,17 @@ define([
     * Internal core functionality
     */
 
+
     // Queue will figure out if the promise is resolved/rejected and do something
     // with the callback based on that.  It also verifies that there is a callback
     // function
     function _queue ( type, cb ) {
-      if ( !isFunction( cb ) ) {
-        throw "Callback must be a valid function";
-      }
-
       // If the promise is already resolved/rejected, we call the callback right away
-      if ( isPending() ) {
+      if ( isPending(_state) ) {
         _queues[type].push(cb);
       }
-      else if ((queues.resolved === type && isResolved()) || (queues.rejected === type && isRejected())) {
-        async(function() {cb.apply(_context, _value);}).fail(promise1.reject);
+      else {
+        async.apply(_context, [cb, _value]).fail(promise1.reject);
       }
     }
 
@@ -178,7 +175,7 @@ define([
 
     // Promise.then handler DRYs onresolved and onrejected
     function _thenHandler ( promise2, action, handler ) {
-      return function( ) {
+      return function thenHadler( ) {
         try {
           var data = (isFunction(handler) && handler.apply(this, arguments)) || undefined;
           data = (data !== undefined && [data]) || arguments;
