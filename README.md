@@ -7,7 +7,7 @@ Small Promise, is a lightweight promise library with some opinions on promise a+
 API
 ========
 
-1. then - interface that takes in as first parameter an onResolved callback and as second parameter onRejected callback.  Great for chaining promises and controlling the flow of execution in a chain of promises.
+1. then - interface that takes in as a first parameter an onResolved callback and as a second parameter an onRejected callback.  Great for chaining promises and controlling the flow of execution in a chain of promises.
 2. done - takes an onResolved callback that gets called when the promise is successfully resolved. If the promise is resolved with data, that will then be passed in as parameters to onResolved.
 3. fail - takes an onRejected callback that gets called when the promise is rejected. If the promise was rejected with a reason(s), that will then be passed in as parameters to onRejected.
 4. always - takes a callback that is always called, either when the promise is rejected or resolved.
