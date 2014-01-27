@@ -4,7 +4,7 @@
  */
 
 
-define(["libs/js/rjasmine", "../libs/js/jquery-1.10.1"], function(rjasmine) {
+define(["libs/js/rjasmine", "libs/js/jquery-1.11.0.min"], function(rjasmine) {
 
   // Configure requirejs globably to make spromise src available
   // in all unit tests
