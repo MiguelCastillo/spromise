@@ -19,5 +19,8 @@
     "grunt-contrib-requirejs": "~0.4.1",
     "promises-aplus-tests": "~2.0.3"
   },
+  "scripts": {
+    "test": "grunt travis --verbose"
+  },
   "private": true
 }
