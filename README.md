@@ -1,4 +1,4 @@
-spromise
+spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?branch=master)](https://travis-ci.org/MiguelCastillo/spromise)
 =========
 
 Small Promise, is a lightweight promise library with some opinions on promise a+ spec.
