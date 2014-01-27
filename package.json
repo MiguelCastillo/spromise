@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "grunt": "~0.4.1",
+    "grunt-cli": "~0.1.13",
     "grunt-contrib-requirejs": "~0.4.1",
     "promises-aplus-tests": "~2.0.3"
   },
