@@ -1,11 +1,68 @@
+
 /**
  * spromise Copyright (c) 2014 Miguel Castillo.
  * Licensed under MIT
  */
 
 
-define(["src/async"], function(async) {
-  "use strict";
+define( 'src/async',[],function() {
+
+  /**
+  * Handle exceptions in a setTimeout.
+  * @func <function> to be called when timeout finds cycles to execute it
+  * @err  <function> to be called when there is an exception thrown.  If
+  *  no function is provided then the exception will be rethrown outside
+  *  of the setTimeout scope
+  */
+  function async( ) {
+    var args     = Array.prototype.slice.call(arguments),
+        func     = args.shift(),
+        context  = this,
+        error    = function(){};
+
+
+    function runner() {
+      return function() {
+        try {
+          func.apply(context, args[0]);
+        }
+        catch( ex ) {
+          setTimeout(thrown(ex), 1);
+        }
+      };
+    }
+
+    function thrown(err) {
+      return function() {
+        error(err);
+      };
+    }
+
+    function fail(cb) {
+      error = cb;
+    }
+
+    // Schedule for running...
+    setTimeout(runner(), 1);
+
+    return {
+      fail: fail
+    };
+  }
+
+
+  return async;
+
+});
+
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
+
+define('src/promise',["src/async"], function(async) {
+  
 
   var states = {
     "pending": 0,
@@ -203,3 +260,103 @@ define(["src/async"], function(async) {
   promise.states = states;
   return promise;
 });
+
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
+
+define('src/when',[
+  "src/promise",
+  "src/async"
+], function(promise, async) {
+  
+
+  /**
+  * Interface to allow multiple promises to be synchronized
+  */
+  function when( ) {
+    // The input is the queue of items that need to be resolved.
+    var queue    = Array.prototype.slice.call(arguments),
+        promise1 = promise(),
+        context  = this,
+        i, item, remaining, queueLength;
+
+    if ( !queue.length ) {
+      return promise1.resolve(null);
+    }
+
+    //
+    // Check everytime a new resolved promise occurs if we are done processing all
+    // the dependent promises.  If they are all done, then resolve the when promise
+    //
+    function checkPending() {
+      if ( remaining ) {
+        remaining--;
+      }
+
+      if ( !remaining ) {
+        promise1.resolve.apply(context, queueLength === 1 ? queue[0] : queue);
+      }
+    }
+
+    // Wrap the resolution to keep track of the proper index in the closure
+    function resolve( index ) {
+      return function() {
+        // We will replace the item in the queue with result to make
+        // it easy to send all the data into the resolve interface.
+        queue[index] = arguments;
+        checkPending();
+      };
+    }
+
+    function reject() {
+      promise1.reject.apply(this, arguments);
+    }
+
+    function processQueue() {
+      try {
+        queueLength = remaining = queue.length;
+        for ( i = 0; i < queueLength; i++ ) {
+          item = queue[i];
+
+          if ( item && typeof item.then === "function" ) {
+            item.then(resolve(i), reject);
+          }
+          else {
+            queue[i] = item;
+            checkPending();
+          }
+        }
+      }
+      catch( ex ) {
+        reject(ex);
+      }
+    }
+
+    // Process the promises and callbacks
+    async(processQueue);
+    return promise1;
+  }
+
+  return when;
+});
+
+
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
+
+define('src/spromise',[
+  "src/promise",
+  "src/async",
+  "src/when"
+], function(promise, async, when) {
+  promise.when = when;
+  promise.async  = async;
+  return promise;
+});
+

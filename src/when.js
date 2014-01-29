@@ -5,8 +5,9 @@
 
 
 define([
-  "src/promise"
-], function(promise) {
+  "src/promise",
+  "src/async"
+], function(promise, async) {
   "use strict";
 
   /**
@@ -43,7 +44,6 @@ define([
         // We will replace the item in the queue with result to make
         // it easy to send all the data into the resolve interface.
         queue[index] = arguments;
-        context = this;
         checkPending();
       };
     }
@@ -73,12 +73,10 @@ define([
     }
 
     // Process the promises and callbacks
-    setTimeout(processQueue, 1);
+    async(processQueue);
     return promise1;
-  };
-
+  }
 
   return when;
-
 });
 

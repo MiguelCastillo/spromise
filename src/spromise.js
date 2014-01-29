@@ -6,11 +6,11 @@
 
 define([
   "src/promise",
-  "src/when",
-  "src/deferred"
-], function(promise, when, deferred) {
+  "src/async",
+  "src/when"
+], function(promise, async, when) {
   promise.when = when;
-  promise.deferred = deferred;
+  promise.async  = async;
   return promise;
 });
 
