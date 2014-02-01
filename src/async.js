@@ -5,10 +5,14 @@
 
 
 define( function() {
+  var self = this;
 
   var exec;
-  if ( process && typeof process.nextTick === "function" ) {
-    exec = process.nextTick;
+  if ( self.setImmediate ) {
+    exec = self.setImmediate;
+  }
+  else if ( self.process && typeof self.process.nextTick === "function" ) {
+    exec = self.process.nextTick;
   }
   else {
     exec = function(cb) {
@@ -27,9 +31,17 @@ define( function() {
   function async( ) {
     var args     = Array.prototype.slice.call(arguments),
         func     = args.shift(),
+        now      = true,
         context  = this,
         instance = {},
         _success, _failure;
+
+    // You can pass in the very first parameter if you want to schedule
+    // the task to run right away or whenever run is called
+    if ( typeof func === "boolean" ) {
+      now = func;
+      func = args.shift();
+    }
 
     instance.fail = function fail(cb) {
       _failure = cb;
@@ -38,6 +50,11 @@ define( function() {
 
     instance.success = function success(cb) {
       _success = cb;
+      return instance;
+    };
+
+    instance.run = function run() {
+      exec(runner);
       return instance;
     };
 
@@ -55,11 +72,8 @@ define( function() {
       }
     }
 
-    // Schedule for running...
-    exec(runner);
-
     // Return instance
-    return instance;
+    return now ? instance.run() : instance;
   }
 
   return async;
