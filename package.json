@@ -2,6 +2,7 @@
   "name": "spromise",
   "version": "0.0.1",
   "license": "MIT",
+  "main": "dist/spromise.js",
   "author": "Miguel Castillo <mahchagnu@gmail.com>",
   "title": "spromise",
   "description": "Small Promise",
