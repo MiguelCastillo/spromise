@@ -6,6 +6,17 @@
 
 define( function() {
 
+  var exec;
+  if ( process && typeof process.nextTick === "function" ) {
+    exec = process.nextTick;
+  }
+  else {
+    exec = function(cb) {
+      setTimeout(cb, 0);
+    };
+  }
+
+
   /**
   * Handle exceptions in a setTimeout.
   * @func <function> to be called when timeout finds cycles to execute it
@@ -17,39 +28,39 @@ define( function() {
     var args     = Array.prototype.slice.call(arguments),
         func     = args.shift(),
         context  = this,
-        error    = function(){};
+        instance = {},
+        _success, _failure;
 
+    instance.fail = function fail(cb) {
+      _failure = cb;
+      return instance;
+    };
+
+    instance.success = function success(cb) {
+      _success = cb;
+      return instance;
+    };
 
     function runner() {
-      return function() {
-        try {
-          func.apply(context, args[0]);
+      try {
+        var data = func.apply(context, args[0]);
+        if ( _success ) {
+          _success(data);
         }
-        catch( ex ) {
-          setTimeout(thrown(ex), 1);
+      }
+      catch( ex ) {
+        if ( _failure ) {
+          _failure(ex);
         }
-      };
-    }
-
-    function thrown(err) {
-      return function() {
-        error(err);
-      };
-    }
-
-    function fail(cb) {
-      error = cb;
+      }
     }
 
     // Schedule for running...
-    setTimeout(runner(), 1);
+    exec(runner);
 
-    return {
-      fail: fail
-    };
+    // Return instance
+    return instance;
   }
 
-
   return async;
-
 });
