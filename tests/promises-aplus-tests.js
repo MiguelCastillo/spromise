@@ -2,7 +2,7 @@ var promisesAplusTests = require("promises-aplus-tests"),
     spromise = require("../dist/spromise-debug");
 
 // Adapter so that promise tests can run
-function deferred() {
+function adapter() {
   var promise1 = spromise();
   return {
     promise: promise1,
@@ -11,7 +11,7 @@ function deferred() {
   };
 }
 
-promisesAplusTests({deferred:deferred}, function (err) {
+promisesAplusTests({deferred:adapter}, function (err) {
   console.log("=====> Errors:");
   console.log(err);
 });
