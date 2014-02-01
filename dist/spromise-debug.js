@@ -442,6 +442,17 @@ define("libs/js/almond", function(){});
 
 define( 'src/async',[],function() {
 
+  var exec;
+  if ( process && typeof process.nextTick === "function" ) {
+    exec = process.nextTick;
+  }
+  else {
+    exec = function(cb) {
+      setTimeout(cb, 0);
+    };
+  }
+
+
   /**
   * Handle exceptions in a setTimeout.
   * @func <function> to be called when timeout finds cycles to execute it
@@ -453,41 +464,41 @@ define( 'src/async',[],function() {
     var args     = Array.prototype.slice.call(arguments),
         func     = args.shift(),
         context  = this,
-        error    = function(){};
+        instance = {},
+        _success, _failure;
 
+    instance.fail = function fail(cb) {
+      _failure = cb;
+      return instance;
+    };
+
+    instance.success = function success(cb) {
+      _success = cb;
+      return instance;
+    };
 
     function runner() {
-      return function() {
-        try {
-          func.apply(context, args[0]);
+      try {
+        var data = func.apply(context, args[0]);
+        if ( _success ) {
+          _success(data);
         }
-        catch( ex ) {
-          setTimeout(thrown(ex), 1);
+      }
+      catch( ex ) {
+        if ( _failure ) {
+          _failure(ex);
         }
-      };
-    }
-
-    function thrown(err) {
-      return function() {
-        error(err);
-      };
-    }
-
-    function fail(cb) {
-      error = cb;
+      }
     }
 
     // Schedule for running...
-    setTimeout(runner(), 1);
+    exec(runner);
 
-    return {
-      fail: fail
-    };
+    // Return instance
+    return instance;
   }
 
-
   return async;
-
 });
 
 /**
@@ -506,14 +517,12 @@ define('src/promise',["src/async"], function(async) {
   };
 
   var actions = {
-    resolve: "resolve",
-    reject: "reject"
+    "resolve": "resolve",
+    "reject": "reject"
   };
 
   var queues = {
-    always: "always",
-    resolved: "resolved",
-    rejected: "rejected"
+    "always": 3
   };
 
   function isResolved( state ) {
@@ -537,10 +546,10 @@ define('src/promise',["src/async"], function(async) {
     var _state   = states.pending, // Initial state
         _context = this,
         _queues  = {
-          always: [],             // Always list of callbacks
-          resolved: [],           // Success list of callbacks
-          rejected: []            // Failue list of callbacks
-        }, _value;                // Resolved/Rejected value.
+          "1": [],          // Success list of callbacks
+          "2": [],          // Failue list of callbacks
+          "3": []           // Always list of callbacks
+        }, _value;          // Resolved/Rejected value.
 
 
     /**
@@ -556,7 +565,7 @@ define('src/promise',["src/async"], function(async) {
 
     function done( cb ) {
       if ( !isRejected(_state) ) {
-        _queue( queues.resolved, cb );
+        _queue( states.resolved, cb );
       }
 
       return promise1;
@@ -564,7 +573,7 @@ define('src/promise',["src/async"], function(async) {
 
     function fail( cb ) {
       if ( !isResolved(_state) ) {
-        _queue( queues.rejected, cb );
+        _queue( states.rejected, cb );
       }
 
       return promise1;
@@ -601,13 +610,13 @@ define('src/promise',["src/async"], function(async) {
     /**
     * Promise API
     */
-    promise1.always = always;
-    promise1.done = done;
-    promise1.fail = fail;
+    promise1.always  = always;
+    promise1.done    = done;
+    promise1.fail    = fail;
     promise1.resolve = resolve;
-    promise1.reject = reject;
-    promise1.then = then;
-    promise1.state = state;
+    promise1.reject  = reject;
+    promise1.then    = then;
+    promise1.state   = state;
     return promise1;
 
 
@@ -625,8 +634,8 @@ define('src/promise',["src/async"], function(async) {
         _queues[type].push(cb);
       }
       else {
-        async.apply(_context, [cb, _value]).fail(promise1.reject);
-        //cb.apply(_context, _value);
+        //async.apply(_context, [cb, _value]).fail(promise1.reject);
+        cb.apply(_context, _value);
       }
     }
 
@@ -638,7 +647,7 @@ define('src/promise',["src/async"], function(async) {
       }
 
       // Empty out the array
-      queue.splice(0, queue.length);
+      queue = [];
     }
 
     // Sets the state of the promise and call the callbacks as appropriate
@@ -646,7 +655,7 @@ define('src/promise',["src/async"], function(async) {
       _state = state;
       _value = value;
       async(function() {
-        _notify( _queues[_state === states.resolved ? queues.resolved : queues.rejected] );
+        _notify( _queues[state] );
         _notify( _queues[queues.always] );
       }).fail(promise1.reject);
     }
@@ -663,7 +672,7 @@ define('src/promise',["src/async"], function(async) {
 
           // Setting the data to arguments when data is undefined isn't compliant.  But I have
           // found that this behavior is much more desired when chaining promises.
-          data = (data !== undefined && [data]) || arguments;
+          data = (data !== (void 0) && [data]) || arguments;
           _resolver.call( this, promise2, data, action );
         }
         catch( ex ) {
@@ -682,6 +691,7 @@ define('src/promise',["src/async"], function(async) {
       }
       // Is data a thenable?
       else if ((input !== null && (inputType === "function" || inputType === "object")) && typeof then === "function") {
+        //async.call(input, then, _thenHandler( promise2, actions.resolve ), _thenHandler( promise2, actions.reject ));
         then.call(input, _thenHandler( promise2, actions.resolve ), _thenHandler( promise2, actions.reject ));
       }
       // Resolve/Reject promise
