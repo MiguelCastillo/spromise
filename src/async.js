@@ -53,23 +53,25 @@ define( function() {
       return instance;
     };
 
-    instance.run = function run() {
-      exec(runner);
+    instance.run = function run(fn) {
+      exec(runner(fn || func));
       return instance;
     };
 
-    function runner() {
-      try {
-        var data = func.apply(context, args[0]);
-        if ( _success ) {
-          _success(data);
+    function runner(fn) {
+      return function() {
+        try {
+          var data = fn.apply(context, args[0]);
+          if ( _success ) {
+            _success(data);
+          }
         }
-      }
-      catch( ex ) {
-        if ( _failure ) {
-          _failure(ex);
+        catch( ex ) {
+          if ( _failure ) {
+            _failure(ex);
+          }
         }
-      }
+      };
     }
 
     // Return instance
