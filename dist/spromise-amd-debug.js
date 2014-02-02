@@ -97,13 +97,15 @@ define('src/promise',["src/async"], function(async) {
     "rejected": 2
   };
 
+  var queues = {
+    "always": 0,
+    "resolved": 1,
+    "rejected": 2
+  };
+
   var actions = {
     "resolve": "resolve",
     "reject": "reject"
-  };
-
-  var queues = {
-    "always": 0
   };
 
 
@@ -153,10 +155,6 @@ define('src/promise',["src/async"], function(async) {
       return _stateManager._state;
     }
 
-
-    /**
-    * Promise API
-    */
     promise.always  = always;
     promise.done    = done;
     promise.fail    = fail;
@@ -173,7 +171,6 @@ define('src/promise',["src/async"], function(async) {
   */
   function StateManager(promise, options) {
     this.promise  = promise;
-    this.deferred = [];
     this.state    = options.state;
     this.value    = options.value;
     this.context  = options.context;
@@ -184,7 +181,7 @@ define('src/promise',["src/async"], function(async) {
   StateManager.prototype.queue = function ( state, cb ) {
     // Queue it up if we are still pending over here
     if ( !this.state ) {
-      this.deferred.push({type: state, cb: cb});
+      (this.deferred || (this.deferred = [])).push({type: state, cb: cb});
     }
     // If the promise is already resolved/rejected
     else if (this.state === state) {
@@ -217,7 +214,7 @@ define('src/promise',["src/async"], function(async) {
       this.state   = state;
       this.context = context;
       this.value   = value;
-      if ( this.deferred.length ) {
+      if ( this.deferred ) {
         this.notify( state );
       }
     }
@@ -230,7 +227,7 @@ define('src/promise',["src/async"], function(async) {
     onResolved = typeof (onResolved) === "function" ? onResolved : null;
     onRejected = typeof (onRejected) === "function" ? onRejected : null;
 
-    if ( (!onResolved && this.state === states.resolved) || !onRejected && this.state === states.rejected ) {
+    if ( (!onResolved && this.state === states.resolved) || (!onRejected && this.state === states.rejected) ) {
       promise2 = new Promise({}, this);
     }
     else {
@@ -260,6 +257,7 @@ define('src/promise',["src/async"], function(async) {
         if ( handler ) {
           data = handler.apply(this, arguments);
         }
+
         data = (data !== (void 0) && [data]) || arguments;
         _self.resolution( action, data );
       }
@@ -271,7 +269,7 @@ define('src/promise',["src/async"], function(async) {
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
   Resolution.prototype.resolution = function ( action, data ) {
-    var input = data[0], then = (input && input.then), inputType = typeof input;
+    var input = data[0], then = (input && input.then), inputType = typeof(input);
 
     // The resolver input must not be the promise tiself
     if ( input === this.promise ) {
@@ -279,12 +277,12 @@ define('src/promise',["src/async"], function(async) {
     }
 
     // Is data a thenable?
-    if ((inputType === "function" || (inputType === "object" && input !== null)) && typeof then === "function") {
+    if ((inputType === "function" || (inputType === "object" && input !== null)) && typeof(then) === "function") {
       then.call(input, this.chain(actions.resolve), this.chain(actions.reject));
     }
     // Resolve/Reject promise
     else {
-      this.promise[action].apply( this, data );
+      this.promise[action].apply(this, data);
     }
   };
 
