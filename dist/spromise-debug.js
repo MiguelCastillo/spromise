@@ -602,6 +602,14 @@ define('src/promise',["src/async"], function(async) {
 
 
   /**
+  * Interface to play nice with libraries like when and q.
+  */
+  Promise.defer = function(target, options) {
+    return new Promise(target, options);
+  };
+
+
+  /**
   * StateManager is the state manager for a promise
   */
   function StateManager(promise, options) {
