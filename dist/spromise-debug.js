@@ -702,6 +702,8 @@ define('src/promise',["src/async"], function(async) {
         return;
       }
 
+      _self.context = this;
+
       var data;
       try {
         // ====> Non compliant code.  I really make use of this operator to properly propagate
@@ -751,7 +753,7 @@ define('src/promise',["src/async"], function(async) {
     }
     // Resolve/Reject promise
     else {
-      this.promise[action].apply(this, data);
+      this.promise[action].apply(this.context, data);
     }
   };
 
