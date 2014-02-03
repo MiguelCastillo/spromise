@@ -246,12 +246,18 @@ define('src/promise',["src/async"], function(async) {
   */
   function Resolution(promise) {
     this.promise = promise;
+    this.count = 0;
   }
 
   // Promise.chain DRYs onresolved and onrejected operations
   Resolution.prototype.chain = function ( action, handler ) {
     var _self = this;
     return function chain( ) {
+      // Prevent calling chain multiple times
+      if ( _self.count++ ) {
+        return;
+      }
+
       var data;
       try {
         if ( handler ) {
@@ -259,6 +265,7 @@ define('src/promise',["src/async"], function(async) {
         }
 
         data = (data !== (void 0) && [data]) || arguments;
+//        data = (handler && [handler(arguments[0])]) || arguments;
         _self.resolution( action, data );
       }
       catch( ex ) {
@@ -278,7 +285,8 @@ define('src/promise',["src/async"], function(async) {
 
     // Is data a thenable?
     if ((inputType === "function" || (inputType === "object" && input !== null)) && typeof(then) === "function") {
-      then.call(input, this.chain(actions.resolve), this.chain(actions.reject));
+      var resolution = new Resolution(this.promise);
+      then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
     }
     // Resolve/Reject promise
     else {
