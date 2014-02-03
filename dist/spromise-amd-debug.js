@@ -155,6 +155,15 @@ define('src/promise',["src/async"], function(async) {
       return _stateManager._state;
     }
 
+    var readOnly = {
+      always: always,
+      done: done,
+      fail: fail,
+      then: then,
+      state: state
+    };
+
+
     promise.always  = always;
     promise.done    = done;
     promise.fail    = fail;
@@ -162,6 +171,7 @@ define('src/promise',["src/async"], function(async) {
     promise.reject  = reject;
     promise.then    = then;
     promise.state   = state;
+    promise.promise = readOnly;
     return promise;
   }
 
