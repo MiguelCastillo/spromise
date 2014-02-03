@@ -20,7 +20,7 @@ API
 Compliance
 ========
   With the exception of two items, which are intentionally left non-compliant, spromise is compliant with <a href="http://promises-aplus.github.io/promises-spec/">promise a+ spec</a>.  Below is a trace of the items that are not meant to be compliant when executed through the compliance tests.
-  <p>For details on the compliance, please find comment is code denoted with "// ====> Non compliant code" and "// ====> Compliant code"</p>
+  <p>For details on the compliance, please find comments in promise.js denoted with <code>// ====> Non compliant code</code> and <code>// ====> Compliant code</code></p>
 
 <pre>
   866 passing (14s)
