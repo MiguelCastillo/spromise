@@ -52,7 +52,6 @@ define(["src/promise"], function(promise) {
 
     it("Thenable returning thenable", function() {
       var promise1 = promise();
-      var promise6 = promise();
 
       var promise2 = promise1.then(function(x) {
         expect(x).toBe("Thenable returning thenable simple value");

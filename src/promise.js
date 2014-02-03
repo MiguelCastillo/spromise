@@ -111,14 +111,14 @@ define(["src/async"], function(async) {
         context  = this.context,
         value    = this.value,
         arunner  = async.apply(context, [false, (void 0), value]),
-        i, length, item;
+        i = 0, length = deferred.length, item;
 
-    for ( i = 0, length = deferred.length; i < length; i++ ) {
-      item = deferred[i];
+    do {
+      item = deferred[i++];
       if ( item.type === queueType || item.type === queues.always ) {
         arunner.run(item.cb);
       }
-    }
+    } while( i < length );
 
     // Clean up memory when we are done processing the queue
     this.deferred = null;
@@ -150,7 +150,7 @@ define(["src/async"], function(async) {
       promise2 = new Promise();
       resolution = new Resolution(promise2);
       this.queue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
-      this.queue(states.rejected, resolution.chain(actions.resolve, onRejected || onResolved));
+      this.queue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
     }
 
     return promise2;
@@ -165,7 +165,8 @@ define(["src/async"], function(async) {
     this.count = 0;
   }
 
-  // Promise.chain DRYs onresolved and onrejected operations
+  // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
+  // That's determing by the function passed in by the called of chain.
   Resolution.prototype.chain = function ( action, handler ) {
     var _self = this;
     return function chain( ) {
@@ -176,12 +177,22 @@ define(["src/async"], function(async) {
 
       var data;
       try {
+        // ====> Non compliant code.  I really make use of this operator to properly propagate
+        // context when chaining promises.  For example, when setting the context in $.ajax and
+        // and chaining that directly to a promise, I want to be able to faithfully retain the
+        // context that was setup in $.ajax.
         if ( handler ) {
           data = handler.apply(this, arguments);
         }
 
+        // ====> Non compliant code.  If calling handler does not return anything, I would like
+        // to continue to propagate the last resolved value.  Chains are more useful that way
+        // in real life applications I have worked with.
         data = (data !== (void 0) && [data]) || arguments;
-//        data = (handler && [handler(arguments[0])]) || arguments;
+
+        // ====> Compliant code.  Must not call handler with this. And if handler does not return
+        // anything, the chain will then resolve the promise with no value...
+        //data = (handler && [handler(arguments[0])]) || arguments;
         _self.resolution( action, data );
       }
       catch( ex ) {
@@ -202,7 +213,14 @@ define(["src/async"], function(async) {
     // Is data a thenable?
     if ((inputType === "function" || (inputType === "object" && input !== null)) && typeof(then) === "function") {
       var resolution = new Resolution(this.promise);
-      then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
+      try {
+        then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
+      }
+      catch(ex) {
+        if ( !resolution.count ) {
+          this.promise.reject(ex);
+        }
+      }
     }
     // Resolve/Reject promise
     else {
