@@ -24,6 +24,11 @@ define(["src/async"], function(async) {
     "reject": "reject"
   };
 
+  var thenableTypes = {
+    "object": true,
+    "function": true
+  };
+
 
   /**
   * Small Promise
@@ -42,6 +47,10 @@ define(["src/async"], function(async) {
       return _stateManager.link( onResolved, onRejected );
     }
 
+    // Setup a way to verify an spromise object
+    then.constructor = Promise.thenable;
+
+
     function done( cb ) {
       _stateManager.queue( states.resolved, cb );
       return promise;
@@ -57,6 +66,10 @@ define(["src/async"], function(async) {
       return promise;
     }
 
+    function state() {
+      return _stateManager._state;
+    }
+
     function resolve( ) {
       _stateManager.transition( states.resolved, this, arguments );
       return promise;
@@ -67,19 +80,6 @@ define(["src/async"], function(async) {
       return promise;
     }
 
-    function state() {
-      return _stateManager._state;
-    }
-
-    var readOnly = {
-      always: always,
-      done: done,
-      fail: fail,
-      then: then,
-      state: state
-    };
-
-
     promise.always  = always;
     promise.done    = done;
     promise.fail    = fail;
@@ -87,9 +87,25 @@ define(["src/async"], function(async) {
     promise.reject  = reject;
     promise.then    = then;
     promise.state   = state;
-    promise.promise = readOnly;
+    promise.promise = {
+      always: always,
+      done: done,
+      fail: fail,
+      then: then,
+      state: state
+    };
+
     return promise;
   }
+
+
+
+  /**
+  * Add quick way to tell if a promise is an spromise
+  */
+  Promise.thenable = function() {
+    throw new TypeError();
+  };
 
 
   /**
@@ -104,37 +120,44 @@ define(["src/async"], function(async) {
   * StateManager is the state manager for a promise
   */
   function StateManager(promise, options) {
-    this.promise  = promise;
-    this.state    = options.state;
-    this.value    = options.value;
-    this.context  = options.context;
+    this.promise = promise;
+
+    // If we already have an async object, that means that the state isn't just resolved,
+    // but we also have a valid async already initialized with the proper context and data
+    // we can just reuse.  This saves on a lot of cycles and memory.
+    if ( options.async ) {
+      this.state = options.state;
+      this.async = options.async;
+    }
+    // If a state is passed in, then we go ahead and initialize the state manager with it
+    else if ( options.state ) {
+      this.transition( options.state, options.context, options.value );
+    }
   }
 
   // Queue will figure out if the promise is resolved/rejected and do something
   // with the callback based on that.
   StateManager.prototype.queue = function ( state, cb ) {
     // Queue it up if we are still pending over here
-    if ( !this.state ) {
+    if (!this.state) {
       (this.deferred || (this.deferred = [])).push({type: state, cb: cb});
     }
     // If the promise is already resolved/rejected
     else if (this.state === state) {
-      async.call(this.context, cb, this.value);
+      this.async.run(cb);
     }
   };
 
   // Tell everyone we are resolved/rejected
-  StateManager.prototype.notify = function ( queueType ) {
-    var deferred = this.deferred,
-        context  = this.context,
-        value    = this.value,
-        arunner  = async.apply(context, [false, (void 0), value]),
+  StateManager.prototype.notify = function () {
+    var deferred  = this.deferred,
+        queueType = this.state,
         i = 0, length = deferred.length, item;
 
     do {
       item = deferred[i++];
       if ( item.type === queueType || item.type === queues.always ) {
-        arunner.run(item.cb);
+        this.async.run(item.cb);
       }
     } while( i < length );
 
@@ -145,11 +168,10 @@ define(["src/async"], function(async) {
   // Sets the state of the promise and call the callbacks as appropriate
   StateManager.prototype.transition = function ( state, context, value ) {
     if ( !this.state ) {
-      this.state   = state;
-      this.context = context;
-      this.value   = value;
+      this.state = state;
+      this.async = async.call(context, false, (void 0), value);
       if ( this.deferred ) {
-        this.notify( state );
+        this.notify();
       }
     }
   };
@@ -180,7 +202,7 @@ define(["src/async"], function(async) {
   */
   function Resolution(promise) {
     this.promise = promise;
-    this.count = 0;
+    this.resolved = 0;
   }
 
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
@@ -189,7 +211,7 @@ define(["src/async"], function(async) {
     var _self = this;
     return function chain( ) {
       // Prevent calling chain multiple times
-      if ( _self.count++ ) {
+      if ( _self.resolved++ ) {
         return;
       }
 
@@ -201,18 +223,18 @@ define(["src/async"], function(async) {
         // context when chaining promises.  For example, when setting the context in $.ajax and
         // and chaining that directly to a promise, I want to be able to faithfully retain the
         // context that was setup in $.ajax.
-        if ( handler ) {
-          data = handler.apply(this, arguments);
-        }
+        //if ( handler ) {
+        //  data = handler.apply(this, arguments);
+        //}
 
         // ====> Non compliant code.  If calling handler does not return anything, I would like
         // to continue to propagate the last resolved value.  Chains are more useful that way
         // in real life applications I have worked with.
-        data = (data !== (void 0) && [data]) || arguments;
+        //data = (data !== (void 0) && [data]) || arguments;
 
         // ====> Compliant code.  Must not call handler with this. And if handler does not return
         // anything, the chain will then resolve the promise with no value...
-        //data = (handler && [handler(arguments[0])]) || arguments;
+        data = (handler && [handler(arguments[0])]) || arguments;
         _self.resolution( action, data );
       }
       catch( ex ) {
@@ -223,26 +245,27 @@ define(["src/async"], function(async) {
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
   Resolution.prototype.resolution = function ( action, data ) {
-    var input = data[0], then = (input && input.then), inputType = typeof(input);
+    var input = data[0],
+        then = (input && input.then),
+        thenable = (then && typeof (then) === "function"),
+        resolution;
 
     // The resolver input must not be the promise tiself
     if ( input === this.promise ) {
       throw new TypeError();
     }
 
-    // Is data a thenable?
-    if ((inputType === "function" || (inputType === "object" && input !== null)) && typeof(then) === "function") {
-      var resolution = new Resolution(this.promise);
+    if ( thenable && thenableTypes[ typeof(input) ] ) {
       try {
+        resolution = new Resolution(this.promise);
         then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
       }
       catch(ex) {
-        if ( !resolution.count ) {
+        if ( !resolution.resolved ) {
           this.promise.reject(ex);
         }
       }
     }
-    // Resolve/Reject promise
     else {
       this.promise[action].apply(this.context, data);
     }
@@ -253,3 +276,4 @@ define(["src/async"], function(async) {
   Promise.states = states;
   return Promise;
 });
+
