@@ -465,8 +465,9 @@ define( 'src/async',[],function() {
   *  of the setTimeout scope
   */
   function async( ) {
-    var args     = Array.prototype.slice.call(arguments),
-        func     = args.shift(),
+    var args     = arguments,
+        func     = arguments[0],
+        index    = 1,
         now      = true,
         context  = this,
         instance = {},
@@ -476,8 +477,12 @@ define( 'src/async',[],function() {
     // the task to run right away or whenever run is called
     if ( typeof func === "boolean" ) {
       now = func;
-      func = args.shift();
+      func = arguments[1];
+      index = 2;
     }
+
+    // Readjust args
+    args = arguments[index];
 
     instance.fail = function fail(cb) {
       _failure = cb;
@@ -497,7 +502,7 @@ define( 'src/async',[],function() {
     function runner(fn) {
       return function() {
         try {
-          var data = fn.apply(context, args[0]);
+          var data = fn.apply(context, args);
           if ( _success ) {
             _success(data);
           }
@@ -715,25 +720,23 @@ define('src/promise',["src/async"], function(async) {
     var _self = this;
     return function chain( ) {
       // Prevent calling chain multiple times
-      if ( _self.resolved++ ) {
-        return;
-      }
-
-      try {
-        _self.context = this;
-        _self.resolve( action, handler ? [handler.apply(this, arguments)] : arguments );
-      }
-      catch( ex ) {
-        _self.promise.reject(ex);
+      if ( !(_self.resolved++) ) {
+        try {
+          _self.context = this;
+          _self.resolve( action, !handler ? arguments : [handler.apply(this, arguments)] );
+        }
+        catch( ex ) {
+          _self.promise.reject(ex);
+        }
       }
     };
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.resolve = function ( action, data ) {
+  Resolution.prototype.resolve = function ( action, data, handler ) {
     var input = data[0],
         then = (input && input.then),
-        thenable = then && typeof(then) === "function",
+        thenable = (then && typeof(then) === "function"),
         resolution, thenableType;
 
     // The resolver input must not be the promise tiself
@@ -744,23 +747,23 @@ define('src/promise',["src/async"], function(async) {
     if (thenable && then.constructor === Promise) {
       resolution = new Resolution(this.promise);
       input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
-      return;
-    }
-
-    thenableType = thenable && typeof(input);
-    if (thenableType === "function" || thenableType === "object") {
-      try {
-        resolution = new Resolution(this.promise);
-        then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
-      }
-      catch(ex) {
-        if ( !resolution.resolved ) {
-          this.promise.reject(ex);
-        }
-      }
     }
     else {
-      this.promise[action].apply(this.context, data);
+      thenableType = (thenable && typeof(input));
+      if (thenableType === "function" || thenableType === "object") {
+        try {
+          resolution = new Resolution(this.promise);
+          then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
+        }
+        catch(ex) {
+          if ( !resolution.resolved ) {
+            this.promise.reject(ex);
+          }
+        }
+      }
+      else {
+        this.promise[action].apply(this.context, data);
+      }
     }
   };
 

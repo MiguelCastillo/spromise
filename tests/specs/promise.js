@@ -67,12 +67,12 @@ define(["src/promise"], function(promise) {
         expect(x).toBe("second chain");
       })
       .done(function (x) {
-        expect(x).toBe("second chain");
+        expect(x).toBeUndefined();
         // returning a promise only affects then and not done
         return promise().resolve("third chain");
       })
       .done(function (x) {
-        expect(x).toBe("second chain");
+        expect(x).toBeUndefined();
       });
 
       promise1.resolve("Thenable returning thenable simple value");

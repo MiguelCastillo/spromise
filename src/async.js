@@ -29,8 +29,9 @@ define( function() {
   *  of the setTimeout scope
   */
   function async( ) {
-    var args     = Array.prototype.slice.call(arguments),
-        func     = args.shift(),
+    var args     = arguments,
+        func     = arguments[0],
+        index    = 1,
         now      = true,
         context  = this,
         instance = {},
@@ -40,8 +41,12 @@ define( function() {
     // the task to run right away or whenever run is called
     if ( typeof func === "boolean" ) {
       now = func;
-      func = args.shift();
+      func = arguments[1];
+      index = 2;
     }
+
+    // Readjust args
+    args = arguments[index];
 
     instance.fail = function fail(cb) {
       _failure = cb;
@@ -61,7 +66,7 @@ define( function() {
     function runner(fn) {
       return function() {
         try {
-          var data = fn.apply(context, args[0]);
+          var data = fn.apply(context, args);
           if ( _success ) {
             _success(data);
           }

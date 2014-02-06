@@ -165,7 +165,6 @@ define(["src/async"], function(async) {
   // Links together the resolution of promise1 to promise2
   StateManager.prototype.link = function(onResolved, onRejected) {
     var resolution, promise2;
-
     onResolved = typeof (onResolved) === "function" ? onResolved : null;
     onRejected = typeof (onRejected) === "function" ? onRejected : null;
 
@@ -196,16 +195,14 @@ define(["src/async"], function(async) {
     var _self = this;
     return function chain( ) {
       // Prevent calling chain multiple times
-      if ( _self.resolved++ ) {
-        return;
-      }
-
-      try {
-        _self.context = this;
-        _self.resolve( action, handler ? [handler.apply(this, arguments)] : arguments );
-      }
-      catch( ex ) {
-        _self.promise.reject(ex);
+      if ( !(_self.resolved++) ) {
+        try {
+          _self.context = this;
+          _self.resolve( action, !handler ? arguments : [handler.apply(this, arguments)] );
+        }
+        catch( ex ) {
+          _self.promise.reject(ex);
+        }
       }
     };
   };
@@ -214,7 +211,7 @@ define(["src/async"], function(async) {
   Resolution.prototype.resolve = function ( action, data ) {
     var input = data[0],
         then = (input && input.then),
-        thenable = then && typeof(then) === "function",
+        thenable = (then && typeof(then) === "function"),
         resolution, thenableType;
 
     // The resolver input must not be the promise tiself
@@ -225,23 +222,23 @@ define(["src/async"], function(async) {
     if (thenable && then.constructor === Promise) {
       resolution = new Resolution(this.promise);
       input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
-      return;
-    }
-
-    thenableType = thenable && typeof(input);
-    if (thenableType === "function" || thenableType === "object") {
-      try {
-        resolution = new Resolution(this.promise);
-        then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
-      }
-      catch(ex) {
-        if ( !resolution.resolved ) {
-          this.promise.reject(ex);
-        }
-      }
     }
     else {
-      this.promise[action].apply(this.context, data);
+      thenableType = (thenable && typeof(input));
+      if (thenableType === "function" || thenableType === "object") {
+        try {
+          resolution = new Resolution(this.promise);
+          then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
+        }
+        catch(ex) {
+          if ( !resolution.resolved ) {
+            this.promise.reject(ex);
+          }
+        }
+      }
+      else {
+        this.promise[action].apply(this.context, data);
+      }
     }
   };
 
