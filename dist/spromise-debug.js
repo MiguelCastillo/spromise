@@ -689,7 +689,6 @@ define('src/promise',["src/async"], function(async) {
   // Links together the resolution of promise1 to promise2
   StateManager.prototype.link = function(onResolved, onRejected) {
     var resolution, promise2;
-
     onResolved = typeof (onResolved) === "function" ? onResolved : null;
     onRejected = typeof (onRejected) === "function" ? onRejected : null;
 
@@ -733,7 +732,7 @@ define('src/promise',["src/async"], function(async) {
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.resolve = function ( action, data, handler ) {
+  Resolution.prototype.resolve = function ( action, data ) {
     var input = data[0],
         then = (input && input.then),
         thenable = (then && typeof(then) === "function"),
