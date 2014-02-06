@@ -108,11 +108,6 @@ define('src/promise',["src/async"], function(async) {
     "reject": "reject"
   };
 
-  var thenableTypes = {
-    "object": true,
-    "function": true
-  };
-
 
   /**
   * Small Promise
@@ -132,7 +127,7 @@ define('src/promise',["src/async"], function(async) {
     }
 
     // Setup a way to verify an spromise object
-    then.constructor = Promise.thenable;
+    then.constructor = Promise;
 
 
     function done( cb ) {
@@ -181,15 +176,6 @@ define('src/promise',["src/async"], function(async) {
 
     return promise;
   }
-
-
-
-  /**
-  * Add quick way to tell if a promise is an spromise
-  */
-  Promise.thenable = function() {
-    throw new TypeError();
-  };
 
 
   /**
@@ -290,7 +276,6 @@ define('src/promise',["src/async"], function(async) {
   }
 
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
-  // That's determing by the function passed in by the called of chain.
   Resolution.prototype.chain = function ( action, handler ) {
     var _self = this;
     return function chain( ) {
@@ -299,27 +284,9 @@ define('src/promise',["src/async"], function(async) {
         return;
       }
 
-      _self.context = this;
-
-      var data;
       try {
-        // ====> Non compliant code.  I really make use of this operator to properly propagate
-        // context when chaining promises.  For example, when setting the context in $.ajax and
-        // and chaining that directly to a promise, I want to be able to faithfully retain the
-        // context that was setup in $.ajax.
-        //if ( handler ) {
-        //  data = handler.apply(this, arguments);
-        //}
-
-        // ====> Non compliant code.  If calling handler does not return anything, I would like
-        // to continue to propagate the last resolved value.  Chains are more useful that way
-        // in real life applications I have worked with.
-        //data = (data !== (void 0) && [data]) || arguments;
-
-        // ====> Compliant code.  Must not call handler with this. And if handler does not return
-        // anything, the chain will then resolve the promise with no value...
-        data = (handler && [handler(arguments[0])]) || arguments;
-        _self.resolution( action, data );
+        _self.context = this;
+        _self.resolve( action, handler ? [handler.apply(this, arguments)] : arguments );
       }
       catch( ex ) {
         _self.promise.reject(ex);
@@ -328,18 +295,25 @@ define('src/promise',["src/async"], function(async) {
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.resolution = function ( action, data ) {
+  Resolution.prototype.resolve = function ( action, data ) {
     var input = data[0],
         then = (input && input.then),
-        thenable = (then && typeof (then) === "function"),
-        resolution;
+        thenable = then && typeof(then) === "function",
+        resolution, thenableType;
 
     // The resolver input must not be the promise tiself
     if ( input === this.promise ) {
       throw new TypeError();
     }
 
-    if ( thenable && thenableTypes[ typeof(input) ] ) {
+    if (thenable && then.constructor === Promise) {
+      resolution = new Resolution(this.promise);
+      input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
+      return;
+    }
+
+    thenableType = thenable && typeof(input);
+    if (thenableType === "function" || thenableType === "object") {
       try {
         resolution = new Resolution(this.promise);
         then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
