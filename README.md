@@ -1,7 +1,7 @@
 spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?branch=master)](https://travis-ci.org/MiguelCastillo/spromise)
 =========
 
-Small Promise, is a lightweight promise library with some opinions on promise a+ spec.
+Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.
 
 
 API
@@ -19,39 +19,30 @@ API
 
 Compliance
 ========
-  With the exception of two items, which are intentionally left non-compliant, spromise is compliant with <a href="http://promises-aplus.github.io/promises-spec/">promise a+ spec</a>.  Below is a trace of the items that are not meant to be compliant when executed through the compliance tests.
-  <p>For details on the compliance, please find comments in promise.js denoted with <code>// ====> Non compliant code</code> and <code>// ====> Compliant code</code></p>
+
+With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
+The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
 
 <pre>
-  866 passing (14s)
-  6 failing
+  868 passing (14s)
+  4 failing
 
-  1) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` already-fulfilled:
+  1) 2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value). strict mode fulfilled:
      Error: timeout of 200ms exceeded
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 
-  2) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` immediately-fulfilled:
+  2) 2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value). strict mode rejected:
      Error: timeout of 200ms exceeded
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 
-  3) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` eventually-fulfilled:
+  3) 2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value). sloppy mode fulfilled:
      Error: timeout of 200ms exceeded
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 
-  4) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` already-rejected:
-     Error: timeout of 200ms exceeded
-      at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
-      at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
-
-  5) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` immediately-rejected:
-     Error: timeout of 200ms exceeded
-      at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
-      at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
-
-  6) 2.3.4: If `x` is not an object or function, fulfill `promise` with `x` The value is `undefined` eventually-rejected:
+  4) 2.2.5 `onFulfilled` and `onRejected` must be called as functions (i.e. with no `this` value). sloppy mode rejected:
      Error: timeout of 200ms exceeded
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
