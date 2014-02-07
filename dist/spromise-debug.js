@@ -557,6 +557,7 @@ define('src/promise',["src/async"], function(async) {
     promise = promise || {};
     var _stateManager = new StateManager(promise, options || {});
 
+
     /**
     * callback registration (then, done, fail, always) must be synchrounous so that
     * the callbacks can be registered in the order they come in.
@@ -623,6 +624,20 @@ define('src/promise',["src/async"], function(async) {
   */
   Promise.defer = function(target, options) {
     return new Promise(target, options);
+  };
+
+  /**
+  * Create a promise that's already rejected
+  */
+  Promise.reject = function() {
+    return new Promise({}, {context: this, value: arguments, state: states.rejected});
+  };
+
+  /**
+  * Create a promise that's already resolved
+  */
+  Promise.resolve = function() {
+    return new Promise({}, {context: this, value: arguments, state: states.resolved});
   };
 
 

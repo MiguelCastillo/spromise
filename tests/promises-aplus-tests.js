@@ -5,7 +5,7 @@ var promisesAplusTests = require("promises-aplus-tests"),
 function adapter() {
   var promise1 = spromise();
   return {
-    promise: promise1,
+    promise: promise1.promise,
     resolve: promise1.resolve,
     reject: promise1.reject
   };
