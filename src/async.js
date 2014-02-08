@@ -34,8 +34,7 @@ define( function() {
         index    = 1,
         now      = true,
         context  = this,
-        instance = {},
-        _success, _failure;
+        instance = {};
 
     // You can pass in the very first parameter if you want to schedule
     // the task to run right away or whenever run is called
@@ -48,34 +47,13 @@ define( function() {
     // Readjust args
     args = arguments[index];
 
-    instance.fail = function fail(cb) {
-      _failure = cb;
-      return instance;
-    };
-
-    instance.success = function success(cb) {
-      _success = cb;
-      return instance;
-    };
-
     instance.run = function run(fn) {
       exec(runner(fn || func));
-      return instance;
     };
 
     function runner(fn) {
       return function() {
-        try {
-          var data = fn.apply(context, args);
-          if ( _success ) {
-            _success(data);
-          }
-        }
-        catch( ex ) {
-          if ( _failure ) {
-            _failure(ex);
-          }
-        }
+        fn.apply(context, args);
       };
     }
 
