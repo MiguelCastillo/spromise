@@ -31,11 +31,18 @@ promise.done(function(data) {
 
 promise.resolve("Yes, it works");
 ```
-
 <p>jQuery ajax ($.ajax)</p>
 ``` javascript
 promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+  // Will print what the ajax call returns
   console.log(data);
+});
+```
+<p>Synchronizing multiple $.ajax request</p>
+``` javascript
+promise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function( $array, $object ) {
+  // Will print the XHR objects $array and $object
+  console.log($array, $object);
 });
 ```
 
