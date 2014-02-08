@@ -212,6 +212,24 @@ define(["src/promise"], function(promise) {
       return promise3;
     });
 
+
+    it("Simple $.ajax", function() {
+      // Chain the ajax request and the promise
+      return promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+        // Make sure first param is the data
+        expect(data.length).toBe(2);
+        expect(data[0].name).toBe("Pablo");
+        expect(data[1].name).toBe("Vincent");
+
+        // Second param is the state code
+        expect(code).toBe("success");
+
+        // Third is the xhr
+        expect(xhr.status).toBe(200);
+        expect(xhr.then).toBeDefined();
+        expect(xhr.readyState).toBe(4);
+      });
+    });
   });
 
 });

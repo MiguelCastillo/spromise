@@ -8,6 +8,9 @@
   "description": "Small Promise",
   "keywords": [
     "promise",
+    "a+ promise",
+    "jquery promise",
+    "$ promise",
     "defer",
     "deferred",
     "thenable",

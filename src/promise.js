@@ -76,9 +76,15 @@ define(["src/async"], function (async) {
       return target;
     }
 
+    function thenable(promise) {
+      promise.then(target.resolve, target.reject);
+      return target;
+    }
+
     target.always = always;
     target.done = done;
     target.fail = fail;
+    target.thenable = thenable;
     target.resolve = resolve;
     target.reject = reject;
     target.then = then;
@@ -100,6 +106,16 @@ define(["src/async"], function (async) {
    */
   Promise.defer = function (target, options) {
     return new Promise(target, options);
+  };
+
+  /**
+  * Interface to create a promise and link it to a thenable object.  The assumption is that
+  * the object passed in is a thenable.  If it isn't, there is no check so an exption might
+  * be going your way.
+  */
+  Promise.thenable = function (thenable) {
+    var promise = new Promise();
+    return promise.thenable(thenable);
   };
 
   /**
