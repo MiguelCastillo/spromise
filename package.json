@@ -6,6 +6,7 @@
   "author": "Miguel Castillo <mahchagnu@gmail.com>",
   "title": "spromise",
   "description": "Small Promise",
+  "keywords": ["promise", "defer", "deferred", "thenable", "then"],
   "homepage": "https://github.com/MiguelCastillo/spromise",
   "repository": {
     "type": "git",
@@ -23,6 +24,5 @@
   },
   "scripts": {
     "test": "grunt travis --verbose"
-  },
-  "private": true
+  }
 }
