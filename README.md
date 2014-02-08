@@ -15,6 +15,10 @@ API
 6. <code>reject</code> - interface to reject the promise. As <code>resolve</code>, this will cause all currently registered <code>onRejected</code> callbacks and any future ones to be called.  Any reason(s) passed into the <code>reject</code> interface will then be passed into each callback as paramters.
 7. <code>state</code> - interface to get the current state of the promise.  It can either be pending, resolved, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
 8. <code>when</code> - creates and returns a promise. <code>when</code> also takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately available as resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
+9. <code>spromise.defer</code> Creates a new promise object.  If an object is passed in as the first parameter, the object will be extended to contain all the promise interfaces.
+10. <code>spromise.thenable</code> Takes in a thenable object used for resolving a newly created promise that's returned.  A thenable object is just any object/function with a then interface that is a assumed to be a promise object.
+11. <code>spromise.resolved</code> Returns a new promise that is already resolved with the value passed in.
+12. <code>spromise.rejected</code> Returns a new promise that is already rejected with the reason passed in.
 
 Examples
 ========
