@@ -6,15 +6,21 @@
   "author": "Miguel Castillo <mahchagnu@gmail.com>",
   "title": "spromise",
   "description": "Small Promise",
-  "keywords": ["promise", "defer", "deferred", "thenable", "then"],
+  "keywords": [
+    "promise",
+    "defer",
+    "deferred",
+    "thenable",
+    "then"
+  ],
   "homepage": "https://github.com/MiguelCastillo/spromise",
   "repository": {
     "type": "git",
     "url": "http://github.com/MiguelCastillo/spromise.git"
   },
   "bugs": {
-    "email": "manchagnu@gmail.com",
-    "url": "https://github.com/MiguelCastillo/spromise/issues"
+    "url": "https://github.com/MiguelCastillo/spromise/issues",
+    "email": "manchagnu@gmail.com"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -24,5 +30,8 @@
   },
   "scripts": {
     "test": "grunt travis --verbose"
+  },
+  "directories": {
+    "test": "tests"
   }
 }
