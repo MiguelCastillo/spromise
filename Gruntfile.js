@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         options: {
           "paths": {
           },
-          name: "libs/js/almond",
+          name: "lib/js/almond",
           include: ["src/spromise"],
           out: "dist/spromise-debug.js",
           optimize: "none",
@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         options: {
           "paths": {
           },
-          name: "libs/js/almond",
+          name: "lib/js/almond",
           include: ["src/spromise"],
           out: "dist/spromise.js",
           optimize: "uglify",

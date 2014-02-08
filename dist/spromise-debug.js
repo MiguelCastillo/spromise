@@ -432,7 +432,7 @@ var requirejs, require, define;
     };
 }());
 
-define("libs/js/almond", function(){});
+define("lib/js/almond", function(){});
 
 /**
  * spromise Copyright (c) 2014 Miguel Castillo.
