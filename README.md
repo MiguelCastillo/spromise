@@ -20,7 +20,7 @@ Examples
 ========
 For a set of use cases, please see <a href="https://github.com/MiguelCastillo/spromise/tree/master/tests/specs">tests</a>
 
-<p>Simplest node sample:</p>
+<p>Simplest node sample</p>
 ``` javascript
 var spromise = require("spromise");
 var promise = spromise();
@@ -30,6 +30,13 @@ promise.done(function(data) {
 });
 
 promise.resolve("Yes, it works");
+```
+
+<p>jQuery ajax ($.ajax)</p>
+``` javascript
+promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+  console.log(data);
+});
 ```
 
 Compliance
