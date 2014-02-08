@@ -755,13 +755,8 @@ define('src/promise',["src/async"], function (async) {
 
     if (thenable && then.constructor === Promise) {
       // Shortcut if the incoming spromise is already resolved
-      if ( then.stateManager.state ) {
-        this.resolve( action, then.stateManager.value );
-      }
-      else {
-        resolution = new Resolution(this.promise);
-        input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
-      }
+      resolution = new Resolution(this.promise);
+      input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
     }
     else {
       thenableType = (thenable && typeof (input));

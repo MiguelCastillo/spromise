@@ -166,7 +166,6 @@ define(["src/promise"], function(promise) {
           promise3 = promise();
 
       var promise2 = promise1.then(function(x) {
-        console.log(x);
         return promise().resolve("resolve promise2");
       })
       .then(function(x) {
@@ -193,7 +192,6 @@ define(["src/promise"], function(promise) {
           promise3 = promise();
 
       var promise2 = promise1.then(function(x) {
-        console.log(x);
         return promise().reject("resolve promise2");
       })
       .then(function(){}, function(x) {
