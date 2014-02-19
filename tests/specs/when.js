@@ -2,7 +2,7 @@ define(["src/promise", "src/when"], function(promise, when) {
 
   describe("When", function() {
 
-    it("When with multiple arguments", function() {
+    it("with multiple arguments", function() {
 
       var promise1 = new promise();
 
@@ -40,7 +40,7 @@ define(["src/promise", "src/when"], function(promise, when) {
     });
 
 
-    it("When $.ajax", function() {
+    it("$.ajax", function() {
 
       var promise1 = $.ajax("json/array.json");
 
@@ -61,7 +61,7 @@ define(["src/promise", "src/when"], function(promise, when) {
     });
 
 
-    it("When $.ajax, undefined", function() {
+    it("$.ajax, undefined", function() {
 
       var promise1 = $.ajax("json/array.json");
 
@@ -80,6 +80,13 @@ define(["src/promise", "src/when"], function(promise, when) {
         expect(response[2].status).toBe(200);
         expect(response[2].then).toBeDefined();
         expect(response[2].readyState).toBe(4);
+      });
+    });
+
+
+    it("string", function() {
+      return when("string").done(function(response) {
+        expect(response).toBe("string");
       });
     });
 

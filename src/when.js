@@ -53,22 +53,17 @@ define([
     }
 
     function processQueue() {
-      try {
-        queueLength = remaining = queue.length;
-        for ( i = 0; i < queueLength; i++ ) {
-          item = queue[i];
+      queueLength = remaining = queue.length;
+      for ( i = 0; i < queueLength; i++ ) {
+        item = queue[i];
 
-          if ( item && typeof item.then === "function" ) {
-            item.then(resolve(i), reject);
-          }
-          else {
-            queue[i] = item;
-            checkPending();
-          }
+        if ( item && typeof item.then === "function" ) {
+          item.then(resolve(i), reject);
         }
-      }
-      catch( ex ) {
-        reject(ex);
+        else {
+          queue[i] = queueLength === 1 ? [item] : item;
+          checkPending();
+        }
       }
     }
 
