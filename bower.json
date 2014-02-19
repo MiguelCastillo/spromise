@@ -1,0 +1,24 @@
+{
+  "name": "spromise",
+  "version": "0.0.3",
+  "homepage": "https://github.com/MiguelCastillo/spromise",
+  "authors": [
+    "Miguel Castillo <manchagnu@gmail.com>"
+  ],
+  "description": "Small Promise",
+  "main": "dist/spromise.js",
+  "keywords": [
+    "promise"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "buildinfo",
+    "src",
+    "Gruntfile.js"
+  ]
+}
