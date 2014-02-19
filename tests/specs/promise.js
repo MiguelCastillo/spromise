@@ -230,6 +230,38 @@ define(["src/promise"], function(promise) {
         expect(xhr.readyState).toBe(4);
       });
     });
+
+
+    it("factory resolve", function() {
+      return promise.factory(function(resolve, reject) {
+        resolve("Resolved");
+      })
+      .done(function(value) {
+        expect(value).toBe("Resolved");
+      });
+    });
+
+
+    it("factory reject", function() {
+      var failed = false;
+      return promise.factory(function(resolve, reject) {
+        reject("Rejected");
+      })
+      .fail(function(value) {
+        expect(value).toBe("Rejected");
+        failed = true;
+      })
+      .then(function(value) {
+      },
+      function(value) {
+        expect(value).toBe("Rejected");
+
+        if ( failed ) {
+          return promise.resolved();
+        }
+      });
+    });
+
   });
 
 });

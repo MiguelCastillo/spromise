@@ -604,6 +604,21 @@ define('src/promise',["src/async"], function (async) {
 
 
   /**
+  * Interface to create a promise from a resolve function that is called with
+  * a resolve and reject as the only parameters to it
+  */
+  Promise.factory = function(resolver) {
+    if ( typeof resolver !== "function" ) {
+      throw new TypeError("Resolver must be a function");
+    }
+
+    var promise = new Promise();
+    resolver(promise.resolve, promise.reject);
+    return promise.promise;
+  };
+
+
+  /**
    * Interface to play nice with libraries like when and q.
    */
   Promise.defer = function (target, options) {
