@@ -35,16 +35,36 @@ promise.done(function(data) {
 
 promise.resolve("Yes, it works");
 ```
+<p>Factory</p>
+``` javascript
+// Resolve
+spromise.factory(function(resolve, reject){
+  resolve("Yes, we are resolving this");
+})
+.done(function(value) {
+  // Will print "Yes, we are resolving this"
+  console.log(value);
+});
+
+// Reject
+spromise.factory(function(resolve, reject){
+  reject("booo");
+})
+.fail(function(value) {
+  // Will print "booo"
+  console.log(value);
+});
+```
 <p>jQuery ajax ($.ajax)</p>
 ``` javascript
-promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+spromise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
   // Will print what the ajax call returns
   console.log(data);
 });
 ```
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
-promise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function( $array, $object ) {
+spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function( $array, $object ) {
   // Will print the XHR objects $array and $object
   console.log($array, $object);
 });
