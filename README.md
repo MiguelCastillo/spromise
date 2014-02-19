@@ -1,7 +1,7 @@
 spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?branch=master)](https://travis-ci.org/MiguelCastillo/spromise)
 =========
 
-Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.
+Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.  Designed to play well with other ecosystems such as jQuery.
 
 
 API
