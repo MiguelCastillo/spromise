@@ -511,14 +511,14 @@ define('src/promise',["src/async"], function (async) {
 
   var states = {
     "pending": 0,
-    "resolved": 1,
-    "rejected": 2
+    "resolved": 2,
+    "rejected": 3
   };
 
   var queues = {
-    "always": 0,
-    "resolved": 1,
-    "rejected": 2
+    "always": 1,
+    "resolved": 2,
+    "rejected": 3
   };
 
   var actions = {
@@ -688,7 +688,7 @@ define('src/promise',["src/async"], function (async) {
       });
     }
     // If the promise is already resolved/rejected
-    else if (this.state === state) {
+    else if (this.state === state || state === 1) {
       this.async.run(cb);
     }
   };
