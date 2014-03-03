@@ -34,7 +34,7 @@ define([
       }
 
       if ( !remaining ) {
-        promise1.resolve.apply(context, queueLength === 1 ? queue[0] : queue);
+        promise1.resolve.apply(context, queue);
       }
     }
 
@@ -43,7 +43,7 @@ define([
       return function() {
         // We will replace the item in the queue with result to make
         // it easy to send all the data into the resolve interface.
-        queue[index] = arguments;
+        queue[index] = arguments.length === 1 ? arguments[0] : arguments;
         checkPending();
       };
     }
@@ -61,7 +61,7 @@ define([
           item.then(resolve(i), reject);
         }
         else {
-          queue[i] = queueLength === 1 ? [item] : item;
+          queue[i] = item;
           checkPending();
         }
       }

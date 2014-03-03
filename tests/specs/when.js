@@ -6,7 +6,11 @@ define(["src/promise", "src/when"], function(promise, when) {
 
       var promise1 = new promise();
 
-      when(promise1).done(function(_actor, _categories, _books) {
+      when(promise1).done(function(result) {
+        var _actor = result[0];
+        var _categories = result[1];
+        var _books = result[2];
+
         expect(_actor).toBeDefined();
         expect(_actor.firstName).toBe("Dracula");
         expect(_actor.nickName).toBe("Vampire");
@@ -44,7 +48,11 @@ define(["src/promise", "src/when"], function(promise, when) {
 
       var promise1 = $.ajax("json/array.json");
 
-      return when(promise1).done(function(data, code, xhr) {
+      return when(promise1).done(function(response) {
+        var data = response[0],
+            code = response[1],
+            xhr  = response[2];
+
         // Make sure first param is the data
         expect(data.length).toBe(2);
         expect(data[0].name).toBe("Pablo");
@@ -90,6 +98,39 @@ define(["src/promise", "src/when"], function(promise, when) {
       });
     });
 
+    it("undefined", function() {
+      return when((void 0)).done(function(response) {
+        expect(response).toBeUndefined();
+      });
+    });
+
+    it("Number", function() {
+      return when(3.14).done(function(response) {
+        expect(response).toBe(3.14);
+      });
+    });
+
+
+    it("promise string", function() {
+      var promise1 = promise.resolved("string");
+      return when(promise1).done(function(response) {
+        expect(response).toBe("string");
+      });
+    });
+
+    it("promise undefined", function() {
+      var promise1 = promise.resolved((void 0));
+      return when(promise1).done(function(response) {
+        expect(response).toBeUndefined();
+      });
+    });
+
+    it("promise Number", function() {
+      var promise1 = promise.resolved(3.14);
+      return when(promise1).done(function(response) {
+        expect(response).toBe(3.14);
+      });
+    });
 
   });
 
