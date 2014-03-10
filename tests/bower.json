@@ -1,0 +1,19 @@
+{
+  "name": "spromise.unittests",
+  "version": "0.0.1",
+  "homepage": "https://github.com/MiguelCastillo/spromise",
+  "authors": [
+    "Miguel Castillo <manchagnu@gmail.com>"
+  ],
+  "description": "spromise UnitTests",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/MiguelCastillo/spromise.git"
+  },
+  "main": "main.js",
+  "dependencies": {
+    "requirejs": "",
+    "jquery": "1.11.0",
+    "rjasmine": ""
+  }
+}
