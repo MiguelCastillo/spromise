@@ -4,7 +4,7 @@
  */
 
 
-define(["src/async"], function (async) {
+define(["src/async"], function (Async) {
   "use strict";
 
   var states = {
@@ -216,7 +216,7 @@ define(["src/async"], function (async) {
       this.state   = state;
       this.context = context;
       this.value   = value;
-      this.async   = async.call(context, false, (void 0), value);
+      this.async   = Async.call(context, false, (void 0), value);
       if (this.deferred) {
         this.notify();
       }

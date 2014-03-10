@@ -17,8 +17,8 @@ define(["libs/js/rjasmine", "libs/js/jquery-1.11.0.min"], function(rjasmine) {
 
   var _rjasmine = new rjasmine({
     reporters: {
-      html_reporter: true,
-      console_reporter: true
+      html: true,
+      console: true
     }
   });
 

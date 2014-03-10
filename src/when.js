@@ -7,21 +7,21 @@
 define([
   "src/promise",
   "src/async"
-], function(promise, async) {
+], function(Promise, Async) {
   "use strict";
 
   /**
   * Interface to allow multiple promises to be synchronized
   */
-  function when( ) {
+  function When( ) {
     // The input is the queue of items that need to be resolved.
     var queue    = Array.prototype.slice.call(arguments),
-        promise1 = promise(),
+        promise  = Promise.defer(),
         context  = this,
         i, item, remaining, queueLength;
 
     if ( !queue.length ) {
-      return promise1.resolve(null);
+      return promise.resolve(null);
     }
 
     //
@@ -34,7 +34,7 @@ define([
       }
 
       if ( !remaining ) {
-        promise1.resolve.apply(context, queue);
+        promise.resolve.apply(context, queue);
       }
     }
 
@@ -49,7 +49,7 @@ define([
     }
 
     function reject() {
-      promise1.reject.apply(this, arguments);
+      promise.reject.apply(this, arguments);
     }
 
     function processQueue() {
@@ -68,10 +68,10 @@ define([
     }
 
     // Process the promises and callbacks
-    async(processQueue);
-    return promise1;
+    Async(processQueue);
+    return promise;
   }
 
-  return when;
+  return When;
 });
 

@@ -28,7 +28,7 @@ define( function() {
   *  no function is provided then the exception will be rethrown outside
   *  of the setTimeout scope
   */
-  function async( ) {
+  function Async( ) {
     var args     = arguments,
         func     = arguments[0],
         index    = 1,
@@ -45,7 +45,7 @@ define( function() {
     }
 
     // Readjust args
-    args = arguments[index];
+    args = arguments[index] || [];
 
     instance.run = function run(fn) {
       exec(runner(fn || func));
@@ -61,5 +61,5 @@ define( function() {
     return now ? instance.run() : instance;
   }
 
-  return async;
+  return Async;
 });
