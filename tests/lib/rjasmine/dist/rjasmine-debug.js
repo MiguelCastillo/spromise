@@ -3389,16 +3389,15 @@ define('src/timer',[
 
 
 define('src/boot',[
-  "jasmine",
   "src/spromise",
   "src/timer"
-], function(Jasmine, Promise, Timer) {
+], function(Promise, Timer) {
   
 
 
   function Boot( options ) {
     options = options || {};
-    var jasmine = options.jasmine || Jasmine;
+    var jasmine = options.jasmine;
 
 
     // Simple wrapper to make jasmine's done interface be used as promises
@@ -3616,7 +3615,7 @@ define('src/rjasmine',[
 
   function rjasmine( options ) {
     options = options || {};
-    var jasmine = options.jasmine || Jasmine;
+    options.jasmine = options.jasmine || Jasmine;
 
     // Call boot to get jasmine stuff all setup.
     var boot = new Boot(options);
@@ -3632,7 +3631,7 @@ define('src/rjasmine',[
       _reporter: boot.reporter,
       execute: boot.env.execute,
       extend: rjasmine.extend,
-      jasmine: jasmine,
+      jasmine: options.jasmine,
       ready: ready
     });
   }
