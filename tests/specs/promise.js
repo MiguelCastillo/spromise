@@ -233,7 +233,7 @@ define(["src/promise"], function(promise) {
 
 
     it("factory resolve", function() {
-      return promise.factory(function(resolve, reject) {
+      return promise(function(resolve, reject) {
         resolve("Resolved");
       })
       .done(function(value) {
@@ -244,7 +244,7 @@ define(["src/promise"], function(promise) {
 
     it("factory reject", function() {
       var failed = false;
-      return promise.factory(function(resolve, reject) {
+      return promise(function(resolve, reject) {
         reject("Rejected");
       })
       .fail(function(value) {
