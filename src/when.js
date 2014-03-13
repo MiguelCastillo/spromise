@@ -10,6 +10,13 @@ define([
 ], function(Promise, Async) {
   "use strict";
 
+  function _result(input, args, context) {
+    if (typeof(input) === "function") {
+      return input.apply(context, args||[]);
+    }
+    return input;
+  }
+
   /**
   * Interface to allow multiple promises to be synchronized
   */
@@ -61,7 +68,7 @@ define([
           item.then(resolve(i), reject);
         }
         else {
-          queue[i] = item;
+          queue[i] = _result(item);
           checkPending();
         }
       }
