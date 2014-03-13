@@ -28,9 +28,9 @@ define(["src/async"], function (Async) {
   /**
    * Small Promise
    */
-  function Promise(target, options) {
+  function Promise(resolver, options) {
     // Make sure we have a target object
-    target = target || {};
+    var target = {};
     var stateManager = new StateManager(target, options || {});
 
     /**
@@ -97,30 +97,18 @@ define(["src/async"], function (Async) {
       state: state
     };
 
+
+    if ( typeof(resolver) === "function" ) {
+      resolver(target.resolve, target.reject);
+    }
     return target;
   }
-
-
-  /**
-  * Interface to create a promise from a resolve function that is called with
-  * a resolve and reject as the only parameters to it
-  */
-  Promise.factory = function(resolver) {
-    if ( typeof resolver !== "function" ) {
-      throw new TypeError("Resolver must be a function");
-    }
-
-    var promise = new Promise();
-    resolver(promise.resolve, promise.reject);
-    return promise.promise;
-  };
-
 
   /**
    * Interface to play nice with libraries like when and q.
    */
-  Promise.defer = function (target, options) {
-    return new Promise(target, options);
+  Promise.defer = function (resolver, options) {
+    return new Promise(resolver, options);
   };
 
   /**
@@ -137,7 +125,7 @@ define(["src/async"], function (Async) {
    * Create a promise that's already rejected
    */
   Promise.rejected = function () {
-    return new Promise({}, {
+    return new Promise(null, {
       context: this,
       value: arguments,
       state: states.rejected
@@ -148,7 +136,7 @@ define(["src/async"], function (Async) {
    * Create a promise that's already resolved
    */
   Promise.resolved = function () {
-    return new Promise({}, {
+    return new Promise(null, {
       context: this,
       value: arguments,
       state: states.resolved
@@ -231,7 +219,7 @@ define(["src/async"], function (Async) {
 
     if ((!onResolved && this.state === states.resolved) ||
         (!onRejected && this.state === states.rejected)) {
-      promise2 = new Promise({}, this);
+      promise2 = new Promise(null, this);
     }
     else {
       promise2 = new Promise();
