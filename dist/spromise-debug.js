@@ -551,7 +551,7 @@ define('src/promise',[
     }
 
     // Setup a way to verify an spromise object
-    then.constructor = Promise;
+    then.constructor  = Promise;
     then.stateManager = stateManager;
 
     function done(cb) {
@@ -587,8 +587,9 @@ define('src/promise',[
     }
 
     function laziness() {
-      var _resolver = resolver;
-      if ( typeof(_resolver) === "function" ) {
+      var _resolver;
+      if ( typeof(resolver) === "function" ) {
+        _resolver = resolver;
         resolver = null;
         _resolver(target.resolve, target.reject);
       }
@@ -653,8 +654,6 @@ define('src/promise',[
    * StateManager is the state manager for a promise
    */
   function StateManager(promise, options) {
-    this.promise = promise;
-
     // If we already have an async object, that means that the state isn't just resolved,
     // but we also have a valid async already initialized with the proper context and data
     // we can just reuse.  This saves on a lot of cycles and memory.
@@ -679,7 +678,7 @@ define('src/promise',[
       });
     }
     // If the promise is already resolved/rejected
-    else if (this.state === state || state === 1) {
+    else if (this.state === state || queues.always === state) {
       this.async.run(cb);
     }
   };
@@ -692,15 +691,14 @@ define('src/promise',[
       length = queue.length,
       item;
 
+    this.queue = null;
+
     do {
       item = queue[i++];
       if (item.type === queueType || item.type === queues.always) {
         this.async.run(item.cb);
       }
     } while (i < length);
-
-    // Clean up memory when we are done processing the queue
-    this.queue = null;
   };
 
   // Sets the state of the promise and call the callbacks as appropriate
@@ -726,8 +724,16 @@ define('src/promise',[
     }
 
     resolution = new Resolution(new Promise());
-    this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
-    this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
+    if ( this.state === states.resolved ) {
+      this.async.run(resolution.chain(actions.resolve, onResolved || onRejected));
+    }
+    else if ( this.state === states.rejected ) {
+      this.async.run(resolution.chain(actions.reject, onRejected || onResolved));
+    }
+    else {
+      this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
+      this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
+    }
     return resolution.promise;
   };
 
