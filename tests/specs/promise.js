@@ -1,11 +1,10 @@
-define(["src/promise"], function(promise) {
+define(["src/promise"], function(Promise) {
 
   describe("Promises", function() {
     var dummy = { dummy: "dummy" };
 
-    it("Simple thenable", function() {
-
-      var promise1 = new promise();
+    it("Simple promise", function() {
+      var promise1 = new Promise();
 
       promise1.then(function(x) {
         expect(x).toBe("simple value");
@@ -15,8 +14,29 @@ define(["src/promise"], function(promise) {
     });
 
 
+    it("Simple promise resolver resolved", function() {
+      return Promise(function( resolve, reject ) {
+        resolve("simple value");
+      })
+      .then(function(x) {
+        expect(x).toBe("simple value");
+      });
+    });
+
+
+    it("Simple promise resolver rejected", function() {
+      return Promise(function( resolve, reject ) {
+        reject("reject value");
+      })
+      .then(null, function(x) {
+        expect(x).toBe("reject value");
+        return Promise.resolved();
+      });
+    });
+
+
     it("Promise object return itself in a then call", function() {
-      var promise1 = new promise();
+      var promise1 = new Promise();
 
       var promise2 = promise1.then(function(x) {
         expect(x).toBe("simple value");
@@ -34,11 +54,11 @@ define(["src/promise"], function(promise) {
 
 
     it("Simple thenable chain", function() {
-      var promise1 = promise();
+      var promise1 = Promise();
 
       var promise2 = promise1.then(function(x) {
         expect(x).toBe("Thenable returning thenable simple value");
-        return promise().resolve("first chain");
+        return Promise.resolved("first chain");
       });
 
       promise2.then(function(x) {
@@ -51,16 +71,16 @@ define(["src/promise"], function(promise) {
 
 
     it("Thenable returning thenable", function() {
-      var promise1 = promise();
+      var promise1 = Promise();
 
       var promise2 = promise1.then(function(x) {
         expect(x).toBe("Thenable returning thenable simple value");
-        return promise().resolve("first chain");
+        return Promise.resolved("first chain");
       });
 
       var promise3 = promise2.then(function(x) {
         expect(x).toBe("first chain");
-        return promise().resolve("second chain");
+        return Promise.resolved("second chain");
       });
 
       promise3.then(function(x) {
@@ -69,7 +89,7 @@ define(["src/promise"], function(promise) {
       .done(function (x) {
         expect(x).toBeUndefined();
         // returning a promise only affects then and not done
-        return promise().resolve("third chain");
+        return Promise.resolved("third chain");
       })
       .done(function (x) {
         expect(x).toBeUndefined();
@@ -81,23 +101,23 @@ define(["src/promise"], function(promise) {
 
 
     it("Long promise thenable chain", function() {
-      var promise1 = new promise();
+      var promise1 = new Promise();
 
       promise1.then(function(x) {
         expect(x).toBe("simple value");
-        return promise().resolve("tests1");
+        return Promise.resolved("tests1");
       })
       .then(function(x) {
         expect(x).toBe("tests1");
-        return promise().resolve("tests2");
+        return Promise.resolved("tests2");
       })
       .then(function(x) {
         expect(x).toBe("tests2");
-        return promise().resolve("tests3");
+        return Promise.resolved("tests3");
       })
       .then(function(x) {
         expect(x).toBe("tests3");
-        return promise().resolve("tests5");
+        return Promise.resolved("tests5");
       })
       .then(function(x) {
         expect(x).toBe("tests5");
@@ -109,7 +129,7 @@ define(["src/promise"], function(promise) {
 
     it("Resolve with multiple object arguments", function() {
 
-      var promise1 = new promise();
+      var promise1 = new Promise();
 
       promise1.done(function(_actor, _categories, _books) {
         expect(_actor).toBeDefined();
@@ -143,30 +163,30 @@ define(["src/promise"], function(promise) {
 
 
     it("fulfilled after a delay", function () {
-      var _promise = promise();
-      var d = promise();
+      var promise1 = Promise();
+      var promise2 = Promise();
       var isFulfilled = false;
 
-      d.then(function onFulfilled() {
+      promise2.then(function onFulfilled() {
         expect(isFulfilled).toBe(true);
-        _promise.resolve();
+        promise1.resolve();
       });
 
       setTimeout(function () {
-        d.resolve(dummy);
+        promise2.resolve(dummy);
         isFulfilled = true;
       }, 50);
 
-      return _promise;
+      return promise1;
     });
 
 
     it("then with a throw", function () {
-      var promise1 = promise(),
-          promise3 = promise();
+      var promise1 = Promise(),
+          promise3 = Promise();
 
       var promise2 = promise1.then(function(x) {
-        return promise().resolve("resolve promise2");
+        return Promise.resolved("resolve promise2");
       })
       .then(function(x) {
         expect(x).toBe("resolve promise2");
@@ -188,11 +208,11 @@ define(["src/promise"], function(promise) {
 
 
     it("then with a throw and chained rejects", function () {
-      var promise1 = promise(),
-          promise3 = promise();
+      var promise1 = Promise(),
+          promise3 = Promise();
 
       var promise2 = promise1.then(function(x) {
-        return promise().reject("resolve promise2");
+        return Promise.rejected("resolve promise2");
       })
       .then(function(){}, function(x) {
         expect(x).toBe("resolve promise2");
@@ -215,7 +235,7 @@ define(["src/promise"], function(promise) {
 
     it("Simple $.ajax", function() {
       // Chain the ajax request and the promise
-      return promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+      return Promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
         // Make sure first param is the data
         expect(data.length).toBe(2);
         expect(data[0].name).toBe("Pablo");
@@ -233,7 +253,7 @@ define(["src/promise"], function(promise) {
 
 
     it("factory resolve", function() {
-      return promise(function(resolve, reject) {
+      return Promise(function(resolve, reject) {
         resolve("Resolved");
       })
       .done(function(value) {
@@ -244,7 +264,7 @@ define(["src/promise"], function(promise) {
 
     it("factory reject", function() {
       var failed = false;
-      return promise(function(resolve, reject) {
+      return Promise(function(resolve, reject) {
         reject("Rejected");
       })
       .fail(function(value) {
@@ -257,7 +277,7 @@ define(["src/promise"], function(promise) {
         expect(value).toBe("Rejected");
 
         if ( failed ) {
-          return promise.resolved();
+          return Promise.resolved();
         }
       });
     });

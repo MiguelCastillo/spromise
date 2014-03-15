@@ -240,8 +240,8 @@ define([
    * Thenable resolution
    */
   function Resolution(promise) {
-    this.promise = promise;
-    this.resolved = 0;
+    this.promise  = promise;
+    this.resolved = false;
   }
 
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
@@ -250,12 +250,12 @@ define([
     return function chain() {
       // Prevent calling chain multiple times
       if (!(_self.resolved)) {
-        _self.resolved++;
-        _self.context = this;
-        _self.then    = then;
+        _self.resolved = true;
+        _self.context  = this;
+        _self.then     = then;
 
         try {
-          _self.resolve(action, !handler ? arguments : [handler.apply(this, arguments)]);
+          _self.finalize(action, !handler ? arguments : [handler.apply(this, arguments)]);
         }
         catch (ex) {
           _self.promise.reject.call(_self.context, ex);
@@ -265,19 +265,18 @@ define([
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.resolve = function (action, data) {
+  Resolution.prototype.finalize = function (action, data) {
     var input = data[0],
       then = (input && input.then),
       thenable = (then && typeof (then) === "function"),
       resolution, thenableType;
 
-    // The resolver input must not be the promise tiself
     if (input === this.promise) {
-      throw new TypeError();
+      throw new TypeError("Resolution input must not be the promise being resolved");
     }
 
     if (thenable && then.constructor === Promise) {
-      // Shortcut if the incoming spromise is already resolved
+      // Shortcut if the incoming promise is an intance of SPromise
       resolution = new Resolution(this.promise);
       input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
     }
@@ -285,7 +284,7 @@ define([
       thenableType = (thenable && this.then !== input && typeof (input));
       if (thenableType === "function" || thenableType === "object") {
         try {
-          resolution = new Resolution(this.promise, input);
+          resolution = new Resolution(this.promise);
           then.call(input, resolution.chain(actions.resolve, false, input), resolution.chain(actions.reject, false, input));
         }
         catch (ex) {
@@ -299,7 +298,6 @@ define([
       }
     }
   };
-
 
   // Expose enums for the states
   Promise.states = states;
