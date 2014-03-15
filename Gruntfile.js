@@ -36,30 +36,7 @@ module.exports = function(grunt) {
             endFile: "buildinfo/module-end.frag"
           }
         }
-      },
-      amd: {
-        options: {
-          "paths": {
-          },
-          include: ["src/spromise"],
-          out: "dist/spromise-amd-debug.js",
-          optimize: "none",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false
-        }
-      },
-      amdminified: {
-        options: {
-          "paths": {
-          },
-          include: ["src/spromise"],
-          out: "dist/spromise-amd.js",
-          optimize: "uglify",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false
-        }
       }
-
     }
   });
 

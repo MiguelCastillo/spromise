@@ -4,7 +4,9 @@
  */
 
 
-define(["src/async"], function (Async) {
+define([
+  "src/async"
+], function (Async) {
   "use strict";
 
   var states = {
@@ -29,8 +31,11 @@ define(["src/async"], function (Async) {
    * Small Promise
    */
   function Promise(resolver, options) {
-    // Make sure we have a target object
-    var target = {};
+    if ( this instanceof Promise === false ) {
+      return new Promise(resolver, options);
+    }
+
+    var target = this;
     var stateManager = new StateManager(target, options || {});
 
     /**
@@ -39,6 +44,7 @@ define(["src/async"], function (Async) {
      */
 
     function then(onResolved, onRejected) {
+      laziness();
       return stateManager.then(onResolved, onRejected);
     }
 
@@ -46,18 +52,20 @@ define(["src/async"], function (Async) {
     then.constructor = Promise;
     then.stateManager = stateManager;
 
-
     function done(cb) {
-      stateManager.queue(states.resolved, cb);
+      laziness();
+      stateManager.enqueue(states.resolved, cb);
       return target.promise;
     }
 
     function fail(cb) {
-      stateManager.queue(states.rejected, cb);
+      laziness();
+      stateManager.enqueue(states.rejected, cb);
       return target.promise;
     }
 
     function always(cb) {
+      laziness();
       stateManager.queue(queues.always, cb);
       return target.promise;
     }
@@ -76,15 +84,17 @@ define(["src/async"], function (Async) {
       return target;
     }
 
-    function thenable(promise) {
-      promise.then(target.resolve, target.reject);
-      return target;
+    function laziness() {
+      var _resolver = resolver;
+      if ( typeof(_resolver) === "function" ) {
+        resolver = null;
+        _resolver(target.resolve, target.reject);
+      }
     }
 
     target.always = always;
     target.done = done;
     target.fail = fail;
-    target.thenable = thenable;
     target.resolve = resolve;
     target.reject = reject;
     target.then = then;
@@ -96,19 +106,13 @@ define(["src/async"], function (Async) {
       then: then,
       state: state
     };
-
-
-    if ( typeof(resolver) === "function" ) {
-      resolver(target.resolve, target.reject);
-    }
-    return target;
   }
 
   /**
    * Interface to play nice with libraries like when and q.
    */
-  Promise.defer = function (resolver, options) {
-    return new Promise(resolver, options);
+  Promise.defer = function () {
+    return new Promise();
   };
 
   /**
@@ -117,8 +121,7 @@ define(["src/async"], function (Async) {
   * be going your way.
   */
   Promise.thenable = function (thenable) {
-    var promise = new Promise();
-    return promise.thenable(thenable);
+    return new Promise(thenable.then);
   };
 
   /**
@@ -165,10 +168,10 @@ define(["src/async"], function (Async) {
 
   // Queue will figure out if the promise is resolved/rejected and do something
   // with the callback based on that.
-  StateManager.prototype.queue = function (state, cb) {
+  StateManager.prototype.enqueue = function (state, cb) {
     // Queue it up if we are still pending over here
     if (!this.state) {
-      (this.deferred || (this.deferred = [])).push({
+      (this.queue || (this.queue = [])).push({
         type: state,
         cb: cb
       });
@@ -181,31 +184,29 @@ define(["src/async"], function (Async) {
 
   // Tell everyone we are resolved/rejected
   StateManager.prototype.notify = function () {
-    var deferred = this.deferred,
+    var queue = this.queue,
       queueType = this.state,
       i = 0,
-      length = deferred.length,
+      length = queue.length,
       item;
 
     do {
-      item = deferred[i++];
+      item = queue[i++];
       if (item.type === queueType || item.type === queues.always) {
         this.async.run(item.cb);
       }
     } while (i < length);
 
     // Clean up memory when we are done processing the queue
-    this.deferred = null;
+    this.queue = null;
   };
 
   // Sets the state of the promise and call the callbacks as appropriate
   StateManager.prototype.transition = function (state, context, value) {
     if (!this.state) {
-      this.state   = state;
-      this.context = context;
-      this.value   = value;
-      this.async   = Async.call(context, false, (void 0), value);
-      if (this.deferred) {
+      this.state = state;
+      this.async = Async.call(context, false, (void 0), value);
+      if (this.queue) {
         this.notify();
       }
     }
@@ -213,22 +214,19 @@ define(["src/async"], function (Async) {
 
   // Links together the resolution of promise1 to promise2
   StateManager.prototype.then = function (onResolved, onRejected) {
-    var resolution, promise2;
+    var resolution;
     onResolved = typeof (onResolved) === "function" ? onResolved : null;
     onRejected = typeof (onRejected) === "function" ? onRejected : null;
 
     if ((!onResolved && this.state === states.resolved) ||
         (!onRejected && this.state === states.rejected)) {
-      promise2 = new Promise(null, this);
-    }
-    else {
-      promise2 = new Promise();
-      resolution = new Resolution(promise2);
-      this.queue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
-      this.queue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
+      return new Promise(null, this);
     }
 
-    return promise2;
+    resolution = new Resolution(new Promise());
+    this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
+    this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
+    return resolution.promise;
   };
 
 
