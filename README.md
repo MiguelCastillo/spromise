@@ -38,7 +38,7 @@ promise.resolve("Yes, it works");
 <p>Factory</p>
 ``` javascript
 // Resolve
-spromise.factory(function(resolve, reject){
+spromise(function(resolve, reject){
   resolve("Yes, we are resolving this");
 })
 .done(function(value) {
@@ -47,7 +47,7 @@ spromise.factory(function(resolve, reject){
 });
 
 // Reject
-spromise.factory(function(resolve, reject){
+spromise(function(resolve, reject){
   reject("booo");
 })
 .fail(function(value) {
