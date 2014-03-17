@@ -537,7 +537,7 @@ define('src/promise',[
       return new Promise(resolver, options);
     }
 
-    var target = this;
+    var target       = this;
     var stateManager = new StateManager(target, options || {});
 
     /**
@@ -586,15 +586,6 @@ define('src/promise',[
       return target;
     }
 
-    function laziness() {
-      var _resolver;
-      if ( typeof(resolver) === "function" ) {
-        _resolver = resolver;
-        resolver = null;
-        _resolver(target.resolve, target.reject);
-      }
-    }
-
     target.always = always;
     target.done = done;
     target.fail = fail;
@@ -609,6 +600,17 @@ define('src/promise',[
       then: then,
       state: state
     };
+
+
+    // Interface to allow to post pone calling the resolver as long as its not needed
+    function laziness() {
+      var _resolver;
+      if ( typeof(resolver) === "function" ) {
+        _resolver = resolver;
+        resolver = null;
+        _resolver(target.resolve, target.reject);
+      }
+    }
   }
 
   /**
@@ -619,10 +621,10 @@ define('src/promise',[
   };
 
   /**
-  * Interface to create a promise and link it to a thenable object.  The assumption is that
-  * the object passed in is a thenable.  If it isn't, there is no check so an exption might
-  * be going your way.
-  */
+    * Interface to create a promise and link it to a thenable object.  The assumption is that
+    * the object passed in is a thenable.  If it isn't, there is no check so an exption might
+    * be going your way.
+    */
   Promise.thenable = function (thenable) {
     return new Promise(thenable.then);
   };
@@ -757,7 +759,7 @@ define('src/promise',[
         _self.then     = then;
 
         try {
-          _self.finalize(action, !handler ? arguments : [handler.apply(this, arguments)]);
+          _self.finalize(action, !handler ? arguments : handler.apply(this, arguments), !handler);
         }
         catch (ex) {
           _self.promise.reject.call(_self.context, ex);
@@ -767,42 +769,46 @@ define('src/promise',[
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.finalize = function (action, data) {
-    var input = data[0],
+  Resolution.prototype.finalize = function (action, data, unwrap) {
+    var input = unwrap ? data[0] : data,
       then = (input && input.then),
-      thenable = (then && typeof (then) === "function"),
       resolution, thenableType;
 
     if (input === this.promise) {
       throw new TypeError("Resolution input must not be the promise being resolved");
     }
 
-    if (thenable && then.constructor === Promise) {
-      // Shortcut if the incoming promise is an intance of SPromise
+    // Shortcut if the incoming promise is an intance of SPromise
+    if (then && then.constructor === Promise) {
       resolution = new Resolution(this.promise);
       input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
+      return;
     }
-    else {
-      thenableType = (thenable && this.then !== input && typeof (input));
-      if (thenableType === "function" || thenableType === "object") {
-        try {
-          resolution = new Resolution(this.promise);
-          then.call(input, resolution.chain(actions.resolve, false, input), resolution.chain(actions.reject, false, input));
-        }
-        catch (ex) {
-          if (!resolution.resolved) {
-            this.promise.reject.call(this.context, ex);
-          }
+
+    thenableType = (then && typeof (then) === "function" && this.then !== input && typeof (input));
+    if (thenableType === "function" || thenableType === "object") {
+      try {
+        resolution = new Resolution(this.promise);
+        then.call(input, resolution.chain(actions.resolve, false, input), resolution.chain(actions.reject, false, input));
+      }
+      catch (ex) {
+        if (!resolution.resolved) {
+          this.promise.reject.call(this.context, ex);
         }
       }
-      else {
+    }
+    else {
+      if ( unwrap ) {
         this.promise[action].apply(this.context, data);
+      }
+      else {
+        this.promise[action].call(this.context, data);
       }
     }
   };
 
   // Expose enums for the states
-  Promise.states = states;
+  Promise.states       = states;
   return Promise;
 });
 
