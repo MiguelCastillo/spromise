@@ -487,6 +487,10 @@ define( 'src/async',[],function() {
       exec(runner(fn || func));
     };
 
+    instance.runSync = function(fn) {
+      runner(fn || func)();
+    };
+
     function runner(fn) {
       return function() {
         fn.apply(context, args);
@@ -568,7 +572,7 @@ define('src/promise',[
     }
 
     function state() {
-      return stateManager._state;
+      return stateManager.state;
     }
 
     function resolve() {
@@ -645,6 +649,9 @@ define('src/promise',[
    * StateManager is the state manager for a promise
    */
   function StateManager(promise, options) {
+    // Initial state is pending
+    this.state = states.pending;
+
     // If we already have an async object, that means that the state isn't just resolved,
     // but we also have a valid async already initialized with the proper context and data
     // we can just reuse.  This saves on a lot of cycles and memory.

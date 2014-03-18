@@ -51,6 +51,10 @@ define( function() {
       exec(runner(fn || func));
     };
 
+    instance.runSync = function(fn) {
+      runner(fn || func)();
+    };
+
     function runner(fn) {
       return function() {
         fn.apply(context, args);
