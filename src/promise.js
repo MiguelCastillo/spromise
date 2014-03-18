@@ -26,7 +26,6 @@ define([
     "reject": "reject"
   };
 
-
   /**
    * Small Promise
    */
@@ -44,7 +43,6 @@ define([
      */
 
     function then(onResolved, onRejected) {
-      laziness();
       return stateManager.then(onResolved, onRejected);
     }
 
@@ -53,19 +51,16 @@ define([
     then.stateManager = stateManager;
 
     function done(cb) {
-      laziness();
       stateManager.enqueue(states.resolved, cb);
       return target.promise;
     }
 
     function fail(cb) {
-      laziness();
       stateManager.enqueue(states.rejected, cb);
       return target.promise;
     }
 
     function always(cb) {
-      laziness();
       stateManager.queue(queues.always, cb);
       return target.promise;
     }
@@ -99,15 +94,9 @@ define([
       state: state
     };
 
-
     // Interface to allow to post pone calling the resolver as long as its not needed
-    function laziness() {
-      var _resolver;
-      if ( typeof(resolver) === "function" ) {
-        _resolver = resolver;
-        resolver = null;
-        _resolver(target.resolve, target.reject);
-      }
+    if ( typeof(resolver) === "function" ) {
+      resolver.call(target, target.resolve, target.reject);
     }
   }
 
@@ -119,10 +108,10 @@ define([
   };
 
   /**
-    * Interface to create a promise and link it to a thenable object.  The assumption is that
-    * the object passed in is a thenable.  If it isn't, there is no check so an exption might
-    * be going your way.
-    */
+   * Interface to create a promise and link it to a thenable object.  The assumption is that
+   * the object passed in is a thenable.  If it isn't, there is no check so an exption might
+   * be going your way.
+   */
   Promise.thenable = function (thenable) {
     return new Promise(thenable.then);
   };
@@ -237,7 +226,6 @@ define([
     return resolution.promise;
   };
 
-
   /**
    * Thenable resolution
    */
@@ -306,6 +294,6 @@ define([
   };
 
   // Expose enums for the states
-  Promise.states       = states;
+  Promise.states = states;
   return Promise;
 });
