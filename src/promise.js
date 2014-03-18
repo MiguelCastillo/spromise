@@ -61,7 +61,7 @@ define([
     }
 
     function always(cb) {
-      stateManager.queue(queues.always, cb);
+      stateManager.enqueue(queues.always, cb);
       return target.promise;
     }
 
