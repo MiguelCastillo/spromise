@@ -146,21 +146,14 @@ define([
     // Initial state is pending
     this.state = states.pending;
 
-    // If we already have an async object, that means that the state isn't just resolved,
-    // but we also have a valid async already initialized with the proper context and data
-    // we can just reuse.  This saves on a lot of cycles and memory.
-    if (options.async) {
-      this.state = options.state;
-      this.async = options.async;
-    }
     // If a state is passed in, then we go ahead and initialize the state manager with it
-    else if (options.state) {
+    if (options.state) {
       this.transition(options.state, options.context, options.value);
     }
   }
 
-  // Queue will figure out if the promise is resolved/rejected and do something
-  // with the callback based on that.
+  // Queue will figure out if the promise is pending/resolved/rejected and do the appropriate
+  // action with the callback based on that.
   StateManager.prototype.enqueue = function (state, cb) {
     // Queue it up if we are still pending over here
     if (!this.state) {
@@ -171,33 +164,34 @@ define([
     }
     // If the promise is already resolved/rejected
     else if (this.state === state || queues.always === state) {
-      this.async.run(cb);
+      var _self = this;
+      Async(function() {
+        cb.apply(_self.context, _self.value);
+      });
     }
   };
 
   // Tell everyone we are resolved/rejected
   StateManager.prototype.notify = function () {
     var queue = this.queue,
-      queueType = this.state,
-      i = 0,
       length = queue.length,
+      i = 0,
       item;
 
     this.queue = null;
 
     do {
       item = queue[i++];
-      if (item.type === queueType || item.type === queues.always) {
-        this.async.run(item.cb);
-      }
+      this.enqueue(item.type, item.cb);
     } while (i < length);
   };
 
   // Sets the state of the promise and call the callbacks as appropriate
   StateManager.prototype.transition = function (state, context, value) {
     if (!this.state) {
-      this.state = state;
-      this.async = Async.call(context, false, (void 0), value);
+      this.state   = state;
+      this.context = context;
+      this.value   = value;
       if (this.queue) {
         this.notify();
       }
@@ -217,10 +211,10 @@ define([
 
     resolution = new Resolution(new Promise());
     if ( this.state === states.resolved ) {
-      this.async.run(resolution.chain(actions.resolve, onResolved || onRejected));
+      this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
     }
     else if ( this.state === states.rejected ) {
-      this.async.run(resolution.chain(actions.reject, onRejected || onResolved));
+      this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
     }
     else {
       this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
@@ -242,17 +236,19 @@ define([
     var _self = this;
     return function chain() {
       // Prevent calling chain multiple times
-      if (!(_self.resolved)) {
-        _self.resolved = true;
-        _self.context  = this;
-        _self.then     = then;
+      if (_self.resolved) {
+        return;
+      }
 
-        try {
-          _self.finalize(action, !handler ? arguments : handler.apply(this, arguments), !handler);
-        }
-        catch (ex) {
-          _self.promise.reject.call(_self.context, ex);
-        }
+      _self.resolved = true;
+      _self.context  = this;
+      _self.then     = then;
+
+      try {
+        _self.finalize(action, !handler ? arguments : handler.apply(this, arguments), !handler);
+      }
+      catch (ex) {
+        _self.promise.reject.call(_self.context, ex);
       }
     };
   };
