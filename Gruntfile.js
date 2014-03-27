@@ -36,6 +36,34 @@ module.exports = function(grunt) {
             endFile: "buildinfo/module-end.frag"
           }
         }
+      },
+      lib: {
+        options: {
+          "paths": {
+          },
+          include: ["src/spromise"],
+          out: "dist/spromise-lib-debug.js",
+          optimize: "none",
+          preserveLicenseComments: true,
+          skipModuleInsertion: false,
+          wrap: {
+            startFile: ["buildinfo/license.frag"],
+          }
+        }
+      },
+      libmin: {
+        options: {
+          "paths": {
+          },
+          include: ["src/spromise"],
+          out: "dist/spromise-lib.js",
+          optimize: "uglify",
+          preserveLicenseComments: true,
+          skipModuleInsertion: false,
+          wrap: {
+            startFile: ["buildinfo/license.frag"]
+          }
+        }
       }
     }
   });
