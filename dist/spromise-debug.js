@@ -615,7 +615,7 @@ define('src/promise',[
 
   // Queue will figure out if the promise is pending/resolved/rejected and do the appropriate
   // action with the callback based on that.
-  StateManager.prototype.enqueue = function (state, cb) {
+  StateManager.prototype.enqueue = function (state, cb, sync) {
     // Queue it up if we are still pending over here
     if (!this.state) {
       (this.queue || (this.queue = [])).push({
@@ -626,36 +626,40 @@ define('src/promise',[
     // If the promise is already resolved/rejected
     else if (this.state === state || queues.always === state) {
       var _self = this;
-      Async(function() {
+      if ( sync === true ) {
         cb.apply(_self.context, _self.value);
-      });
+      }
+      else {
+        Async(function() {
+          cb.apply(_self.context, _self.value);
+        });
+      }
     }
   };
 
-  // Tell everyone we are resolved/rejected
-  StateManager.prototype.notify = function () {
-    var queue = this.queue,
-      length = queue.length,
-      i = 0,
-      item;
-
-    this.queue = null;
-
-    do {
-      item = queue[i++];
-      this.enqueue(item.type, item.cb);
-    } while (i < length);
-  };
-
   // Sets the state of the promise and call the callbacks as appropriate
-  StateManager.prototype.transition = function (state, context, value) {
-    if (!this.state) {
-      this.state   = state;
-      this.context = context;
-      this.value   = value;
-      if (this.queue) {
-        this.notify();
-      }
+  StateManager.prototype.transition = function (state, context, value, sync) {
+    if (this.state) {
+      return;
+    }
+
+    this.state   = state;
+    this.context = context;
+    this.value   = value;
+
+    // Process queue if anything is waiting to be notified
+    if (this.queue) {
+      var queue = this.queue,
+        length = queue.length,
+        i = 0,
+        item;
+
+      this.queue = null;
+
+      do {
+        item = queue[i++];
+        this.enqueue(item.type, item.cb, sync);
+      } while (i < length);
     }
   };
 
@@ -671,87 +675,83 @@ define('src/promise',[
     }
 
     resolution = new Resolution(new Promise());
-    if ( this.state === states.resolved ) {
-      this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
-    }
-    else if ( this.state === states.rejected ) {
-      this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
-    }
-    else {
-      this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
-      this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
-    }
+    this.enqueue(states.resolved, resolution.chain(actions.resolve, onResolved || onRejected));
+    this.enqueue(states.rejected, resolution.chain(actions.reject, onRejected || onResolved));
     return resolution.promise;
   };
+
 
   /**
    * Thenable resolution
    */
   function Resolution(promise) {
-    this.promise  = promise;
-    this.resolved = false;
+    this.promise = promise;
   }
 
+
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
-  Resolution.prototype.chain = function (action, handler, then) {
-    var _self = this;
-    return function chain() {
-      // Prevent calling chain multiple times
-      if (_self.resolved) {
-        return;
-      }
-
-      _self.resolved = true;
-      _self.context  = this;
-      _self.then     = then;
-
+  Resolution.prototype.chain = function (action, handler) {
+    var _self = this, _handler;
+    return function resolveHandler() {
       try {
-        _self.finalize(action, !handler ? arguments : handler.apply(this, arguments), !handler);
+        if ( !_self.resolved ) {
+          _handler = handler;
+          handler = null;
+          _self.resolved = true;
+          _self.finalize(action, _handler ? [_handler.apply(this, arguments)] : arguments);
+        }
       }
-      catch (ex) {
+      catch(ex) {
         _self.promise.reject.call(_self.context, ex);
       }
     };
   };
 
+
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.finalize = function (action, data, unwrap) {
-    var input = unwrap ? data[0] : data,
-      then = (input && input.then),
+  Resolution.prototype.finalize = function (action, data) {
+    var input = data[0],
+      then    = (input && input.then),
+      promise = this.promise,
+      context = this.context,
       resolution, thenableType;
 
+    // 2.3.1
     if (input === this.promise) {
       throw new TypeError("Resolution input must not be the promise being resolved");
     }
 
+    // 2.3.2
     // Shortcut if the incoming promise is an intance of SPromise
     if (then && then.constructor === Promise) {
-      resolution = new Resolution(this.promise);
-      input.done(resolution.chain(actions.resolve)).fail(resolution.chain(actions.reject));
+      resolution = new Resolution(promise);
+      then.stateManager.enqueue(states.resolved, resolution.chain(actions.resolve), true);
+      then.stateManager.enqueue(states.rejected, resolution.chain(actions.reject), true);
       return;
     }
 
-    thenableType = (then && typeof (then) === "function" && this.then !== input && typeof (input));
+    // 2.3.3
+    thenableType = then && (typeof (then) === "function" && typeof (input));
     if (thenableType === "function" || thenableType === "object") {
       try {
-        resolution = new Resolution(this.promise);
-        then.call(input, resolution.chain(actions.resolve, false, input), resolution.chain(actions.reject, false, input));
+        resolution = new Resolution(promise);
+        then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
       }
       catch (ex) {
         if (!resolution.resolved) {
-          this.promise.reject.call(this.context, ex);
+          promise.reject.call(context, ex);
         }
       }
     }
+
+    // 2.3.4
+    // Just resolve the promise
     else {
-      if ( unwrap ) {
-        this.promise[action].apply(this.context, data);
-      }
-      else {
-        this.promise[action].call(this.context, data);
-      }
+      promise[action].apply(context, data);
+      //promise.then.stateManager.transition(action === actions.resolve ? states.resolved : states.rejected, context, data, true);
     }
   };
+
 
   // Expose enums for the states
   Promise.states = states;
