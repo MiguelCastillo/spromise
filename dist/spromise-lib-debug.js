@@ -13,18 +13,18 @@
 
 
 define( 'src/async',[],function() {
-  var self = this;
+  var _self = this;
 
   var nextTick;
-  if ( self.setImmediate ) {
-    nextTick = self.setImmediate;
+  if ( _self.setImmediate ) {
+    nextTick = _self.setImmediate;
   }
-  else if ( self.process && typeof self.process.nextTick === "function" ) {
-    nextTick = self.process.nextTick;
+  else if ( _self.process && typeof _self.process.nextTick === "function" ) {
+    nextTick = _self.process.nextTick;
   }
   else {
     nextTick = function(cb) {
-      self.setTimeout(cb, 0);
+      _self.setTimeout(cb, 0);
     };
   }
 
