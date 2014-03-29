@@ -44,21 +44,12 @@ define('src/promise',[
 
   var states = {
     "pending": 0,
-    "resolved": 2,
-    "rejected": 3
-  };
-
-  var queues = {
     "always": 1,
     "resolved": 2,
     "rejected": 3,
     "notify": 4
   };
 
-  var actions = {
-    "resolve": "resolve",
-    "reject": "reject"
-  };
 
   /**
    * Small Promise
@@ -95,12 +86,12 @@ define('src/promise',[
     }
 
     function always(cb) {
-      stateManager.enqueue(queues.always, cb);
+      stateManager.enqueue(states.always, cb);
       return target.promise;
     }
 
     function notify(cb) {
-      stateManager.enqueue(queues.notify, cb);
+      stateManager.enqueue(states.notify, cb);
       return target.promise;
     }
 
@@ -196,21 +187,35 @@ define('src/promise',[
   // Queue will figure out if the promise is pending/resolved/rejected and do the appropriate
   // action with the callback based on that.
   StateManager.prototype.enqueue = function (state, cb, sync) {
-    var _self = this;
-    if (!this.state) {
+    var _self = this,
+        _state = _self.state;
+
+    if (!_state) {
       (this.queue || (this.queue = [])).push({
-        type: state,
+        state: state,
         cb: cb
       });
     }
-    else {
-      if ( this.state === state || queues.always === state ) {
-        Async(function() {
+
+    // If resolved, then lets try to execute the queue
+    else if (_state === state || states.always === state) {
+      if ( sync ) {
+        cb.apply(_self.context, _self.value);
+      }
+      else {
+        Async(function queuecb() {
           cb.apply(_self.context, _self.value);
         });
       }
-      else if ( queues.notify === state ) {
-        Async(function() {
+    }
+
+    // Do proper notify events
+    else if (states.notify === state) {
+      if ( sync ) {
+        cb.call(_self.context, _self.state, _self.value);
+      }
+      else {
+        Async(function queuecb() {
           cb.call(_self.context, _self.state, _self.value);
         });
       }
@@ -236,10 +241,10 @@ define('src/promise',[
 
       this.queue = null;
 
-      do {
-        item = queue[i++];
-        this.enqueue(item.type, item.cb, sync);
-      } while (i < length);
+      for ( ; i < length; i++ ) {
+        item = queue[i];
+        this.enqueue(item.state, item.cb, sync);
+      }
     }
   };
 
@@ -255,7 +260,7 @@ define('src/promise',[
     }
 
     resolution = new Resolution(new Promise());
-    this.enqueue( queues.notify, resolution.notify(onResolved, onRejected) );
+    this.enqueue( states.notify, resolution.notify(onResolved, onRejected) );
     return resolution.promise;
   };
 
@@ -268,15 +273,12 @@ define('src/promise',[
   }
 
   // Notify when a promise has change state.
-  Resolution.prototype.notify = function(onResolve, onReject) {
+  Resolution.prototype.notify = function(onResolved, onRejected) {
     var _self = this;
     return function notify(state, value) {
-      var handler;
+      var handler = (onResolved || onRejected) && (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved))
       try {
-        // Handler can only be called once!
-        _self.context = this;
-        state   = state === queues.resolved ? actions.resolve : actions.reject;
-        handler = state === actions.resolve ? onResolve || onReject : onReject || onResolve;
+        _self.context  = this;
         _self.finalize(state, handler ? [handler.apply(this, value)] : value);
       }
       catch(ex) {
@@ -286,15 +288,17 @@ define('src/promise',[
   };
 
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
-  Resolution.prototype.chain = function (action) {
+  // This chain is partcularly used when dealing with external promises where we just just have to
+  // resolve the result
+  Resolution.prototype.chain = function (state) {
     var _self = this;
-    return function resolved() {
+    return function resolve() {
       try {
         // Handler can only be called once!
         if ( !_self.resolved ) {
           _self.resolved = true;
           _self.context  = this;
-          _self.finalize(action, arguments);
+          _self.finalize(state, arguments);
         }
       }
       catch(ex) {
@@ -304,7 +308,7 @@ define('src/promise',[
   };
 
   // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
-  Resolution.prototype.finalize = function (action, data) {
+  Resolution.prototype.finalize = function (state, data) {
     var input = data[0],
       then    = (input && input.then),
       promise = this.promise,
@@ -317,19 +321,18 @@ define('src/promise',[
     }
 
     // 2.3.2
-    // Shortcut if the incoming promise is an intance of SPromise
+    // Shortcut if the incoming promise is an instance of SPromise
     if (then && then.constructor === Promise) {
-      resolution = new Resolution(promise);
-      then.stateManager.enqueue(queues.notify, resolution.notify());
-      return;
+      return then.stateManager.enqueue(states.notify, this.notify(), true);
     }
 
     // 2.3.3
+    // If thenable is function or object, then try to resolve using that.
     thenableType = then && (typeof (then) === "function" && typeof (input));
     if (thenableType === "function" || thenableType === "object") {
       try {
         resolution = new Resolution(promise);
-        then.call(input, resolution.chain(actions.resolve), resolution.chain(actions.reject));
+        then.call(input, resolution.chain(states.resolved), resolution.chain(states.rejected));
       }
       catch (ex) {
         if (!resolution.resolved) {
@@ -341,11 +344,9 @@ define('src/promise',[
     // 2.3.4
     // Just resolve the promise
     else {
-      promise[action].apply(context, data);
-      //promise.then.stateManager.transition(action === actions.resolve ? states.resolved : states.rejected, context, data, true);
+      promise.then.stateManager.transition(state, context, data);
     }
   };
-
 
   // Expose enums for the states
   Promise.states = states;
