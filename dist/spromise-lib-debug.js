@@ -50,6 +50,14 @@ define('src/promise',[
     "notify": 4
   };
 
+  var strStates = [
+    "pending",
+    "",
+    "resolved",
+    "rejected",
+    ""
+  ];
+
 
   /**
    * Small Promise
@@ -96,7 +104,7 @@ define('src/promise',[
     }
 
     function state() {
-      return stateManager.state;
+      return strStates[stateManager.state];
     }
 
     function resolve() {
@@ -276,7 +284,7 @@ define('src/promise',[
   Resolution.prototype.notify = function(onResolved, onRejected) {
     var _self = this;
     return function notify(state, value) {
-      var handler = (onResolved || onRejected) && (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved))
+      var handler = (onResolved || onRejected) && (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved));
       try {
         _self.context  = this;
         _self.finalize(state, handler ? [handler.apply(this, value)] : value);
