@@ -30,12 +30,12 @@ define([
    * Small Promise
    */
   function Promise(resolver, options) {
-    if ( this instanceof Promise === false ) {
+    if (this instanceof Promise === false) {
       return new Promise(resolver, options);
     }
 
     var target       = this;
-    var stateManager = new StateManager(target, options || {});
+    var stateManager = new StateManager(options || {});
 
     /**
      * callback registration (then, done, fail, always) must be synchrounous so
@@ -102,7 +102,7 @@ define([
     };
 
     // Interface to allow to post pone calling the resolver as long as its not needed
-    if ( typeof(resolver) === "function" ) {
+    if (typeof (resolver) === "function") {
       resolver.call(target, target.resolve, target.reject);
     }
   }
@@ -149,7 +149,7 @@ define([
   /**
    * StateManager is the state manager for a promise
    */
-  function StateManager(promise, options) {
+  function StateManager(options) {
     // Initial state is pending
     this.state = states.pending;
 
@@ -163,7 +163,7 @@ define([
   // action with the callback based on that.
   StateManager.prototype.enqueue = function (state, cb, sync) {
     var _self = this,
-        _state = _self.state;
+      _state  = _self.state;
 
     if (!_state) {
       (this.queue || (this.queue = [])).push({
@@ -174,7 +174,7 @@ define([
 
     // If resolved, then lets try to execute the queue
     else if (_state === state || states.always === state) {
-      if ( sync ) {
+      if (sync) {
         cb.apply(_self.context, _self.value);
       }
       else {
@@ -186,7 +186,7 @@ define([
 
     // Do proper notify events
     else if (states.notify === state) {
-      if ( sync ) {
+      if (sync) {
         cb.call(_self.context, _self.state, _self.value);
       }
       else {
@@ -216,7 +216,7 @@ define([
 
       this.queue = null;
 
-      for ( ; i < length; i++ ) {
+      for (; i < length; i++) {
         item = queue[i];
         this.enqueue(item.state, item.cb, sync);
       }
@@ -235,7 +235,7 @@ define([
     }
 
     resolution = new Resolution(new Promise());
-    this.enqueue( states.notify, resolution.notify(onResolved, onRejected) );
+    this.enqueue(states.notify, resolution.notify(onResolved, onRejected));
     return resolution.promise;
   };
 
@@ -248,15 +248,15 @@ define([
   }
 
   // Notify when a promise has change state.
-  Resolution.prototype.notify = function(onResolved, onRejected) {
+  Resolution.prototype.notify = function (onResolved, onRejected) {
     var _self = this;
     return function notify(state, value) {
       var handler = (onResolved || onRejected) && (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved));
       try {
-        _self.context  = this;
+        _self.context = this;
         _self.finalize(state, handler ? [handler.apply(this, value)] : value);
       }
-      catch(ex) {
+      catch (ex) {
         _self.promise.reject.call(_self.context, ex);
       }
     };
@@ -276,7 +276,7 @@ define([
           _self.finalize(state, arguments);
         }
       }
-      catch(ex) {
+      catch (ex) {
         _self.promise.reject.call(_self.context, ex);
       }
     };
@@ -296,9 +296,10 @@ define([
     }
 
     // 2.3.2
-    // Shortcut if the incoming promise is an instance of SPromise
+    // Shortcut if the incoming promise is an instance of spromise
     if (then && then.constructor === Promise) {
-      return then.stateManager.enqueue(states.notify, this.notify(), true);
+      then.stateManager.enqueue(states.notify, this.notify(), true);
+      return;
     }
 
     // 2.3.3
@@ -319,7 +320,7 @@ define([
     // 2.3.4
     // Just resolve the promise
     else {
-      promise.then.stateManager.transition(state, context, data);
+      promise.then.stateManager.transition(state, context, data, true);
     }
   };
 
