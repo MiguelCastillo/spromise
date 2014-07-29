@@ -4,8 +4,7 @@ spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?bran
 Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.  Designed to play well with other ecosystems such as jQuery.
 
 
-API
-========
+### API
 
 1. <code>then</code> - interface that takes in as a first parameter an <code>onResolved</code> callback and as a second parameter an <code>onRejected</code> callback.  Great for chaining promises and controlling the flow of execution in a chain of promises.
 2. <code>done</code> - takes an <code>onResolved</code> callback that gets called when the promise is successfully resolved. If the promise is resolved with data, that will then be passed in as parameters to <code>onResolved</code>.
@@ -20,8 +19,7 @@ API
 11. <code>spromise.resolved</code> Returns a new promise that is already resolved with the value passed in.
 12. <code>spromise.rejected</code> Returns a new promise that is already rejected with the reason passed in.
 
-Examples
-========
+### Examples
 For a set of use cases, please see <a href="https://github.com/MiguelCastillo/spromise/tree/master/tests/specs">tests</a>
 
 <p>Simplest node sample</p>
@@ -70,8 +68,16 @@ spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(functi
 });
 ```
 
-Compliance
-========
+### Downloads
+Genral purpose (Browser, Node):
+* <a href="dist/spromise.js">dist/spromise.js</a> - minified
+* <a href="dist/spromise-debug.js">dist/spromise-debug.js</a>
+
+For inline inclusion in your AMD code:
+* <a href="dist/spromise-lib.js">dist/spromise-lib.js</a> - minified
+* <a href="dist/spromise-lib-debug.js">dist/spromise-lib-debug.js</a>
+
+### Compliance
 
 With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
 The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
