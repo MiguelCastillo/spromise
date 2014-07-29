@@ -159,7 +159,7 @@ define('src/promise',[
   /**
    * Create a promise that's already rejected
    */
-  Promise.rejected = function () {
+  Promise.reject = Promise.rejected = function () {
     return new Promise(null, {
       context: this,
       value: arguments,
@@ -170,7 +170,7 @@ define('src/promise',[
   /**
    * Create a promise that's already resolved
    */
-  Promise.resolved = function () {
+  Promise.resolve = Promise.resolved = function () {
     return new Promise(null, {
       context: this,
       value: arguments,
