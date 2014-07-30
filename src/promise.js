@@ -86,6 +86,7 @@ define([
 
     target.always = always;
     target.done = done;
+    target.catch = fail;
     target.fail = fail;
     target.notify = notify;
     target.resolve = resolve;
@@ -95,6 +96,7 @@ define([
     target.promise = {
       always: always,
       done: done,
+      catch: fail,
       fail: fail,
       notify: notify,
       then: then,

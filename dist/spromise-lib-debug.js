@@ -119,6 +119,7 @@ define('src/promise',[
 
     target.always = always;
     target.done = done;
+    target.catch = fail;
     target.fail = fail;
     target.notify = notify;
     target.resolve = resolve;
@@ -128,6 +129,7 @@ define('src/promise',[
     target.promise = {
       always: always,
       done: done,
+      catch: fail,
       fail: fail,
       notify: notify,
       then: then,
@@ -442,13 +444,42 @@ define('src/when',[
  */
 
 
+define('src/all',[
+  "src/when"
+], function(when) {
+  
+
+  function All(values) {
+    function resolved() {
+      return Array.prototype.slice.call(arguments);
+    }
+
+    function rejected(reason) {
+      return reason;
+    }
+
+    return when.apply(this, values).then(resolved, rejected);
+  }
+
+  return All;
+});
+
+
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
+
 define('src/spromise',[
   "src/promise",
   "src/async",
-  "src/when"
-], function(promise, async, when) {
-  promise.when = when;
+  "src/when",
+  "src/all"
+], function(promise, async, when, all) {
   promise.async  = async;
+  promise.when = when;
+  promise.all = all;
   return promise;
 });
 

@@ -7,10 +7,12 @@
 define([
   "src/promise",
   "src/async",
-  "src/when"
-], function(promise, async, when) {
-  promise.when = when;
+  "src/when",
+  "src/all"
+], function(promise, async, when, all) {
   promise.async  = async;
+  promise.when = when;
+  promise.all = all;
   return promise;
 });
 

@@ -30,7 +30,8 @@ define(["lib/rjasmine/dist/rjasmine", "lib/jquery/dist/jquery.min"], function(rj
   _rjasmine.ready(function() {
     require([
       "specs/promise",
-      "specs/when"
+      "specs/when",
+      "specs/all"
     ], _rjasmine.execute);
   });
 });
