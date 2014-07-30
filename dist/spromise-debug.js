@@ -798,7 +798,7 @@ define('src/promise',[
  */
 
 
-define('src/when',[
+define('src/all',[
   "src/promise",
   "src/async"
 ], function(Promise, Async) {
@@ -811,19 +811,17 @@ define('src/when',[
     return input;
   }
 
-  /**
-  * Interface to allow multiple promises to be synchronized
-  */
-  function When() {
+  function All(values) {
+    values = values || [];
+
     // The input is the queue of items that need to be resolved.
-    var values      = arguments,
-        resolutions = [],
+    var resolutions = [],
         promise     = Promise.defer(),
         context     = this,
         remaining   = values.length;
 
     if (!values.length) {
-      return promise.resolve();
+      return promise.resolve(values);
     }
 
     // Check everytime a new resolved promise occurs if we are done processing all
@@ -831,7 +829,7 @@ define('src/when',[
     function checkPending() {
       remaining--;
       if (!remaining) {
-        promise.resolve.apply(context, resolutions);
+        promise.resolve.call(context, resolutions);
       }
     }
 
@@ -862,7 +860,7 @@ define('src/when',[
     return promise;
   }
 
-  return When;
+  return All;
 });
 
 
@@ -872,24 +870,28 @@ define('src/when',[
  */
 
 
-define('src/all',[
-  "src/when"
-], function(when) {
+define('src/when',[
+  "src/promise",
+  "src/all"
+], function(Promise, All) {
   
 
-  function All(values) {
-    function resolved() {
-      return Array.prototype.slice.call(arguments);
-    }
-
-    function rejected(reason) {
-      return reason;
-    }
-
-    return when.apply(this, values).then(resolved, rejected);
+  /**
+  * Interface to allow multiple promises to be synchronized
+  */
+  function When() {
+    var context = this, args = arguments;
+    return Promise(function(resolve, reject) {
+      All.call(context, args).then(function(results) {
+        resolve.apply(context, results);
+      },
+      function(reason) {
+        reject.call(context, reason);
+      });
+    });
   }
 
-  return All;
+  return When;
 });
 
 
