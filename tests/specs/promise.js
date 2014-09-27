@@ -15,7 +15,7 @@ define(["src/promise"], function(Promise) {
 
 
     it("Simple promise resolver resolved", function() {
-      return Promise(function( resolve, reject ) {
+      return Promise(function(resolve, reject) {
         resolve("simple value");
       })
       .then(function(x) {
@@ -25,7 +25,7 @@ define(["src/promise"], function(Promise) {
 
 
     it("Simple promise resolver rejected", function() {
-      return Promise(function( resolve, reject ) {
+      return Promise(function(resolve, reject) {
         reject("reject value");
       })
       .then(null, function(x) {
@@ -276,7 +276,7 @@ define(["src/promise"], function(Promise) {
       function(value) {
         expect(value).toBe("Rejected");
 
-        if ( failed ) {
+        if (failed) {
           return Promise.resolved();
         }
       });

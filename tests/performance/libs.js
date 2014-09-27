@@ -1,4 +1,4 @@
-define( function(require) {
+define(function(require) {
 
     // Load all promise impls
     return {

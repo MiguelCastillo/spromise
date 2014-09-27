@@ -4,14 +4,14 @@
  */
 
 
-define( function() {
+define(function() {
   var _self = this;
 
   var nextTick;
-  if ( _self.setImmediate ) {
+  if (_self.setImmediate) {
     nextTick = _self.setImmediate;
   }
-  else if ( _self.process && typeof _self.process.nextTick === "function" ) {
+  else if (_self.process && typeof _self.process.nextTick === "function") {
     nextTick = _self.process.nextTick;
   }
   else {
