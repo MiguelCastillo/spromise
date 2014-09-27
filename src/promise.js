@@ -213,12 +213,12 @@ define([
     if (this.queue) {
       var queue = this.queue,
         length = queue.length,
-        i = 0,
+        i,
         item;
 
       this.queue = null;
 
-      for (; i < length; i++) {
+      for (i = 0; i < length; i++) {
         item = queue[i];
         this.enqueue(item.state, item.cb, sync);
       }
@@ -272,7 +272,7 @@ define([
     return function resolve() {
       try {
         // Handler can only be called once!
-        if ( !_self.resolved ) {
+        if (_self.resolved) {
           _self.resolved = true;
           _self.context  = this;
           _self.finalize(state, arguments);
