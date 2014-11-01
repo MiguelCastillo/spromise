@@ -107,12 +107,14 @@ define([
     }
   }
 
+
   /**
    * Interface to play nice with libraries like when and q.
    */
   Promise.defer = function () {
     return new Promise();
   };
+
 
   /**
    * Interface that makes sure a promise is returned, regardless of the input.
@@ -138,6 +140,7 @@ define([
     });
   };
 
+
   /**
    * Create a promise that's already rejected
    *
@@ -150,6 +153,7 @@ define([
       state: states.rejected
     }));
   };
+
 
   /**
    * Create a promise that's already resolved
@@ -178,6 +182,7 @@ define([
       this.transition(options.state, options.context, options.value);
     }
   }
+
 
   /**
    * Figure out if the promise is pending/resolved/rejected and do the appropriate action
@@ -215,6 +220,7 @@ define([
     }
   };
 
+
   /**
    * Transitions the state of the promise from pending to either resolved or
    * rejected.  If the promise has already been resolved or rejected, then
@@ -245,9 +251,9 @@ define([
     }
   };
 
-  // Links together the resolution of promise1 to promise2
-  StateManager.prototype.then = function (onResolved, onRejected) {
-    var resolution;
+
+  StateManager.prototype.then = function(onResolved, onRejected) {
+    // Make sure onResolved and onRejected are correct
     onResolved = typeof(onResolved) === "function" ? onResolved : null;
     onRejected = typeof(onRejected) === "function" ? onRejected : null;
 
@@ -256,8 +262,8 @@ define([
       return new Promise(null, this);
     }
 
-    resolution = new Resolution(new Promise());
-    this.enqueue(states.notify, resolution.notify(onResolved, onRejected));
+    var resolution = new Resolution();
+    this.enqueue(states.notify, (onResolved || onRejected) ? resolution.resolve(onResolved, onRejected) : resolution.notify());
     return resolution.promise;
   };
 
@@ -266,17 +272,34 @@ define([
    * Thenable resolution
    */
   function Resolution(promise) {
-    this.promise = promise;
+    this.promise = promise || new Promise();
   }
 
+
+  Resolution.prototype.resolve = function(onResolved, onRejected) {
+    var _self = this;
+    return function resolve(state, value) {
+      var handler = (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved));
+
+      try {
+        // Try/catch block in case calling the handler throws an exception
+        _self.context = this;
+        _self.finalize(state, [handler.apply(this, value)]);
+      }
+      catch(ex) {
+        _self.promise.reject.call(_self.context, ex);
+      }
+    };
+  };
+
+
   // Notify when a promise has change state.
-  Resolution.prototype.notify = function (onResolved, onRejected) {
+  Resolution.prototype.notify = function () {
     var _self = this;
     return function notify(state, value) {
-      var handler = (onResolved || onRejected) && (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved));
       try {
         _self.context = this;
-        _self.finalize(state, handler ? [handler.apply(this, value)] : value);
+        _self.finalize(state, value);
       }
       catch (ex) {
         _self.promise.reject.call(_self.context, ex);
@@ -284,15 +307,16 @@ define([
     };
   };
 
+
   // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
   // This chain is partcularly used when dealing with external promises where we just just have to
   // resolve the result
   Resolution.prototype.chain = function (state) {
     var _self = this;
-    return function resolve() {
+    return function chain() {
       try {
         // Handler can only be called once!
-        if (_self.resolved) {
+        if (!_self.resolved) {
           _self.resolved = true;
           _self.context  = this;
           _self.finalize(state, arguments);
@@ -304,13 +328,18 @@ define([
     };
   };
 
-  // Routine to resolve a thenable.  Data is in the form of an arguments object (array)
+
+  /**
+   * Process the output from a promise resolutions.
+   * @param {states} state - Is the state of the promise resolution (resolved/rejected)
+   * @param {array} data - Is value of the resolved promise
+   */
   Resolution.prototype.finalize = function (state, data) {
-    var input = data[0],
-      then    = (input && input.then),
-      promise = this.promise,
-      context = this.context,
-      resolution, thenableType;
+    var input   = data[0];
+    var then    = (input && input.then);
+    var promise = this.promise;
+    var context = this.context;
+    var resolution, thenableType;
 
     // 2.3.1
     if (input === this.promise) {
@@ -326,7 +355,7 @@ define([
 
     // 2.3.3
     // If thenable is function or object, then try to resolve using that.
-    thenableType = then && (typeof (then) === "function" && typeof (input));
+    thenableType = typeof (then) === "function" ? typeof (input) : null;
     if (thenableType === "function" || thenableType === "object") {
       try {
         resolution = new Resolution(promise);
@@ -345,6 +374,7 @@ define([
       promise.then.stateManager.transition(state, context, data, true);
     }
   };
+
 
   // Expose enums for the states
   Promise.states = states;
