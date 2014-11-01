@@ -6,7 +6,7 @@
 
 define([
   "src/async"
-], function (Async) {
+], function (async) {
   "use strict";
 
   var states = {
@@ -29,18 +29,16 @@ define([
   /**
    * Small Promise
    */
-  function Promise(resolver, options) {
+  function Promise(resolver, stateManager) {
     if (this instanceof Promise === false) {
-      return new Promise(resolver, options);
+      return new Promise(resolver, stateManager);
     }
 
-    var target       = this;
-    var stateManager = new StateManager(options || {});
+    var target = this;
 
-    /**
-     * callback registration (then, done, fail, always) must be synchrounous so
-     * that the callbacks can be registered in the order they come in.
-     */
+    if (stateManager instanceof(StateManager) === false) {
+      stateManager = new StateManager();
+    }
 
     function then(onResolved, onRejected) {
       return stateManager.then(onResolved, onRejected);
@@ -104,7 +102,7 @@ define([
     };
 
     // Interface to allow to post pone calling the resolver as long as its not needed
-    if (typeof (resolver) === "function") {
+    if (typeof(resolver) === "function") {
       resolver.call(target, target.resolve, target.reject);
     }
   }
@@ -117,55 +115,77 @@ define([
   };
 
   /**
-   * Interface to create a promise and link it to a thenable object.  The assumption is that
-   * the object passed in is a thenable.  If it isn't, there is no check so an exption might
-   * be going your way.
+   * Interface that makes sure a promise is returned, regardless of the input.
+   * 1. If the input is a promsie, then that's immediately returned.
+   * 2. If the input is a thenable (has a then method), then a new promise is returned
+   *    that's chained to the input thenable.
+   * 3. If the input is any other value, then a new promise is returned and resolved with
+   *    the input value
+   *
+   * @returns {Promise}
    */
-  Promise.thenable = function (thenable) {
-    return new Promise(thenable.then);
+  Promise.thenable = function (value) {
+    if (value instanceof Promise) {
+      return value;
+    }
+
+    if (value && typeof(value.then) === "function") {
+      return new Promise(value.then);
+    }
+
+    return new Promise(function(resolve) {
+      resolve(value);
+    });
   };
 
   /**
    * Create a promise that's already rejected
+   *
+   * @returns {Promise} A promise that is alraedy rejected with the input value
    */
   Promise.reject = Promise.rejected = function () {
-    return new Promise(null, {
+    return new Promise(null, new StateManager({
       context: this,
       value: arguments,
       state: states.rejected
-    });
+    }));
   };
 
   /**
    * Create a promise that's already resolved
+   *
+   * @returns {Promise} A promise that is already resolved with the input value
    */
   Promise.resolve = Promise.resolved = function () {
-    return new Promise(null, {
+    return new Promise(null, new StateManager({
       context: this,
       value: arguments,
       state: states.resolved
-    });
+    }));
   };
 
 
   /**
-   * StateManager is the state manager for a promise
+   * Provides a set of interfaces to manage callback queues and the resolution state
+   * of the promises.
    */
   function StateManager(options) {
     // Initial state is pending
     this.state = states.pending;
 
     // If a state is passed in, then we go ahead and initialize the state manager with it
-    if (options.state) {
+    if (options && options.state) {
       this.transition(options.state, options.context, options.value);
     }
   }
 
-  // Queue will figure out if the promise is pending/resolved/rejected and do the appropriate
-  // action with the callback based on that.
+  /**
+   * Figure out if the promise is pending/resolved/rejected and do the appropriate action
+   * with the callback based on that.
+   */
   StateManager.prototype.enqueue = function (state, cb, sync) {
-    var _self = this,
-      _state  = _self.state;
+    var _self  = this;
+    var _state = _self.state;
 
     if (!_state) {
       (this.queue || (this.queue = [])).push({
@@ -174,15 +194,13 @@ define([
       });
     }
 
-    // If resolved, then lets try to execute the queue
+    // If not pending, then lets execute the callback
     else if (_state === state || states.always === state) {
       if (sync) {
         cb.apply(_self.context, _self.value);
       }
       else {
-        Async(function queuecb() {
-          cb.apply(_self.context, _self.value);
-        });
+        async(cb.apply.bind(cb, _self.context, _self.value));
       }
     }
 
@@ -192,14 +210,16 @@ define([
         cb.call(_self.context, _self.state, _self.value);
       }
       else {
-        Async(function queuecb() {
-          cb.call(_self.context, _self.state, _self.value);
-        });
+        async(cb.call.bind(cb, _self.context, _self.state, _self.value));
       }
     }
   };
 
-  // Sets the state of the promise and call the callbacks as appropriate
+  /**
+   * Transitions the state of the promise from pending to either resolved or
+   * rejected.  If the promise has already been resolved or rejected, then
+   * this is a noop.
+   */
   StateManager.prototype.transition = function (state, context, value, sync) {
     if (this.state) {
       return;
@@ -211,15 +231,15 @@ define([
 
     // Process queue if anything is waiting to be notified
     if (this.queue) {
-      var queue = this.queue,
-        length = queue.length,
-        i = 0,
-        item;
+      var queue  = this.queue;
+      var length = queue.length;
+      var i      = 0;
+      var item;
 
       this.queue = null;
 
-      for (; i < length; i++) {
-        item = queue[i];
+      while (i < length) {
+        item = queue[i++];
         this.enqueue(item.state, item.cb, sync);
       }
     }
@@ -228,8 +248,8 @@ define([
   // Links together the resolution of promise1 to promise2
   StateManager.prototype.then = function (onResolved, onRejected) {
     var resolution;
-    onResolved = typeof (onResolved) === "function" ? onResolved : null;
-    onRejected = typeof (onRejected) === "function" ? onRejected : null;
+    onResolved = typeof(onResolved) === "function" ? onResolved : null;
+    onRejected = typeof(onRejected) === "function" ? onRejected : null;
 
     if ((!onResolved && this.state === states.resolved) ||
         (!onRejected && this.state === states.rejected)) {
@@ -272,7 +292,7 @@ define([
     return function resolve() {
       try {
         // Handler can only be called once!
-        if ( !_self.resolved ) {
+        if (_self.resolved) {
           _self.resolved = true;
           _self.context  = this;
           _self.finalize(state, arguments);

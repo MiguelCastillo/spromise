@@ -14,7 +14,7 @@
 //
 
 
-define( function(require) {
+define(function(require) {
 
     var libs, Test, test, i, array, iterations, testCases;
 

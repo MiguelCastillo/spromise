@@ -29,6 +29,7 @@ define(["lib/rjasmine/dist/rjasmine", "lib/jquery/dist/jquery.min"], function(rj
   // rjasmine needs to wait for reporters to be loaded...
   _rjasmine.ready(function() {
     require([
+      "specs/async",
       "specs/promise",
       "specs/when",
       "specs/all"

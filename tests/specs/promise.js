@@ -1,36 +1,81 @@
 define(["src/promise"], function(Promise) {
 
-  describe("Promises", function() {
-    var dummy = { dummy: "dummy" };
+  describe("Promises Suite", function() {
 
-    it("Simple promise", function() {
-      var promise1 = new Promise();
-
-      promise1.then(function(x) {
-        expect(x).toBe("simple value");
+    describe("When promise is resolved with resolve interface", function() {
+      var result, promise1;
+      beforeEach(function() {
+        promise1 = new Promise();
+        result = Promise.defer();
       });
 
-      return promise1.resolve("simple value");
-    });
+      it("then resolution value is 'simple value'", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("simple value");
+          result.resolve();
+        });
 
-
-    it("Simple promise resolver resolved", function() {
-      return Promise(function( resolve, reject ) {
-        resolve("simple value");
-      })
-      .then(function(x) {
-        expect(x).toBe("simple value");
+        promise1.resolve("simple value");
+        return result;
       });
     });
 
 
-    it("Simple promise resolver rejected", function() {
-      return Promise(function( resolve, reject ) {
-        reject("reject value");
-      })
-      .then(null, function(x) {
-        expect(x).toBe("reject value");
-        return Promise.resolved();
+    describe("When promise is rejected with reject interface", function() {
+      var result, promise1;
+      beforeEach(function() {
+        promise1 = new Promise();
+        result = Promise.defer();
+      });
+
+      it("then rejection reason is 'bad value'", function() {
+        promise1.then(function() {}, function(x) {
+          expect(x).toBe("bad value");
+          result.resolve();
+        });
+
+        promise1.reject("bad value");
+        return result;
+      });
+    });
+
+    
+    describe("When a promise is resolved with the resolver function", function() {
+      var result;
+      beforeEach(function() {
+        result = Promise.defer();
+      });
+
+      it("then resolution value is 'simple value'", function() {
+        Promise(function(resolve) {
+          resolve("simple value");
+        })
+        .then(function(x) {
+          expect(x).toBe("simple value");
+          result.resolve();
+        });
+
+        return result;
+      });
+    });
+
+
+    describe("When a promise is rejected with the resolver function", function() {
+      var result;
+      beforeEach(function() {
+        result = Promise.defer();
+      });
+
+      it("then rejection reason is 'bad value'", function() {
+        Promise(function(resolve, reject) {
+          reject("bad value");
+        })
+        .then(function() {}, function(x) {
+          expect(x).toBe("bad value");
+          result.resolve();
+        });
+
+        return result;
       });
     });
 
@@ -163,6 +208,7 @@ define(["src/promise"], function(Promise) {
 
 
     it("fulfilled after a delay", function () {
+      var dummy = { dummy: "dummy" };
       var promise1 = Promise();
       var promise2 = Promise();
       var isFulfilled = false;
@@ -276,10 +322,28 @@ define(["src/promise"], function(Promise) {
       function(value) {
         expect(value).toBe("Rejected");
 
-        if ( failed ) {
+        if (failed) {
           return Promise.resolved();
         }
       });
+    });
+
+
+    describe("When a promise is resolved with a rejected promise", function() {
+      var result, promise;
+      beforeEach(function() {
+        result = Promise.defer();
+        promise = Promise.rejected("rejection");
+      });
+
+      it("then promise rejection reason is 'rejection'", function() {
+        Promise.thenable(promise).then(result.resolve, result.resolve);
+
+        return result.then(function(val) {
+          expect(val).toBe("rejection");
+        });
+      });
+
     });
 
   });
