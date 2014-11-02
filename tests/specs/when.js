@@ -4,25 +4,25 @@ define(["src/promise", "src/when"], function(promise, when) {
 
     it("no arguments", function() {
       return when().done(function() {
-        expect(arguments.length).toBe(0);
+        expect(arguments.length).to.equal(0);
       });
     });
 
     it("literal string", function() {
       return when("string").done(function(response) {
-        expect(response).toBe("string");
+        expect(response).to.equal("string");
       });
     });
 
     it("literal undefined", function() {
       return when((void 0)).done(function(response) {
-        expect(response).toBeUndefined();
+        expect(response).to.equal(undefined);
       });
     });
 
     it("Number value", function() {
       return when(3.14).done(function(response) {
-        expect(response).toBe(3.14);
+        expect(response).to.equal(3.14);
       });
     });
 
@@ -30,21 +30,21 @@ define(["src/promise", "src/when"], function(promise, when) {
     it("promise string", function() {
       var promise1 = promise.resolve("string");
       return when(promise1).done(function(response) {
-        expect(response).toBe("string");
+        expect(response).to.equal("string");
       });
     });
 
     it("promise undefined", function() {
       var promise1 = promise.resolve((void 0));
       return when(promise1).done(function(response) {
-        expect(response).toBeUndefined();
+        expect(response).to.equal(undefined);
       });
     });
 
     it("promise Number", function() {
       var promise1 = promise.resolve(3.14);
       return when(promise1).done(function(response) {
-        expect(response).toBe(3.14);
+        expect(response).to.equal(3.14);
       });
     });
 
@@ -54,10 +54,10 @@ define(["src/promise", "src/when"], function(promise, when) {
       var result    = promise.defer();
 
       when(deferred1, deferred2).then(function() {
-        expect("Failure was expected").toBe(true);
+        expect("Failure was expected").to.equal(true);
         result.resolve();
       }, function(reason) {
-        expect(reason).toBe("reject promise2");
+        expect(reason).to.equal("reject promise2");
         result.resolve();
       });
 
@@ -69,8 +69,8 @@ define(["src/promise", "src/when"], function(promise, when) {
       var result    = promise.defer();
 
       return when(deferred1, 3.14).then(function(result1, result2) {
-        expect(result1).toBe("resolve promise");
-        expect(result2).toBe(3.14);
+        expect(result1).to.equal("resolve promise");
+        expect(result2).to.equal(3.14);
       });
     });
 
@@ -83,18 +83,17 @@ define(["src/promise", "src/when"], function(promise, when) {
         var _categories = result[1];
         var _books = result[2];
 
-        expect(_actor).toBeDefined();
-        expect(_actor.firstName).toBe("Dracula");
-        expect(_actor.nickName).toBe("Vampire");
+        expect(_actor).to.be.an('object');
+        expect(_actor.firstName).to.equal("Dracula");
+        expect(_actor.nickName).to.equal("Vampire");
 
-        expect(_categories).toBeDefined();
-        expect(_categories.scifi).toBe("Star Trek");
-        expect(_categories.drama).toBe("I am sam");
+        expect(_categories).to.be.an('object');
+        expect(_categories.scifi).to.equal("Star Trek");
+        expect(_categories.drama).to.equal("I am sam");
 
-        expect(_books).toBeDefined();
-        expect(_books instanceof Array).toBe(true);
-        expect(_books[0]).toBe("Harri Potter");
-        expect(_books[1]).toBe("Lord of The Rings");
+        expect(_books).to.be.an('array');
+        expect(_books[0]).to.equal("Harri Potter");
+        expect(_books[1]).to.equal("Lord of The Rings");
       });
 
       var actor = {
@@ -126,17 +125,17 @@ define(["src/promise", "src/when"], function(promise, when) {
             xhr  = response[2];
 
         // Make sure first param is the data
-        expect(data.length).toBe(2);
-        expect(data[0].name).toBe("Pablo");
-        expect(data[1].name).toBe("Vincent");
+        expect(data.length).to.equal(2);
+        expect(data[0].name).to.equal("Pablo");
+        expect(data[1].name).to.equal("Vincent");
 
         // Second param is the state code
-        expect(code).toBe("success");
+        expect(code).to.equal("success");
 
         // Third is the xhr
-        expect(xhr.status).toBe(200);
-        expect(xhr.then).toBeDefined();
-        expect(xhr.readyState).toBe(4);
+        expect(xhr.status).to.equal(200);
+        expect(xhr.then).to.be.a('function');
+        expect(xhr.readyState).to.equal(4);
       });
     });
 
@@ -146,20 +145,20 @@ define(["src/promise", "src/when"], function(promise, when) {
       var promise1 = $.ajax("json/array.json");
 
       return when(promise1, undefined).done(function(response, _undefined) {
-        expect(_undefined).toBeUndefined();
+        expect(_undefined).to.equal(undefined);
 
         // Make sure first param is the data
-        expect(response[0].length).toBe(2);
-        expect(response[0][0].name).toBe("Pablo");
-        expect(response[0][1].name).toBe("Vincent");
+        expect(response[0].length).to.equal(2);
+        expect(response[0][0].name).to.equal("Pablo");
+        expect(response[0][1].name).to.equal("Vincent");
 
         // Second param is the state code
-        expect(response[1]).toBe("success");
+        expect(response[1]).to.equal("success");
 
         // Third is the xhr
-        expect(response[2].status).toBe(200);
-        expect(response[2].then).toBeDefined();
-        expect(response[2].readyState).toBe(4);
+        expect(response[2].status).to.equal(200);
+        expect(response[2].then).to.be.a('function');
+        expect(response[2].readyState).to.equal(4);
       });
     });
 

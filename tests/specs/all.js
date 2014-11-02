@@ -4,8 +4,8 @@ define(["src/promise", "src/all"], function(promise, all) {
 
     it("no arguments", function() {
       return all([]).then(function(result) {
-        expect(result instanceof Array).toBe(true);
-        expect(result.length).toBe(0);
+        expect(result instanceof Array).to.equal(true);
+        expect(result.length).to.equal(0);
       });
     });
 
@@ -13,8 +13,8 @@ define(["src/promise", "src/all"], function(promise, all) {
       var deferred = promise.resolve("resolved promise");
 
       return all([deferred]).then(function(result) {
-        expect(result.length).toBe(1);
-        expect(result[0]).toBe("resolved promise");
+        expect(result.length).to.equal(1);
+        expect(result[0]).to.equal("resolved promise");
       });
     });
 
@@ -23,9 +23,9 @@ define(["src/promise", "src/all"], function(promise, all) {
       var deferred2 = promise.resolve("resolved promise2");
 
       return all([deferred1, deferred2]).then(function(result) {
-        expect(result.length).toBe(2);
-        expect(result[0]).toBe("resolved promise1");
-        expect(result[1]).toBe("resolved promise2");
+        expect(result.length).to.equal(2);
+        expect(result[0]).to.equal("resolved promise1");
+        expect(result[1]).to.equal("resolved promise2");
       });
     });
 
@@ -35,10 +35,10 @@ define(["src/promise", "src/all"], function(promise, all) {
       var result    = promise.defer();
 
       all([deferred1, deferred2]).then(function(reason) {
-        expect("Failure was expected").toBe(true);
+        expect("Failure was expected").to.equal(true);
         result.resolve();
       }, function(reason) {
-        expect(reason).toBe("reject promise2");
+        expect(reason).to.equal("reject promise2");
         result.resolve();
       });
 
@@ -49,8 +49,8 @@ define(["src/promise", "src/all"], function(promise, all) {
       var deferred1 = promise.resolve("resolve promise");
 
       return all([deferred1, 3.14]).then(function(result) {
-        expect(result[0]).toBe("resolve promise");
-        expect(result[1]).toBe(3.14);
+        expect(result[0]).to.equal("resolve promise");
+        expect(result[1]).to.equal(3.14);
       });
     });
 

@@ -189,8 +189,7 @@ define([
    * with the callback based on that.
    */
   StateManager.prototype.enqueue = function (state, cb, sync) {
-    var _self  = this;
-    var _state = _self.state;
+    var _state = this.state;
 
     if (!_state) {
       (this.queue || (this.queue = [])).push({
@@ -202,20 +201,20 @@ define([
     // If not pending, then lets execute the callback
     else if (_state === state || states.always === state) {
       if (sync) {
-        cb.apply(_self.context, _self.value);
+        cb.apply(this.context, this.value);
       }
       else {
-        async(cb.apply.bind(cb, _self.context, _self.value));
+        async(cb.apply.bind(cb, this.context, this.value));
       }
     }
 
     // Do proper notify events
     else if (states.notify === state) {
       if (sync) {
-        cb.call(_self.context, _self.state, _self.value);
+        cb.call(this.context, this.state, this.value);
       }
       else {
-        async(cb.call.bind(cb, _self.context, _self.state, _self.value));
+        async(cb.call.bind(cb, this.context, this.state, this.value));
       }
     }
   };

@@ -4,6 +4,34 @@
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
+    connect: {
+      test: {
+        options: {
+          port: 8000,
+          hostname: 'localhost'
+        }
+      },
+      keepalive: {
+        options: {
+          port: 8000,
+          host: "*",
+          keepalive: true
+        }
+      }
+
+    },
+    mocha: {
+      test: {
+        options: {
+          log: true,
+          logErrors: true,
+          reporter: "Spec",
+          run: false,
+          timeout: 10000,
+          urls: ["http://localhost:8000/tests/SpecRunner.html"]
+        }
+      }
+    },
     requirejs: {
       compile: {
         options: {
@@ -68,7 +96,12 @@ module.exports = function(grunt) {
     }
   });
 
+
   grunt.loadNpmTasks("grunt-contrib-requirejs");
+  grunt.loadNpmTasks("grunt-contrib-connect");
+  grunt.loadNpmTasks("grunt-mocha");
+
   grunt.registerTask("default", ["requirejs"]);
   grunt.registerTask("travis", ["requirejs"]);
+  grunt.registerTask("test", ["default", "connect:test", "mocha:test"]);
 };

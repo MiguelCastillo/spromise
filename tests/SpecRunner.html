@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="../lib/mocha/mocha.css"/>
+    <script type="text/javascript" src="bind.js"></script>
+    <script type="text/javascript" src="../lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="../tests/requirejs-config.js"></script>
+    <script type="text/javascript" src="../lib/mocha/mocha.js"></script>
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+    <script>require(["tests/SpecRunner"], function() {});</script>
+  </body>
+</html>

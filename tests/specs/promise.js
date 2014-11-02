@@ -11,7 +11,7 @@ define(["src/promise"], function(Promise) {
 
       it("then resolution value is 'simple value'", function() {
         promise1.then(function(x) {
-          expect(x).toBe("simple value");
+          expect(x).to.equal("simple value");
           result.resolve();
         });
 
@@ -21,7 +21,7 @@ define(["src/promise"], function(Promise) {
 
       it("then the promise is resolved after a small delay", function () {
         promise1.then(function (x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           result.resolve();
         });
 
@@ -43,7 +43,7 @@ define(["src/promise"], function(Promise) {
 
       it("then rejection reason is 'bad value'", function() {
         promise1.then(function() {}, function(x) {
-          expect(x).toBe("bad value");
+          expect(x).to.equal("bad value");
           result.resolve();
         });
 
@@ -64,7 +64,7 @@ define(["src/promise"], function(Promise) {
           resolve("simple value");
         })
         .then(function(x) {
-          expect(x).toBe("simple value");
+          expect(x).to.equal("simple value");
           result.resolve();
         });
 
@@ -84,7 +84,7 @@ define(["src/promise"], function(Promise) {
           reject("bad value");
         })
         .then(function() {}, function(x) {
-          expect(x).toBe("bad value");
+          expect(x).to.equal("bad value");
           result.resolve();
         });
 
@@ -106,7 +106,7 @@ define(["src/promise"], function(Promise) {
       it("then throws exception that rejects promise", function() {
         // Make sure we fail with the proper exception
         promise2.fail(function(ex) {
-          expect(ex instanceof TypeError).toBe(true);
+          expect(ex instanceof TypeError).to.equal(true);
           result.resolve();
         });
 
@@ -116,7 +116,7 @@ define(["src/promise"], function(Promise) {
 
       it("then promise is rejected with valid reason", function() {
         promise2.fail(function(ex) {
-          expect(ex.message).toBe("Resolution input must not be the promise being resolved");
+          expect(ex.message).to.equal("Resolution input must not be the promise being resolved");
           result.resolve();
         });
 
@@ -136,11 +136,11 @@ define(["src/promise"], function(Promise) {
       describe("In a thennable sequence of two promises", function() {
         it("then final value is 'Second success'", function() {
           promise1.then(function(x) {
-            expect(x).toBe("First success");
+            expect(x).to.equal("First success");
             return Promise.resolved("Second success");
           })
           .then(function(x) {
-            expect(x).toBe("Second success");
+            expect(x).to.equal("Second success");
             result.resolve();
           });
 
@@ -152,15 +152,15 @@ define(["src/promise"], function(Promise) {
       describe("In a thennable sequence of three promises", function() {
         it("then final value is 'Third success'", function() {
           promise1.then(function(x) {
-            expect(x).toBe("First success");
+            expect(x).to.equal("First success");
             return Promise.resolved("Second success");
           })
           .then(function(x) {
-            expect(x).toBe("Second success");
+            expect(x).to.equal("Second success");
             return Promise.resolved("Third success");
           })
           .then(function(x) {
-            expect(x).toBe("Third success");
+            expect(x).to.equal("Third success");
             result.resolve();
           });
 
@@ -173,35 +173,35 @@ define(["src/promise"], function(Promise) {
       describe("In a thennable sequence of eight promises", function() {
         it("then final value is 'Eight success'", function() {
           promise1.then(function(x) {
-            expect(x).toBe("First success");
+            expect(x).to.equal("First success");
             return Promise.resolved("Second success");
           })
           .then(function(x) {
-            expect(x).toBe("Second success");
+            expect(x).to.equal("Second success");
             return Promise.resolved("Third success");
           })
           .then(function(x) {
-            expect(x).toBe("Third success");
+            expect(x).to.equal("Third success");
             return Promise.resolved("Fourth success");
           })
           .then(function(x) {
-            expect(x).toBe("Fourth success");
+            expect(x).to.equal("Fourth success");
             return Promise.resolved("Fifth success");
           })
           .then(function(x) {
-            expect(x).toBe("Fifth success");
+            expect(x).to.equal("Fifth success");
             return Promise.resolved("Sixth success");
           })
           .then(function(x) {
-            expect(x).toBe("Sixth success");
+            expect(x).to.equal("Sixth success");
             return Promise.resolved("Seventh success");
           })
           .then(function(x) {
-            expect(x).toBe("Seventh success");
+            expect(x).to.equal("Seventh success");
             return Promise.resolved("Eigth success");
           })
           .then(function(x) {
-            expect(x).toBe("Eigth success");
+            expect(x).to.equal("Eigth success");
             result.resolve();
           });
 
@@ -222,12 +222,12 @@ define(["src/promise"], function(Promise) {
       describe("with sequence of 2 successful promises", function() {
         it("then final value is 'Second success'", function() {
           var promise2 = promise1.then(function(x) {
-            expect(x).toBe("First success");
+            expect(x).to.equal("First success");
             return Promise.resolved("Second success");
           });
 
           promise2.then(function(x) {
-            expect(x).toBe("Second success");
+            expect(x).to.equal("Second success");
             result.resolve();
           });
 
@@ -247,7 +247,7 @@ define(["src/promise"], function(Promise) {
 
       it("then promise rejection reason is 'rejection'", function() {
         Promise.thenable(promise).then(null, function(x) {
-          expect(x).toBe("rejection");
+          expect(x).to.equal("rejection");
           result.resolve();
         });
 
@@ -265,17 +265,17 @@ define(["src/promise"], function(Promise) {
 
       it("then the last value is 'undefined'", function() {
         promise1.then(function(x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           return Promise.resolved("Second success");
         })
         .then(function(x) {
-          expect(x).toBe("Second success");
+          expect(x).to.equal("Second success");
         })
         .then(function(x) {
-          expect(x).toBeUndefined();
+          expect(x).to.equal(undefined);
         })
         .then(function (x) {
-          expect(x).toBeUndefined();
+          expect(x).to.equal(undefined);
           result.resolve();
         });
 
@@ -285,21 +285,21 @@ define(["src/promise"], function(Promise) {
 
       it("then the last value is 'Third success", function() {
         promise1.then(function(x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           return Promise.resolved("Second success");
         })
         .then(function(x) {
-          expect(x).toBe("Second success");
+          expect(x).to.equal("Second success");
         })
         .then(function(x) {
-          expect(x).toBeUndefined();
+          expect(x).to.equal(undefined);
         })
         .then(function (x) {
-          expect(x).toBeUndefined();
+          expect(x).to.equal(undefined);
           return Promise.resolved("Third success");
         })
         .then(function(x) {
-          expect(x).toBe("Third success");
+          expect(x).to.equal("Third success");
           result.resolve();
         });
 
@@ -318,17 +318,17 @@ define(["src/promise"], function(Promise) {
 
       it("then the thennable chain fails with exception TypeError", function() {
         promise1.then(function(x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           return Promise.resolve("Second success");
         })
         .then(function(x) {
-          expect(x).toBe("Second success");
+          expect(x).to.equal("Second success");
           throw new TypeError("First exception");
         })
         .then(function(x) {
-          expect(x instanceof TypeError).toBe(true);
+          expect(x instanceof TypeError).to.equal(true);
         },function(ex) {
-          expect(ex instanceof TypeError).toBe(true);
+          expect(ex instanceof TypeError).to.equal(true);
           result.resolve();
         });
 
@@ -338,17 +338,17 @@ define(["src/promise"], function(Promise) {
 
       it("then the thennable chain fails with the appropriate message", function() {
         promise1.then(function(x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           return Promise.resolve("Second success");
         })
         .then(function(x) {
-          expect(x).toBe("Second success");
+          expect(x).to.equal("Second success");
           throw new TypeError("First exception");
         })
         .then(function(x) {
-          expect(x instanceof TypeError).toBe(true);
+          expect(x instanceof TypeError).to.equal(true);
         },function(ex) {
-          expect(ex.message).toBe("First exception");
+          expect(ex.message).to.equal("First exception");
           result.resolve();
         });
 
@@ -358,23 +358,23 @@ define(["src/promise"], function(Promise) {
 
       it("then the thennable chain returns rejected promises and throws exceptions", function() {
         promise1.then(function(x) {
-          expect(x).toBe("First success");
+          expect(x).to.equal("First success");
           return Promise.rejected("First rejection");
         })
         .then(function() {}, function(x) {
-          expect(x).toBe("First rejection");
+          expect(x).to.equal("First rejection");
           throw new TypeError("First exception");
         })
         .then(function() {},function(ex) {
-          expect(ex.message).toBe("First exception");
+          expect(ex.message).to.equal("First exception");
           return Promise.reject("Second rejection");
         })
         .then(function() {}, function(x) {
-          expect(x).toBe("Second rejection");
+          expect(x).to.equal("Second rejection");
           throw new TypeError("Second exception");
         })
         .then(null, function(x) {
-          expect(x.message).toBe("Second exception");
+          expect(x.message).to.equal("Second exception");
           result.resolve();
         });
 
@@ -388,18 +388,18 @@ define(["src/promise"], function(Promise) {
       var promise1 = new Promise();
 
       promise1.done(function(_actor, _categories, _books) {
-        expect(_actor).toBeDefined();
-        expect(_actor.firstName).toBe("Dracula");
-        expect(_actor.nickName).toBe("Vampire");
+        expect(_actor).to.be.an('object');
+        expect(_actor.firstName).to.equal("Dracula");
+        expect(_actor.nickName).to.equal("Vampire");
 
-        expect(_categories).toBeDefined();
-        expect(_categories.scifi).toBe("Star Trek");
-        expect(_categories.drama).toBe("I am sam");
+        expect(_categories).to.be.an('object');
+        expect(_categories.scifi).to.equal("Star Trek");
+        expect(_categories.drama).to.equal("I am sam");
 
-        expect(_books).toBeDefined();
-        expect(_books instanceof Array).toBe(true);
-        expect(_books[0]).toBe("Harri Potter");
-        expect(_books[1]).toBe("Lord of The Rings");
+        expect(_books).to.be.an('array');
+        expect(_books instanceof Array).to.equal(true);
+        expect(_books[0]).to.equal("Harri Potter");
+        expect(_books[1]).to.equal("Lord of The Rings");
       });
 
       var actor = {
@@ -422,17 +422,17 @@ define(["src/promise"], function(Promise) {
       // Chain the ajax request and the promise
       return Promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
         // Make sure first param is the data
-        expect(data.length).toBe(2);
-        expect(data[0].name).toBe("Pablo");
-        expect(data[1].name).toBe("Vincent");
+        expect(data.length).to.equal(2);
+        expect(data[0].name).to.equal("Pablo");
+        expect(data[1].name).to.equal("Vincent");
 
         // Second param is the state code
-        expect(code).toBe("success");
+        expect(code).to.equal("success");
 
         // Third is the xhr
-        expect(xhr.status).toBe(200);
-        expect(xhr.then).toBeDefined();
-        expect(xhr.readyState).toBe(4);
+        expect(xhr.status).to.equal(200);
+        expect(xhr.then).to.be.a('function');
+        expect(xhr.readyState).to.equal(4);
       });
     });
 

@@ -1,12 +1,12 @@
 define(["src/Async", "src/Promise"], function(async, Promise) {
 
   describe("async suite:", function() {
-    
+
     describe("When calling async with no arguments", function() {
       it("then arguments.length is 0", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(0);
+            expect(arguments.length).to.equal(0);
             resolve();
           }
           async(cb.apply.bind(cb, this));
@@ -19,7 +19,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments.length is 1", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(1);
+            expect(arguments.length).to.equal(1);
             resolve();
           }
           async(cb.apply.bind(cb, this, ["hello world"]));
@@ -29,7 +29,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments[0] is 'hello world'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe("hello world");
+            expect(arguments[0]).to.equal("hello world");
             resolve();
           }
           async(cb.apply.bind(cb, this, ["hello world"]));
@@ -39,7 +39,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments[0] is 1", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe(1);
+            expect(arguments[0]).to.equal(1);
             resolve();
           }
           async(cb.apply.bind(cb, this, [1]));
@@ -49,7 +49,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments[0] is '1'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe('1');
+            expect(arguments[0]).to.equal('1');
             resolve();
           }
           async(cb.apply.bind(cb, this, ['1']));
@@ -62,7 +62,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments.length is 3", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(3);
+            expect(arguments.length).to.equal(3);
             resolve();
           }
           async(cb.apply.bind(cb, this, ["hello", "world", "test"]));
@@ -72,9 +72,9 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments is 'hello world test'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe("hello");
-            expect(arguments[1]).toBe("world");
-            expect(arguments[2]).toBe("test");
+            expect(arguments[0]).to.equal("hello");
+            expect(arguments[1]).to.equal("world");
+            expect(arguments[2]).to.equal("test");
             resolve();
           }
           async(cb.apply.bind(cb, this, ["hello", "world", "test"]));
@@ -84,15 +84,15 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
     });
 
   });
-  
+
 
   describe("async.delay suite:", function() {
-  
+
     describe("When calling async.delay with no arguments", function() {
       it("then arguments.length is 0", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(0);
+            expect(arguments.length).to.equal(0);
             resolve();
           }
           async.delay(cb.apply.bind(cb, this), 1);
@@ -105,7 +105,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments.length is 1", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(1);
+            expect(arguments.length).to.equal(1);
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, ["hello world"]), 1);
@@ -115,7 +115,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments is 'hello world'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe("hello world");
+            expect(arguments[0]).to.equal("hello world");
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, ["hello world"]), 1);
@@ -125,7 +125,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments is 1", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe(1);
+            expect(arguments[0]).to.equal(1);
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, [1]), 1);
@@ -135,7 +135,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments is '1'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe('1');
+            expect(arguments[0]).to.equal('1');
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, ['1']), 1);
@@ -148,7 +148,7 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments.length is 3", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments.length).toBe(3);
+            expect(arguments.length).to.equal(3);
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 1);
@@ -158,9 +158,9 @@ define(["src/Async", "src/Promise"], function(async, Promise) {
       it("then arguments is 'hello world test'", function() {
         return new Promise(function(resolve) {
           function cb() {
-            expect(arguments[0]).toBe("hello");
-            expect(arguments[1]).toBe("world");
-            expect(arguments[2]).toBe("test");
+            expect(arguments[0]).to.equal("hello");
+            expect(arguments[1]).to.equal("world");
+            expect(arguments[2]).to.equal("test");
             resolve();
           }
           async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]));

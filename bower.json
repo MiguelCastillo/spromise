@@ -20,5 +20,11 @@
     "buildinfo",
     "src",
     "Gruntfile.js"
-  ]
+  ],
+  "devDependencies": {
+    "mocha": "~2.0.1",
+    "requirejs": "~2.1.15",
+    "chai": "~1.9.2",
+    "jquery": "~2.1.1"
+  }
 }
