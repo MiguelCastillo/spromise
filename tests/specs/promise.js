@@ -18,6 +18,19 @@ define(["src/promise"], function(Promise) {
         promise1.resolve("simple value");
         return result;
       });
+
+      it("then the promise is resolved after a small delay", function () {
+        promise1.then(function (x) {
+          expect(x).toBe("First success");
+          result.resolve();
+        });
+
+        setTimeout(function () {
+          promise1.resolve("First success");
+        }, 50);
+
+        return result;
+      });
     });
 
 
@@ -39,7 +52,7 @@ define(["src/promise"], function(Promise) {
       });
     });
 
-    
+
     describe("When a promise is resolved with the resolver function", function() {
       var result;
       beforeEach(function() {
@@ -80,100 +93,298 @@ define(["src/promise"], function(Promise) {
     });
 
 
-    it("Promise object return itself in a then call", function() {
-      var promise1 = new Promise();
-
-      var promise2 = promise1.then(function(x) {
-        expect(x).toBe("simple value");
-        return promise2;
-      })
-      .fail(function(ex) {
-        expect(ex).toBeDefined();
-      })
-      .done(function() {
-        expect(this).toBe("never called");
+    describe("When promise resolves and returns itself", function() {
+      var result, promise1, promise2;
+      beforeEach(function() {
+        result   = new Promise();
+        promise1 = new Promise();
+        promise2 = promise1.then(function() {
+          return promise2;
+        });
       });
 
-      return promise1.resolve("simple value");
+      it("then throws exception that rejects promise", function() {
+        // Make sure we fail with the proper exception
+        promise2.fail(function(ex) {
+          expect(ex instanceof TypeError).toBe(true);
+          result.resolve();
+        });
+
+        promise1.resolve("simple value");
+        return result;
+      });
+
+      it("then promise is rejected with valid reason", function() {
+        promise2.fail(function(ex) {
+          expect(ex.message).toBe("Resolution input must not be the promise being resolved");
+          result.resolve();
+        });
+
+        promise1.resolve("simple value");
+        return result;
+      });
     });
 
 
-    it("Simple thenable chain", function() {
-      var promise1 = Promise();
-
-      var promise2 = promise1.then(function(x) {
-        expect(x).toBe("Thenable returning thenable simple value");
-        return Promise.resolved("first chain");
+    describe("When Promise.resolved returns promise", function() {
+      var result, promise1;
+      beforeEach(function() {
+        result = new Promise();
+        promise1 = new Promise();
       });
 
-      promise2.then(function(x) {
-        expect(x).toBe("first chain");
+      describe("In a thennable sequence of two promises", function() {
+        it("then final value is 'Second success'", function() {
+          promise1.then(function(x) {
+            expect(x).toBe("First success");
+            return Promise.resolved("Second success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Second success");
+            result.resolve();
+          });
+
+          promise1.resolve("First success");
+          return result;
+        });
       });
 
-      promise1.resolve("Thenable returning thenable simple value");
-      return promise2;
+      describe("In a thennable sequence of three promises", function() {
+        it("then final value is 'Third success'", function() {
+          promise1.then(function(x) {
+            expect(x).toBe("First success");
+            return Promise.resolved("Second success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Second success");
+            return Promise.resolved("Third success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Third success");
+            result.resolve();
+          });
+
+          promise1.resolve("First success");
+          return result;
+        });
+      });
+
+
+      describe("In a thennable sequence of eight promises", function() {
+        it("then final value is 'Eight success'", function() {
+          promise1.then(function(x) {
+            expect(x).toBe("First success");
+            return Promise.resolved("Second success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Second success");
+            return Promise.resolved("Third success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Third success");
+            return Promise.resolved("Fourth success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Fourth success");
+            return Promise.resolved("Fifth success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Fifth success");
+            return Promise.resolved("Sixth success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Sixth success");
+            return Promise.resolved("Seventh success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Seventh success");
+            return Promise.resolved("Eigth success");
+          })
+          .then(function(x) {
+            expect(x).toBe("Eigth success");
+            result.resolve();
+          });
+
+          promise1.resolve("First success");
+          return result;
+        });
+      });
     });
 
 
-    it("Thenable returning thenable", function() {
-      var promise1 = Promise();
-
-      var promise2 = promise1.then(function(x) {
-        expect(x).toBe("Thenable returning thenable simple value");
-        return Promise.resolved("first chain");
+    describe("When running thenable chain", function() {
+      var result, promise1;
+      beforeEach(function() {
+        result = new Promise();
+        promise1 = new Promise();
       });
 
-      var promise3 = promise2.then(function(x) {
-        expect(x).toBe("first chain");
-        return Promise.resolved("second chain");
-      });
+      describe("with sequence of 2 successful promises", function() {
+        it("then final value is 'Second success'", function() {
+          var promise2 = promise1.then(function(x) {
+            expect(x).toBe("First success");
+            return Promise.resolved("Second success");
+          });
 
-      promise3.then(function(x) {
-        expect(x).toBe("second chain");
-      })
-      .done(function (x) {
-        expect(x).toBeUndefined();
-        // returning a promise only affects then and not done
-        return Promise.resolved("third chain");
-      })
-      .done(function (x) {
-        expect(x).toBeUndefined();
-      });
+          promise2.then(function(x) {
+            expect(x).toBe("Second success");
+            result.resolve();
+          });
 
-      promise1.resolve("Thenable returning thenable simple value");
-      return promise3;
+          promise1.resolve("First success");
+          return result;
+        });
+      });
     });
 
 
-    it("Long promise thenable chain", function() {
-      var promise1 = new Promise();
-
-      promise1.then(function(x) {
-        expect(x).toBe("simple value");
-        return Promise.resolved("tests1");
-      })
-      .then(function(x) {
-        expect(x).toBe("tests1");
-        return Promise.resolved("tests2");
-      })
-      .then(function(x) {
-        expect(x).toBe("tests2");
-        return Promise.resolved("tests3");
-      })
-      .then(function(x) {
-        expect(x).toBe("tests3");
-        return Promise.resolved("tests5");
-      })
-      .then(function(x) {
-        expect(x).toBe("tests5");
+    describe("When a promise is resolved with a rejected promise", function() {
+      var result, promise;
+      beforeEach(function() {
+        result = Promise.defer();
+        promise = Promise.rejected("rejection");
       });
 
-      return promise1.resolve("simple value");
+      it("then promise rejection reason is 'rejection'", function() {
+        Promise.thenable(promise).then(null, function(x) {
+          expect(x).toBe("rejection");
+          result.resolve();
+        });
+
+        return result;
+      });
+    });
+
+
+    describe("When thenable chain does not return a value", function() {
+      var result, promise1;
+      beforeEach(function() {
+        result = new Promise();
+        promise1 = new Promise();
+      });
+
+      it("then the last value is 'undefined'", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("First success");
+          return Promise.resolved("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBe("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBeUndefined();
+        })
+        .then(function (x) {
+          expect(x).toBeUndefined();
+          result.resolve();
+        });
+
+        promise1.resolve("First success");
+        return result;
+      });
+
+      it("then the last value is 'Third success", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("First success");
+          return Promise.resolved("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBe("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBeUndefined();
+        })
+        .then(function (x) {
+          expect(x).toBeUndefined();
+          return Promise.resolved("Third success");
+        })
+        .then(function(x) {
+          expect(x).toBe("Third success");
+          result.resolve();
+        });
+
+        promise1.resolve("First success");
+        return result;
+      });
+    });
+
+
+    describe("When an exception is thrown", function () {
+      var result, promise1;
+      beforeEach(function() {
+        result = new Promise();
+        promise1 = new Promise();
+      });
+
+      it("then the thennable chain fails with exception TypeError", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("First success");
+          return Promise.resolve("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBe("Second success");
+          throw new TypeError("First exception");
+        })
+        .then(function(x) {
+          expect(x instanceof TypeError).toBe(true);
+        },function(ex) {
+          expect(ex instanceof TypeError).toBe(true);
+          result.resolve();
+        });
+
+        promise1.resolve("First success");
+        return result;
+      });
+
+      it("then the thennable chain fails with the appropriate message", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("First success");
+          return Promise.resolve("Second success");
+        })
+        .then(function(x) {
+          expect(x).toBe("Second success");
+          throw new TypeError("First exception");
+        })
+        .then(function(x) {
+          expect(x instanceof TypeError).toBe(true);
+        },function(ex) {
+          expect(ex.message).toBe("First exception");
+          result.resolve();
+        });
+
+        promise1.resolve("First success");
+        return result;
+      });
+
+      it("then the thennable chain returns rejected promises and throws exceptions", function() {
+        promise1.then(function(x) {
+          expect(x).toBe("First success");
+          return Promise.rejected("First rejection");
+        })
+        .then(function() {}, function(x) {
+          expect(x).toBe("First rejection");
+          throw new TypeError("First exception");
+        })
+        .then(function() {},function(ex) {
+          expect(ex.message).toBe("First exception");
+          return Promise.reject("Second rejection");
+        })
+        .then(function() {}, function(x) {
+          expect(x).toBe("Second rejection");
+          throw new TypeError("Second exception");
+        })
+        .then(null, function(x) {
+          expect(x.message).toBe("Second exception");
+          result.resolve();
+        });
+
+        promise1.resolve("First success");
+        return result;
+      });
     });
 
 
     it("Resolve with multiple object arguments", function() {
-
       var promise1 = new Promise();
 
       promise1.done(function(_actor, _categories, _books) {
@@ -207,78 +418,6 @@ define(["src/promise"], function(Promise) {
     });
 
 
-    it("fulfilled after a delay", function () {
-      var dummy = { dummy: "dummy" };
-      var promise1 = Promise();
-      var promise2 = Promise();
-      var isFulfilled = false;
-
-      promise2.then(function onFulfilled() {
-        expect(isFulfilled).toBe(true);
-        promise1.resolve();
-      });
-
-      setTimeout(function () {
-        promise2.resolve(dummy);
-        isFulfilled = true;
-      }, 50);
-
-      return promise1;
-    });
-
-
-    it("then with a throw", function () {
-      var promise1 = Promise(),
-          promise3 = Promise();
-
-      var promise2 = promise1.then(function(x) {
-        return Promise.resolved("resolve promise2");
-      })
-      .then(function(x) {
-        expect(x).toBe("resolve promise2");
-        throw "My Bad";
-      })
-      .then(function(x) {
-      },function(ex) {
-        expect(ex).toBe("My Bad");
-        return promise2.resolve("===> exception handled");
-      })
-      .then(function(x) {
-        expect(x).toBe("===> exception handled");
-        promise3.resolve();
-      });
-
-      promise1.resolve("tests");
-      return promise3;
-    });
-
-
-    it("then with a throw and chained rejects", function () {
-      var promise1 = Promise(),
-          promise3 = Promise();
-
-      var promise2 = promise1.then(function(x) {
-        return Promise.rejected("resolve promise2");
-      })
-      .then(function(){}, function(x) {
-        expect(x).toBe("resolve promise2");
-        throw "My Bad";
-      })
-      .then(function(x) {
-      },function(ex) {
-        expect(ex).toBe("My Bad");
-        return promise2.reject("===> exception handled");
-      })
-      .then(function() {}, function(x) {
-        expect(x).toBe("===> exception handled");
-        promise3.resolve();
-      });
-
-      promise1.resolve("tests");
-      return promise3;
-    });
-
-
     it("Simple $.ajax", function() {
       // Chain the ajax request and the promise
       return Promise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
@@ -297,54 +436,6 @@ define(["src/promise"], function(Promise) {
       });
     });
 
-
-    it("factory resolve", function() {
-      return Promise(function(resolve, reject) {
-        resolve("Resolved");
-      })
-      .done(function(value) {
-        expect(value).toBe("Resolved");
-      });
-    });
-
-
-    it("factory reject", function() {
-      var failed = false;
-      return Promise(function(resolve, reject) {
-        reject("Rejected");
-      })
-      .fail(function(value) {
-        expect(value).toBe("Rejected");
-        failed = true;
-      })
-      .then(function(value) {
-      },
-      function(value) {
-        expect(value).toBe("Rejected");
-
-        if (failed) {
-          return Promise.resolved();
-        }
-      });
-    });
-
-
-    describe("When a promise is resolved with a rejected promise", function() {
-      var result, promise;
-      beforeEach(function() {
-        result = Promise.defer();
-        promise = Promise.rejected("rejection");
-      });
-
-      it("then promise rejection reason is 'rejection'", function() {
-        Promise.thenable(promise).then(result.resolve, result.resolve);
-
-        return result.then(function(val) {
-          expect(val).toBe("rejection");
-        });
-      });
-
-    });
 
   });
 
