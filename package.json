@@ -34,7 +34,7 @@
     "grunt-contrib-connect": "~0.8.0"
   },
   "scripts": {
-    "test": "grunt travis --verbose && node tests/promises-aplus-tests.js"
+    "test": "bower install && grunt travis --verbose && node tests/promises-aplus-tests.js"
   },
   "directories": {
     "test": "tests"
