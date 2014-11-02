@@ -30,7 +30,8 @@
     "grunt-cli": "~0.1.13",
     "grunt-contrib-requirejs": "~0.4.1",
     "promises-aplus-tests": "~2.1.0",
-    "grunt-mocha": "~0.4.11"
+    "grunt-mocha": "~0.4.11",
+    "grunt-contrib-connect": "~0.8.0"
   },
   "scripts": {
     "test": "grunt travis --verbose && node tests/promises-aplus-tests.js"
