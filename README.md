@@ -16,8 +16,8 @@ Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with
 8. <code>when</code> - creates and returns a promise. <code>when</code> also takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately available as resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
 9. <code>spromise.defer</code> Creates a new promise object.  If an object is passed in as the first parameter, the object will be extended to contain all the promise interfaces.
 10. <code>spromise.thenable</code> Takes in a thenable object used for resolving a newly created promise that's returned.  A thenable object is just any object/function with a then interface that is a assumed to be a promise object.
-11. <code>spromise.resolved</code> Returns a new promise that is already resolved with the value passed in.
-12. <code>spromise.rejected</code> Returns a new promise that is already rejected with the reason passed in.
+11. <code>spromise.resolve</code> Method to cast the input to a valid promise instance.  If the input is a promise, then that's returned as it. If the input is a thennable then a new promise is returned with the current/future value of the thennable. And if the value is anything else, a new promise that is already resolved with it is returned.
+12. <code>spromise.reject</code> Returns a new promise that is rejected with the reason passed in.
 
 ### Examples
 For a set of use cases, please see <a href="https://github.com/MiguelCastillo/spromise/tree/master/tests/specs">tests</a>
