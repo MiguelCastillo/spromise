@@ -35,7 +35,7 @@
     "promises-aplus-tests": "~2.1.0"
   },
   "scripts": {
-    "test": "bower install && grunt travis --verbose && grunt test && node tests/promises-aplus-tests.js"
+    "test": "bower install && grunt travis --verbose && node tests/promises-aplus-tests.js"
   },
   "directories": {
     "test": "tests"
