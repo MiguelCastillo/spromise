@@ -20,7 +20,6 @@ Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with
 12. <code>spromise.reject</code> Returns a new promise that is rejected with the reason passed in.
 
 ### Examples
-For a set of use cases, please see <a href="https://github.com/MiguelCastillo/spromise/tree/master/tests/specs">tests</a>
 
 <p>Simplest node sample</p>
 ``` javascript
@@ -55,7 +54,7 @@ spromise(function(resolve, reject){
 ```
 <p>jQuery ajax ($.ajax)</p>
 ``` javascript
-spromise.thenable($.ajax("json/array.json")).done(function(data, code, xhr) {
+spromise.resolve($.ajax("json/array.json")).done(function(data, code, xhr) {
   // Will print what the ajax call returns
   console.log(data);
 });
