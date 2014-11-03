@@ -523,7 +523,7 @@ define('src/promise',[
    * Small Promise
    */
   function Promise(resolver, stateManager) {
-    if (this instanceof Promise === false) {
+    if (this instanceof(Promise) === false) {
       return new Promise(resolver, stateManager);
     }
 
@@ -541,30 +541,6 @@ define('src/promise',[
     then.constructor  = Promise;
     then.stateManager = stateManager;
 
-    function done(cb) {
-      stateManager.enqueue(states.resolved, cb);
-      return target.promise;
-    }
-
-    function fail(cb) {
-      stateManager.enqueue(states.rejected, cb);
-      return target.promise;
-    }
-
-    function always(cb) {
-      stateManager.enqueue(states.always, cb);
-      return target.promise;
-    }
-
-    function notify(cb) {
-      stateManager.enqueue(states.notify, cb);
-      return target.promise;
-    }
-
-    function state() {
-      return strStates[stateManager.state];
-    }
-
     function resolve() {
       stateManager.transition(states.resolved, this, arguments);
       return target;
@@ -575,23 +551,19 @@ define('src/promise',[
       return target;
     }
 
-    target.always = always;
-    target.done = done;
-    target.catch = fail;
-    target.fail = fail;
-    target.notify = notify;
     target.resolve = resolve;
-    target.reject = reject;
-    target.then = then;
-    target.state = state;
+    target.reject  = reject;
+    target.then    = then;
+
+    // Read only access point for the promise.
     target.promise = {
-      always: always,
-      done: done,
-      catch: fail,
-      fail: fail,
-      notify: notify,
       then: then,
-      state: state
+      always: this.always,
+      done: this.done,
+      catch: this.fail,
+      fail: this.fail,
+      notify: this.notify,
+      state: this.state
     };
 
     // Interface to allow to post pone calling the resolver as long as its not needed
@@ -600,12 +572,50 @@ define('src/promise',[
     }
   }
 
+  Promise.prototype.always = function always(cb) {
+    this.then.stateManager.enqueue(states.always, cb);
+    return this.promise;
+  };
+
+  Promise.prototype.done = function done(cb) {
+    this.then.stateManager.enqueue(states.resolved, cb);
+    return this.promise;
+  };
+
+  Promise.prototype.fail = Promise.prototype.catch = function fail(cb) {
+    this.then.stateManager.enqueue(states.rejected, cb);
+    return this.promise;
+  };
+
+  Promise.prototype.notify = function notify(cb) {
+    this.then.stateManager.enqueue(states.notify, cb);
+    return this.promise;
+  };
+
+  Promise.prototype.state = function state() {
+    return strStates[this.then.stateManager.state];
+  };
+
 
   /**
    * Interface to play nice with libraries like when and q.
    */
   Promise.defer = function () {
     return new Promise();
+  };
+
+
+  /**
+   * Create a promise that's already rejected
+   *
+   * @returns {Promise} A promise that is alraedy rejected with the input value
+   */
+  Promise.reject = function () {
+    return new Promise(null, new StateManager({
+      context: this,
+      value: arguments,
+      state: states.rejected
+    }));
   };
 
 
@@ -619,7 +629,7 @@ define('src/promise',[
    *
    * @returns {Promise}
    */
-  Promise.thenable = function (value) {
+  Promise.resolve = Promise.thenable = function (value) {
     if (value instanceof Promise) {
       return value;
     }
@@ -628,32 +638,6 @@ define('src/promise',[
       return new Promise(value.then);
     }
 
-    return new Promise(function(resolve) {
-      resolve(value);
-    });
-  };
-
-
-  /**
-   * Create a promise that's already rejected
-   *
-   * @returns {Promise} A promise that is alraedy rejected with the input value
-   */
-  Promise.reject = Promise.rejected = function () {
-    return new Promise(null, new StateManager({
-      context: this,
-      value: arguments,
-      state: states.rejected
-    }));
-  };
-
-
-  /**
-   * Create a promise that's already resolved
-   *
-   * @returns {Promise} A promise that is already resolved with the input value
-   */
-  Promise.resolve = Promise.resolved = function () {
     return new Promise(null, new StateManager({
       context: this,
       value: arguments,
