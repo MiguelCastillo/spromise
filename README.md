@@ -32,7 +32,7 @@ promise.done(function(data) {
 
 promise.resolve("Yes, it works");
 ```
-<p>Resolver function, which is the function passed into the the promise factory.</p>
+<p>Resolver function, which is the function passed into the promise constructor (factory).</p>
 ``` javascript
 // Resolve
 spromise(function resolver(resolve, reject){
