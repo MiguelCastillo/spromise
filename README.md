@@ -4,7 +4,7 @@ spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?bran
 Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.  Designed to play well with other ecosystems such as jQuery.
 
 
-### API
+#### API
 
 1. <code>then</code> - interface that takes in as a first parameter an <code>onResolved</code> callback and as a second parameter an <code>onRejected</code> callback.  Great for chaining promises and controlling the flow of execution in a chain of promises.
 2. <code>done</code> - takes an <code>onResolved</code> callback that gets called when the promise is successfully resolved. If the promise is resolved with data, that will then be passed in as parameters to <code>onResolved</code>.
@@ -19,9 +19,9 @@ Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with
 11. <code>spromise.resolve</code> Method to cast the input to a valid promise instance.  If the input is a promise, then that's returned as it. If the input is a thennable then a new promise is returned with the current/future value of the thennable. And if the value is anything else, a new promise that is already resolved with it is returned.
 12. <code>spromise.reject</code> Returns a new promise that is rejected with the reason passed in.
 
-### Examples
+#### Examples
 
-<p>Simplest node sample</p>
+<p>Simplest sample</p>
 ``` javascript
 var spromise = require("spromise");
 var promise = spromise();
@@ -32,10 +32,10 @@ promise.done(function(data) {
 
 promise.resolve("Yes, it works");
 ```
-<p>Factory</p>
+<p>Resolver function, which is the function passed into the the promise factory.</p>
 ``` javascript
 // Resolve
-spromise(function(resolve, reject){
+spromise(function resolver(resolve, reject){
   resolve("Yes, we are resolving this");
 })
 .done(function(value) {
@@ -52,9 +52,10 @@ spromise(function(resolve, reject){
   console.log(value);
 });
 ```
-<p>jQuery ajax ($.ajax)</p>
+<p>spromise.resolve can take a jQuery deferred, such as one returned from $.ajax, and convert it to an spromise instance. This is a good way to keep things compliant and consistent with the rest of the world.</p>
 ``` javascript
-spromise.resolve($.ajax("json/array.json")).done(function(data, code, xhr) {
+spromise.resolve($.ajax("json/array.json"))
+.done(function(data, code, xhr) {
   // Will print what the ajax call returns
   console.log(data);
 });
@@ -67,7 +68,7 @@ spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(functi
 });
 ```
 
-### Downloads
+#### Downloads
 Genral purpose (Browser, Node):
 * <a href="dist/spromise.js">dist/spromise.js</a> - minified
 * <a href="dist/spromise-debug.js">dist/spromise-debug.js</a>
@@ -76,10 +77,29 @@ For inline inclusion in your AMD code:
 * <a href="dist/spromise-lib.js">dist/spromise-lib.js</a> - minified
 * <a href="dist/spromise-lib-debug.js">dist/spromise-lib-debug.js</a>
 
-### Compliance
+#### Build
+
+Run the following command in the terminal:
+* $ npm install
+
+#### To run unit tests
+
+Run the following commands in the terminal:
+* $ npm install
+* $ grunt test
+
+#### To run compliance tests:
+
+Run the following commands in the terminal:
+* $ npm install
+* $ npm test
+
+#### Compliance
 
 With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
 The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
+
+##### Compliance test results:
 
 <pre>
   868 passing (14s)
@@ -105,8 +125,3 @@ The reason spromise was left non compliant for this particular item is to faithf
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 </pre>
-
-To run the tests:
-* Open terminal and go to the spromise directory
-* > npm install
-* > node tests/promises-aplus-tests.js
