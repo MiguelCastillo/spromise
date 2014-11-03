@@ -1,3 +1,16 @@
- language: node_js
- node_js:
-   - "0.10"
+language: node_js
+node_js:
+- '0.10'
+deploy:
+  provider: releases
+  api_key:
+    secure: aQ22B2pBjU2hDgsjKjDpIe+QRiP7WyqzBx9GcVJZ2fQUcg5T3zhbieFAaXMrk713aAEl9GP9bOa0qX1nGbKtrM6EMq4r0coqvvpzbpLrVU1pvA33w/6z29SI/QBJrA6j/4o8njciDLNyySixlrpgldV/x7Qt8j39o5TDPYFO6gQ=
+  file:
+    - dist/spromise.js
+    - dist/spromise-debug.js
+    - dist/spromise-lib.js
+    - dist/spromise-lib-debug.js
+  on:
+    repo: MiguelCastillo/spromise
+    tags: true
+    all_branches: true
