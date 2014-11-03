@@ -137,7 +137,7 @@ define(["src/promise"], function(Promise) {
         it("then final value is 'Second success'", function() {
           promise1.then(function(x) {
             expect(x).to.equal("First success");
-            return Promise.resolved("Second success");
+            return Promise.resolve("Second success");
           })
           .then(function(x) {
             expect(x).to.equal("Second success");
@@ -153,11 +153,11 @@ define(["src/promise"], function(Promise) {
         it("then final value is 'Third success'", function() {
           promise1.then(function(x) {
             expect(x).to.equal("First success");
-            return Promise.resolved("Second success");
+            return Promise.resolve("Second success");
           })
           .then(function(x) {
             expect(x).to.equal("Second success");
-            return Promise.resolved("Third success");
+            return Promise.resolve("Third success");
           })
           .then(function(x) {
             expect(x).to.equal("Third success");
@@ -174,31 +174,31 @@ define(["src/promise"], function(Promise) {
         it("then final value is 'Eight success'", function() {
           promise1.then(function(x) {
             expect(x).to.equal("First success");
-            return Promise.resolved("Second success");
+            return Promise.resolve("Second success");
           })
           .then(function(x) {
             expect(x).to.equal("Second success");
-            return Promise.resolved("Third success");
+            return Promise.resolve("Third success");
           })
           .then(function(x) {
             expect(x).to.equal("Third success");
-            return Promise.resolved("Fourth success");
+            return Promise.resolve("Fourth success");
           })
           .then(function(x) {
             expect(x).to.equal("Fourth success");
-            return Promise.resolved("Fifth success");
+            return Promise.resolve("Fifth success");
           })
           .then(function(x) {
             expect(x).to.equal("Fifth success");
-            return Promise.resolved("Sixth success");
+            return Promise.resolve("Sixth success");
           })
           .then(function(x) {
             expect(x).to.equal("Sixth success");
-            return Promise.resolved("Seventh success");
+            return Promise.resolve("Seventh success");
           })
           .then(function(x) {
             expect(x).to.equal("Seventh success");
-            return Promise.resolved("Eigth success");
+            return Promise.resolve("Eigth success");
           })
           .then(function(x) {
             expect(x).to.equal("Eigth success");
@@ -223,7 +223,7 @@ define(["src/promise"], function(Promise) {
         it("then final value is 'Second success'", function() {
           var promise2 = promise1.then(function(x) {
             expect(x).to.equal("First success");
-            return Promise.resolved("Second success");
+            return Promise.resolve("Second success");
           });
 
           promise2.then(function(x) {
@@ -242,7 +242,7 @@ define(["src/promise"], function(Promise) {
       var result, promise;
       beforeEach(function() {
         result = Promise.defer();
-        promise = Promise.rejected("rejection");
+        promise = Promise.reject("rejection");
       });
 
       it("then promise rejection reason is 'rejection'", function() {
@@ -266,7 +266,7 @@ define(["src/promise"], function(Promise) {
       it("then the last value is 'undefined'", function() {
         promise1.then(function(x) {
           expect(x).to.equal("First success");
-          return Promise.resolved("Second success");
+          return Promise.resolve("Second success");
         })
         .then(function(x) {
           expect(x).to.equal("Second success");
@@ -286,7 +286,7 @@ define(["src/promise"], function(Promise) {
       it("then the last value is 'Third success", function() {
         promise1.then(function(x) {
           expect(x).to.equal("First success");
-          return Promise.resolved("Second success");
+          return Promise.resolve("Second success");
         })
         .then(function(x) {
           expect(x).to.equal("Second success");
@@ -296,7 +296,7 @@ define(["src/promise"], function(Promise) {
         })
         .then(function (x) {
           expect(x).to.equal(undefined);
-          return Promise.resolved("Third success");
+          return Promise.resolve("Third success");
         })
         .then(function(x) {
           expect(x).to.equal("Third success");
@@ -359,7 +359,7 @@ define(["src/promise"], function(Promise) {
       it("then the thennable chain returns rejected promises and throws exceptions", function() {
         promise1.then(function(x) {
           expect(x).to.equal("First success");
-          return Promise.rejected("First rejection");
+          return Promise.reject("First rejection");
         })
         .then(function() {}, function(x) {
           expect(x).to.equal("First rejection");
