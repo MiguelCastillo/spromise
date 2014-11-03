@@ -68,6 +68,14 @@ spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(functi
 });
 ```
 
+#### Install
+
+From bower
+* `$ bower install spromise`
+
+From npm
+* `$ npm install spromise`
+
 #### Downloads
 Genral purpose (Browser, Node):
 * <a href="dist/spromise.js">dist/spromise.js</a> - minified
@@ -80,19 +88,19 @@ For inline inclusion in your AMD code:
 #### Build
 
 Run the following command in the terminal:
-* $ npm install
+* `$ npm install`
 
 #### To run unit tests
 
 Run the following commands in the terminal:
-* $ npm install
-* $ grunt test
+* `$ npm install`
+* `$ grunt test`
 
 #### To run compliance tests:
 
 Run the following commands in the terminal:
-* $ npm install
-* $ npm test
+* `$ npm install`
+* `$ npm test`
 
 #### Compliance
 
