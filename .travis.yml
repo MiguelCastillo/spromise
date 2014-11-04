@@ -2,15 +2,13 @@ language: node_js
 node_js:
 - '0.10'
 deploy:
-  provider: releases
-  api_key:
-    secure: aQ22B2pBjU2hDgsjKjDpIe+QRiP7WyqzBx9GcVJZ2fQUcg5T3zhbieFAaXMrk713aAEl9GP9bOa0qX1nGbKtrM6EMq4r0coqvvpzbpLrVU1pvA33w/6z29SI/QBJrA6j/4o8njciDLNyySixlrpgldV/x7Qt8j39o5TDPYFO6gQ=
-  file:
-    - dist/spromise.js
-    - dist/spromise-debug.js
-    - dist/spromise-lib.js
-    - dist/spromise-lib-debug.js
+  provider: s3
+  access_key_id: AKIAI3OWM547AIXU2OJQ
+  secret_access_key:
+    secure: R2q2l/FGnJRcNz0Fxo464xQ/B/gH9Y/MKOpjShb31wOhr2XlxEkUnjccs9ga5KzLRNn0b1hbt9tUIz+NtD/CuawgF7H+cF+Q6KuLrKqeTT2029I8cN83UfA7hhpbYKUr563C85xAChz3J2lSug3olKi9Jzrzur/Q0X5t9OlbP4U=
+  bucket: hoistedjs
+  local-dir: dist
+  upload-dir: "/assets/js"
+  acl: !ruby/string:HighLine::String public_read
   on:
     repo: MiguelCastillo/spromise
-    tags: true
-    all_branches: true
