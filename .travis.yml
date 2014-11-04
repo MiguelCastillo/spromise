@@ -8,7 +8,7 @@ deploy:
     secure: R2q2l/FGnJRcNz0Fxo464xQ/B/gH9Y/MKOpjShb31wOhr2XlxEkUnjccs9ga5KzLRNn0b1hbt9tUIz+NtD/CuawgF7H+cF+Q6KuLrKqeTT2029I8cN83UfA7hhpbYKUr563C85xAChz3J2lSug3olKi9Jzrzur/Q0X5t9OlbP4U=
   bucket: hoistedjs
   local-dir: dist
-  upload-dir: "/assets/js"
+  upload-dir: "assets/js"
   acl: !ruby/string:HighLine::String public_read
   on:
     repo: MiguelCastillo/spromise
