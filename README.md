@@ -60,6 +60,16 @@ spromise.resolve($.ajax("json/array.json"))
   console.log(data);
 });
 ```
+
+<p>Or just pass the $ajax `then` interface to spromise</p>
+``` javascript
+spromise($.ajax("json/array.json").then)
+.done(function(data, code, xhr) {
+  // Will print what the ajax call returns
+  console.log(data);
+});
+```
+
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
 spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function( $array, $object ) {
