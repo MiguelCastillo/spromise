@@ -5,11 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="../lib/mocha/mocha.css"/>
+    <!-- polyfill function.bind - phantomjs does not current have it implemented  -->
     <script type="text/javascript" src="bind.js"></script>
-    <script type="text/javascript" src="../lib/requirejs/require.js"></script>
-    <script type="text/javascript" src="../tests/requirejs-config.js"></script>
+
+    <!-- Load up mocha -->
+    <link rel="stylesheet" href="../lib/mocha/mocha.css"/>
     <script type="text/javascript" src="../lib/mocha/mocha.js"></script>
+
+    <!-- Load up requirejs and config files -->
+    <script type="text/javascript" src="../lib/requirejs/require.js"></script>
+    <script type="text/javascript" src="requirejs-config.js"></script>
   </head>
 
   <body>
