@@ -481,11 +481,10 @@ define('src/async',[],function() {
     nextTick(cb);
   }
 
-  Async.delay = function() {
-    var callback = arguments[0];
-    var timeout  = arguments[1];
-    var args     = arguments[2] || [];
-    _self.setTimeout(callback.apply.bind(callback, this, args), timeout);
+  /**
+   */
+  Async.delay = function(callback, timeout, args) {
+    _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };
 
   return Async;
@@ -572,6 +571,16 @@ define('src/promise',[
     }
   }
 
+
+  Promise.prototype.delay = function(ms) {
+    var _self = this;
+    return new Promise(function(resolve, reject) {
+      _self.then(function() {
+        async.delay(resolve.bind(this), ms, arguments);
+      }, reject.bind(this));
+    });
+  };
+
   Promise.prototype.always = function always(cb) {
     this.then.stateManager.enqueue(states.always, cb);
     return this.promise;
@@ -643,6 +652,20 @@ define('src/promise',[
       value: arguments,
       state: states.resolved
     }));
+  };
+
+
+  /**
+   * Creates a promise that's resolved after ms number of milleseconds. All arguments passed
+   * in to delay, with the excpetion of ms, will be used to resolve the new promise with.
+   *
+   * @param {number} ms - Number of milliseconds to wait before the promise is resolved.
+   */
+  Promise.delay = function delay(ms) {
+    var args = Array.prototype.slice(arguments, 1);
+    return new Promise(function(resolve) {
+      async.delay(ms, resolve, args);
+    });
   };
 
 

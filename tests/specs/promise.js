@@ -1,4 +1,4 @@
-define(["src/promise"], function(Promise) {
+define(["src/promise", "tests/timer"], function(Promise, Timer) {
 
   describe("Promises Suite", function() {
 
@@ -382,6 +382,51 @@ define(["src/promise"], function(Promise) {
         return result;
       });
     });
+
+
+    describe("When a promise resolution is delayed with the promise.delay interface", function() {
+      var result, promise1;
+      beforeEach(function() {
+        result = new Promise();
+        promise1 = new Promise();
+      });
+
+      describe("and the promise is resolved in 1 seconds", function() {
+        it("then the promise waits 1 seconds before executing", function() {
+          var timer = new Timer();
+
+          promise1.delay(1000).then(function(message, extradata) {
+            expect(Math.floor(timer.elapsed())).to.equal(1);
+            expect(arguments.length).to.equal(2);
+            expect(message).to.equal("Waited 1 seconds");
+            expect(extradata).to.equal("extra data");
+            result.resolve();
+          });
+
+          promise1.resolve("Waited 1 seconds", "extra data");
+          return result;
+        });
+      });
+
+      describe("and the promise is rejected", function() {
+        it("then the promise does not wait before executing", function() {
+          var timer = new Timer();
+
+          promise1.delay(1000).then(null, function(message, extradata) {
+            expect(Math.floor(timer.elapsed())).to.equal(0);
+            expect(arguments.length).to.equal(2);
+            expect(message).to.equal("Waited 1 seconds");
+            expect(extradata).to.equal("extra data");
+            result.resolve();
+          });
+
+          promise1.reject("Waited 1 seconds", "extra data");
+          return result;
+        });
+      });
+
+    });
+
 
 
     it("Resolve with multiple object arguments", function() {

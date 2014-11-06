@@ -27,11 +27,10 @@ define(function() {
     nextTick(cb);
   }
 
-  Async.delay = function() {
-    var callback = arguments[0];
-    var timeout  = arguments[1];
-    var args     = arguments[2] || [];
-    _self.setTimeout(callback.apply.bind(callback, this, args), timeout);
+  /**
+   */
+  Async.delay = function(callback, timeout, args) {
+    _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };
 
   return Async;
