@@ -1,23 +1,211 @@
 spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?branch=master)](https://travis-ci.org/MiguelCastillo/spromise)
 =========
 
-Small Promise, is a lightweight promise library that's 99% <i>compliant</i> with the promise a+ spec.  Designed to play well with other ecosystems such as jQuery.
+spromise (Small Promise), is an implementation of the promise <a href="https://promisesaplus.com/">A+ spec</a>.  It is designed to be lightweight, performant, and per spec, interoperable with other promise implementations such as jQuery's <a href="http://api.jquery.com/category/deferred-object/">deferred</a>.
 
 
-### API
+## API
 
-1. <code>then</code> - interface that takes in as a first parameter an <code>onResolved</code> callback and as a second parameter an <code>onRejected</code> callback.  Great for chaining promises and controlling the flow of execution in a chain of promises.
-2. <code>done</code> - takes an <code>onResolved</code> callback that gets called when the promise is successfully resolved. If the promise is resolved with data, that will then be passed in as parameters to <code>onResolved</code>.
-3. <code>fail</code> - takes an <code>onRejected</code> callback that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then be passed in as parameters to <code>onRejected</code>.
-4. <code>always</code> - takes a callback that is always called, either when the promise is rejected or resolved.
-5. <code>resolve</code> - interface to resolve the promise. This will cause all currently registered <code>onResolved</code> callbacks and any future ones to be called.  Any data passed into the <code>resolve</code> interface will then be passed into each callback as parameters.
-6. <code>reject</code> - interface to reject the promise. As <code>resolve</code>, this will cause all currently registered <code>onRejected</code> callbacks and any future ones to be called.  Any reason(s) passed into the <code>reject</code> interface will then be passed into each callback as paramters.
-7. <code>state</code> - interface to get the current state of the promise.  It can either be pending, resolved, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
-8. <code>when</code> - creates and returns a promise. <code>when</code> also takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately available as resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
-9. <code>spromise.defer</code> Creates a new promise object.  If an object is passed in as the first parameter, the object will be extended to contain all the promise interfaces.
-10. <code>spromise.thenable</code> Takes in a thenable object used for resolving a newly created promise that's returned.  A thenable object is just any object/function with a then interface that is a assumed to be a promise object.
-11. <code>spromise.resolve</code> Method to cast the input to a valid promise instance.  If the input is a promise, then that's returned as it. If the input is a thenable then a new promise is returned with the current/future value of the thenable. And if the value is anything else, a new promise that is already resolved with it is returned.
-12. <code>spromise.reject</code> Returns a new promise that is rejected with the reason passed in.
+### Static methods
+
+#### spromise.defer
+Creates and returns a new promise to be resolved in the future.
+
+- returns a new promise
+
+``` javascript
+var spromise = require("spromise");
+
+// Create a deferred promise
+var promise = spromise.defer();
+
+promise.done(function(data) {
+  console.log(data);
+});
+
+promise.resolve("Deferred");
+```
+
+#### spromise.resolve
+Returns a promise instance.  If the input is an spromise instance, then that's returned as is. If the input is a thenable object, a new promise is returned with the current/future value of the thenable. And if the value is anything else, a new promise is returned that is already fulfilled with that value.
+
+- returns a promise
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.resolve("Resolved promise");
+
+promise.done(function(data) {
+  console.log(data);
+});
+```
+
+#### spromise.reject
+Returns a new promise that is rejected with the reason passed in. The reason can be any data type.
+
+- returns a new rejected promise
+
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.reject("Rejected promise");
+
+promise.fail(function(data) {
+  console.log(data);
+});
+```
+
+#### when
+creates and returns a promise. <code>when</code> takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately as resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
+
+<p>Synchronizing multiple $.ajax request</p>
+``` javascript
+spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function($array, $object) {
+  // Will print the XHR objects $array and $object
+  console.log($array, $object);
+});
+```
+
+#### all
+similar to `when` except that the input parameters are in the form of a single array.
+
+<p>Synchronizing multiple $.ajax request</p>
+``` javascript
+spromise.all([$.ajax("json/array.json"), $.ajax("json/object.json")]).done(function($array, $object) {
+  // Will print the XHR objects $array and $object
+  console.log($array, $object);
+});
+```
+
+### Instance methods
+
+#### then
+method to register callbacks to be called when the promise is fulfilled or rejected.  The first parameter is the callback to be called when the promise is fulfilled, and the second parameter is the callback to be called when the promise is rejected.
+
+This method is generally used for creating chains of promises.  If the fulfilled or rejected callbacks return anything, then that value is returned to the subsequent promise in a thenable chain.  See examples in the Examples section.
+
+- returns a new promise
+
+``` javascript
+var spromise = require("spromise");
+
+// Fulfilled promise
+var promise = spromise.resolve("Fulfilled promise");
+
+// Register callbacks
+promise.then(fulfilled, rejected);
+
+function fulfilled(data) {
+  console.log(err);
+}
+
+function rejected(err) {
+  // Does not get called because the promise was fulfilled.
+}
+```
+
+``` javascript
+var spromise = require("spromise");
+
+// Reject promise
+var promise = spromise.reject("Rejected promise");
+
+// Register callbacks
+promise.then(fulfilled, rejected);
+
+function fulfilled(data) {
+  // Does not get called because the promise was rejected.
+}
+
+function rejected(err) {
+  console.log(err);
+}
+```
+
+#### done
+method takes a callback as its only parameter that gets called when the promise is fulfilled. If the promise is fulfilled with a value(s), that will get passed in as parameters to the callback.
+
+- returns promise (itself)
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.resolve("Resolved promise", "extra value");
+
+promise.done(function(data1, data2) {
+  console.log(data1, data2);
+});
+```
+
+#### fail
+method takes a callback as its only parameter that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then get passed in as parameters to the callback.
+
+- returns promise (itself)
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.reject("Reason...");
+
+promise.fail(function(reason) {
+  console.log(reason);
+});
+```
+
+#### always
+method to register a callback that gets called when the promise is either fulfilled or rejected.
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.resolve("Fulfilled promise");
+
+promise.always(function(data) {
+  console.log(data);
+});
+```
+
+``` javascript
+var spromise = require("spromise");
+var promise = spromise.reject("Reason...");
+
+promise.always(function(reason) {
+  console.log(reason);
+});
+```
+
+#### resolve
+method to fulfill the promise. This will cause all registered callbacks (current as well as future ones) to be called with the resolved value.
+
+``` javascript
+var spromise = require("spromise");
+
+// Create a deferred promise
+var promise = spromise.defer();
+
+promise.done(function(data) {
+  console.log(data);
+});
+
+promise.resolve("Deferred");
+```
+
+#### reject
+method to reject the promise. This will cause all registered callbacks (current as well as future ones) to be called with the reason for rejecting the promise.
+
+``` javascript
+var spromise = require("spromise");
+
+// Create a deferred promise
+var promise = spromise.defer();
+
+promise.fail(function(data) {
+  console.log(data);
+});
+
+promise.reject("Deferred");
+```
+
+#### state
+method to get the current state of the promise.  It can either be pending, fulfilled, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
+
 
 ### Examples
 
@@ -67,14 +255,6 @@ spromise($.ajax("json/array.json").then)
 .done(function(data, code, xhr) {
   // Will print what the ajax call returns
   console.log(data);
-});
-```
-
-<p>Synchronizing multiple $.ajax request</p>
-``` javascript
-spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function( $array, $object ) {
-  // Will print the XHR objects $array and $object
-  console.log($array, $object);
 });
 ```
 
