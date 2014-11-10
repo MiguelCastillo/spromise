@@ -8,6 +8,33 @@ spromise (Small Promise), is an implementation of the promise <a href="https://p
 
 ### Static methods
 
+#### spromise as a constructor
+Creates a promise instance.  It can take in a function as its single optional parameter, which is called when the promise is created.  The callback function receives two parameters, a function to fulfill the promise and a function to reject the promise.
+
+Resolve a promise
+``` javascript
+// Resolve
+spromise(function(resolve, reject){
+  resolve("Yes, we are resolving this");
+})
+.done(function(value) {
+  // Will print "Yes, we are resolving this"
+  console.log(value);
+});
+```
+
+Reject a promise
+``` javascript
+// Reject
+spromise(function(resolve, reject){
+  reject("booo");
+})
+.fail(function(value) {
+  // Will print "booo"
+  console.log(value);
+});
+```
+
 #### spromise.defer
 Creates and returns a new promise to be resolved in the future.
 
@@ -27,7 +54,7 @@ promise.resolve("Deferred");
 ```
 
 #### spromise.resolve
-Returns a promise instance.  If the input is an spromise instance, then that's returned as is. If the input is a thenable object, a new promise is returned with the current/future value of the thenable. And if the value is anything else, a new promise is returned that is already fulfilled with that value.
+Returns a promise instance.  If the input is an instance of spromise, then that's returned as is. If the input is a thenable object or function, a new promise is returned with the current/future value of the thenable. And if the value is anything else, then a new promise that is already fulfilled with the value(s) is returned.
 
 - returns a promise
 
@@ -56,7 +83,7 @@ promise.fail(function(data) {
 ```
 
 #### when
-creates and returns a promise. <code>when</code> takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately as resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
+creates and returns a promise. <code>when</code> takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
 
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
@@ -206,57 +233,6 @@ promise.reject("Deferred");
 #### state
 method to get the current state of the promise.  It can either be pending, fulfilled, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
 
-
-### Examples
-
-<p>Simplest sample</p>
-``` javascript
-var spromise = require("spromise");
-var promise = spromise();
-
-promise.done(function(data) {
-  console.log(data);
-});
-
-promise.resolve("Yes, it works");
-```
-<p>Resolver function, which is the function passed into the promise constructor (factory).</p>
-``` javascript
-// Resolve
-spromise(function resolver(resolve, reject){
-  resolve("Yes, we are resolving this");
-})
-.done(function(value) {
-  // Will print "Yes, we are resolving this"
-  console.log(value);
-});
-
-// Reject
-spromise(function(resolve, reject){
-  reject("booo");
-})
-.fail(function(value) {
-  // Will print "booo"
-  console.log(value);
-});
-```
-<p>spromise.resolve can take a jQuery deferred, such as one returned from $.ajax, and convert it to an spromise instance. This is a good way to keep things compliant and consistent with the rest of the world.</p>
-``` javascript
-spromise.resolve($.ajax("json/array.json"))
-.done(function(data, code, xhr) {
-  // Will print what the ajax call returns
-  console.log(data);
-});
-```
-
-<p>Or just pass the $ajax `then` interface to spromise</p>
-``` javascript
-spromise($.ajax("json/array.json").then)
-.done(function(data, code, xhr) {
-  // Will print what the ajax call returns
-  console.log(data);
-});
-```
 
 ### Install
 
