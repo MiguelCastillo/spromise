@@ -163,8 +163,10 @@ promise.done(function(data1, data2) {
 });
 ```
 
-#### fail
+#### fail and catch
 method takes a callback as its only parameter that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then get passed in as parameters to the callback.
+
+- Note: fail and catch are exactly the same methods, and they both exist to provide alternatives for folks used to one vs the other.
 
 - returns promise (itself)
 
@@ -173,6 +175,10 @@ var spromise = require("spromise");
 var promise = spromise.reject("Reason...");
 
 promise.fail(function(reason) {
+  console.log(reason);
+});
+
+promise.catch(function(reason) {
   console.log(reason);
 });
 ```
@@ -232,6 +238,23 @@ promise.reject("Deferred");
 
 #### state
 method to get the current state of the promise.  It can either be pending, fulfilled, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
+
+
+### Instance Properties
+
+#### promise
+property that contains methods to read the value and status of the promise.  This is useful if you want to create a promise and return the read only version of it.  The methods in this object are `then`, `always`, `done`, `catch`, `fail`, `notify`, `state`.
+
+
+``` javascript
+var spromise = require("spromise");
+
+// Create a deferred promise
+var promise = spromise.defer();
+
+// Print out the promise property
+console.log(promise.promise);
+```
 
 
 ### Install
