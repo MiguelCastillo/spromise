@@ -82,7 +82,7 @@ promise.fail(function(data) {
 });
 ```
 
-#### when
+#### spromise.when
 creates and returns a promise. <code>when</code> takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
 
 <p>Synchronizing multiple $.ajax request</p>
@@ -93,7 +93,7 @@ spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(functi
 });
 ```
 
-#### all
+#### spromise.all
 similar to `when` except that the input parameters are in the form of a single array.
 
 <p>Synchronizing multiple $.ajax request</p>
