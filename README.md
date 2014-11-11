@@ -259,7 +259,7 @@ var spromise = require("spromise");
 var promise = spromise.defer();
 
 promise.delay(3000).done(function(data) {
-  console.log("3 seconds laters", data);
+  console.log("3 seconds later", data);
 });
 
 promise.resolve("Deferred");
