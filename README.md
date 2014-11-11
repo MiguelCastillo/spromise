@@ -247,6 +247,24 @@ promise.fail(function(data) {
 promise.reject("Deferred");
 ```
 
+#### delay
+method that will delay the resolution of a promise chain by the amount of MilliSeconds passed in as its only parameter.
+
+- returns `new` promise.
+
+``` javascript
+var spromise = require("spromise");
+
+// Create a deferred promise
+var promise = spromise.defer();
+
+promise.delay(3000).done(function(data) {
+  console.log("3 seconds laters", data);
+});
+
+promise.resolve("Deferred");
+```
+
 #### state
 method to get the current state of the promise.  The values can be `"pending"`, `"resolved"`, or `"rejected"`.
 
