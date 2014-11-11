@@ -3,8 +3,6 @@ spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?bran
 
 spromise (Small Promise), is an implementation of the promise <a href="https://promisesaplus.com/">A+ spec</a>.  It is designed to be lightweight, performant, and per spec, interoperable with other promise implementations such as jQuery's <a href="http://api.jquery.com/category/deferred-object/">deferred</a>.
 
-* NOTE: The spec makes use of `fulfilled`, which is the exact same thing as `resolved` in spromise. The different names exists because it seems more consistent that if you call `resolve` to transition a promise to the `resolved` state, that the state is `resolved` and not `fulfilled`.  In spromise's documention both are used simply for better readability.
-
 
 ## API
 
@@ -341,6 +339,8 @@ $ npm test
 
 With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
 The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
+
+* NOTE: The spec makes use of `fulfilled`, which is the exact same thing as `resolved` in spromise. The different names exists because it seems more consistent that if you call `resolve` to transition a promise to the `resolved` state, that the state is `resolved` and not `fulfilled`.  In spromise's documention both are used simply for better readability.
 
 ##### Test results:
 
