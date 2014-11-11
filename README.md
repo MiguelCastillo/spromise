@@ -320,7 +320,7 @@ $ npm install spromise
 
 ## Downloads
 
-Genral purpose (Browser, Node):
+General purpose UMD (Browser, Node):
 * <a href="dist/spromise.js">dist/spromise.js</a> - minified
 * <a href="dist/spromise-debug.js">dist/spromise-debug.js</a>
 
