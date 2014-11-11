@@ -35,7 +35,7 @@
     "promises-aplus-tests": "~2.1.0"
   },
   "scripts": {
-    "postinstall": "bower install && grunt build --verbose",
+    "prepublish": "bower install && grunt build --verbose",
     "test": "node tests/promises-aplus-tests.js"
   },
   "directories": {
