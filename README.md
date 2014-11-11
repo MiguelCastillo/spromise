@@ -112,7 +112,7 @@ spromise.all([$.ajax("json/array.json"), $.ajax("json/object.json")]).done(funct
 #### then
 method to register callbacks to be called when the promise is fulfilled or rejected.  The first parameter is the callback to be called when the promise is fulfilled, and the second parameter is the callback to be called when the promise is rejected.
 
-This method is generally used for creating chains of promises.  If the fulfilled or rejected callbacks return anything, then that value is returned to the subsequent promise in a thenable chain.  See examples in the Examples section.
+This method is generally used for creating chains of promises.  If calling fulfilled or rejected returns anything, then that value is returned to the subsequent promise in a thenable chain.  See examples in the Examples section.
 
 - returns a `new` promise
 
@@ -123,9 +123,9 @@ var spromise = require("spromise");
 var promise = spromise.resolve("Fulfilled promise");
 
 // Register callbacks
-promise.then(fulfilled, rejected);
+promise.then(resolved, rejected);
 
-function fulfilled(data) {
+function resolved(data) {
   console.log(err);
 }
 
@@ -141,9 +141,9 @@ var spromise = require("spromise");
 var promise = spromise.reject("Rejected promise");
 
 // Register callbacks
-promise.then(fulfilled, rejected);
+promise.then(resolved, rejected);
 
-function fulfilled(data) {
+function resolved(data) {
   // Does not get called because the promise was rejected.
 }
 
@@ -153,7 +153,7 @@ function rejected(err) {
 ```
 
 #### done
-method takes a callback as its only parameter that gets called when the promise is fulfilled. If the promise is fulfilled with a value(s), that will get passed in as parameters to the callback.
+method takes a callback as its only parameter that gets called when the promise is fulfilled. If the promise is fulfilled with a value(s), that value will get passed in as parameter(s) to the callback.
 
 - returns promise (itself)
 
@@ -167,7 +167,7 @@ promise.done(function(data1, data2) {
 ```
 
 #### fail and catch
-method takes a callback as its only parameter that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then get passed in as parameters to the callback.
+method takes a callback as its only parameter that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then get passed in as parameter(s) to the callback.
 
 - Note: fail and catch are exactly the same methods, and they both exist to provide alternatives for folks used to one vs the other.
 
@@ -246,7 +246,7 @@ promise.reject("Deferred");
 ```
 
 #### state
-method to get the current state of the promise.  The values can be `"pending"`, `"fulfilled"`, or `"rejected"`.
+method to get the current state of the promise.  The values can be `"pending"`, `"resolved"`, or `"rejected"`.
 
 - returns string
 
