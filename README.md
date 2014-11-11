@@ -101,8 +101,10 @@ similar to `when` except that the input parameters are in the form of a single a
 
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
-spromise.all([$.ajax("json/array.json"), $.ajax("json/object.json")]).done(function($array, $object) {
+spromise.all([$.ajax("json/array.json"), $.ajax("json/object.json")]).done(function(result) {
   // Will print the XHR objects $array and $object
+  var $array  = result[0],
+      $object = result[1];
   console.log($array, $object);
 });
 ```
