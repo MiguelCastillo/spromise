@@ -38,7 +38,7 @@ spromise(function(resolve, reject){
 #### spromise.defer
 Creates and returns a new promise to be resolved in the future.
 
-- returns a new promise
+- returns a `new` promise
 
 ``` javascript
 var spromise = require("spromise");
@@ -70,8 +70,7 @@ promise.done(function(data) {
 #### spromise.reject
 Returns a new promise that is rejected with the reason passed in. The reason can be any data type.
 
-- returns a new rejected promise
-
+- returns a `new` rejected promise
 
 ``` javascript
 var spromise = require("spromise");
@@ -85,7 +84,7 @@ promise.fail(function(data) {
 #### spromise.when
 creates and returns a promise. <code>when</code> takes in N arguments that control when the <code>when</code> promise is resolved.  Passing in promises as arguments will cause <code>when</code> to wait for all the input promises to resolve.  If one fails, everything fails.  None promise objects can also be passed in, in which case they are immediately resolved.  <code>when</code> is very useful when synchronizing a group of asynchronous and synchronous operations.
 
-- returns a promise
+- returns a `new` promise
 
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
@@ -98,7 +97,7 @@ spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(functi
 #### spromise.all
 similar to `when` except that the input parameters are in the form of a single array.
 
-- returns a promise
+- returns a `new` promise
 
 <p>Synchronizing multiple $.ajax request</p>
 ``` javascript
@@ -115,7 +114,7 @@ method to register callbacks to be called when the promise is fulfilled or rejec
 
 This method is generally used for creating chains of promises.  If the fulfilled or rejected callbacks return anything, then that value is returned to the subsequent promise in a thenable chain.  See examples in the Examples section.
 
-- returns a new promise
+- returns a `new` promise
 
 ``` javascript
 var spromise = require("spromise");
@@ -190,6 +189,8 @@ promise.catch(function(reason) {
 #### always
 method to register a callback that gets called when the promise is either fulfilled or rejected.
 
+- returns promise (itself)
+
 ``` javascript
 var spromise = require("spromise");
 var promise = spromise.resolve("Fulfilled promise");
@@ -211,6 +212,8 @@ promise.always(function(reason) {
 #### resolve
 method to fulfill the promise. This will cause all registered callbacks (current as well as future ones) to be called with the resolved value.
 
+- returns promise (itself)
+
 ``` javascript
 var spromise = require("spromise");
 
@@ -227,6 +230,8 @@ promise.resolve("Deferred");
 #### reject
 method to reject the promise. This will cause all registered callbacks (current as well as future ones) to be called with the reason for rejecting the promise.
 
+- returns promise (itself)
+
 ``` javascript
 var spromise = require("spromise");
 
@@ -241,7 +246,25 @@ promise.reject("Deferred");
 ```
 
 #### state
-method to get the current state of the promise.  It can either be pending, fulfilled, or rejected.  Please use <code>spromise.states</code> for a more meaningful translation of the value returned.  E.g. <code>if (promise1.state() === spromise.states.pending) {}</code>.
+method to get the current state of the promise.  The values can be `"pending"`, `"fulfilled"`, or `"rejected"`.
+
+- returns string
+
+
+#### isPending
+method that returns whether or not the promise is in a pending state; meaning is has not yet been resolved.
+
+- returns boolean
+
+#### isResolved
+method that returns whether or not the promise has been successfully resolved.
+
+- returns boolean
+
+#### isRejected
+method that returns whether or not the promise has been rejected.
+
+- returns boolean
 
 
 ### Instance Properties
