@@ -1,9 +1,9 @@
 {
   "name": "spromise",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "license": "MIT",
   "main": "dist/spromise.js",
-  "author": "Miguel Castillo <mahchagnu@gmail.com>",
+  "author": "Miguel Castillo <manchagnu@gmail.com>",
   "title": "spromise",
   "description": "Small Promise",
   "keywords": [
