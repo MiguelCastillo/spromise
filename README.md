@@ -286,7 +286,7 @@ console.log(promise.promise);
 ```
 
 
-### Install
+## Install
 
 #### bower
 
@@ -300,7 +300,7 @@ $ bower install spromise
 $ npm install spromise
 ```
 
-### Downloads
+## Downloads
 
 Genral purpose (Browser, Node):
 * <a href="dist/spromise.js">dist/spromise.js</a> - minified
@@ -310,7 +310,7 @@ For inline inclusion in your AMD code:
 * <a href="dist/spromise-lib.js">dist/spromise-lib.js</a> - minified
 * <a href="dist/spromise-lib-debug.js">dist/spromise-lib-debug.js</a>
 
-### Build
+## Build
 
 Run the following command in the terminal:
 
@@ -318,7 +318,7 @@ Run the following command in the terminal:
 $ npm install
 ```
 
-### Tests
+## Tests
 
 #### Unit tests
 
@@ -337,7 +337,7 @@ $ npm install
 $ npm test
 ```
 
-### Compliance notes
+## Compliance notes
 
 With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
 The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
