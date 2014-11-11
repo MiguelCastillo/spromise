@@ -158,6 +158,18 @@ define('src/promise',[
     return strStates[this.then.stateManager.state];
   };
 
+  Promise.prototype.isPending = function isPending() {
+    return this.then.stateManager.state === states.pending;
+  };
+
+  Promise.prototype.isResolved = function isResolved() {
+    return this.then.stateManager.state === states.resolved;
+  };
+
+  Promise.prototype.isRejected = function isRejected() {
+    return this.then.stateManager.state === states.resolved;
+  };
+
 
   /**
    * Interface to play nice with libraries like when and q.
@@ -217,7 +229,7 @@ define('src/promise',[
   Promise.delay = function delay(ms) {
     var args = Array.prototype.slice(arguments, 1);
     return new Promise(function(resolve) {
-      async.delay(ms, resolve, args);
+      async.delay(resolve.bind(this), ms, args);
     });
   };
 
