@@ -113,6 +113,18 @@ define([
     return strStates[this.then.stateManager.state];
   };
 
+  Promise.prototype.isPending = function isPending() {
+    return this.then.stateManager.state === states.pending;
+  };
+
+  Promise.prototype.isResolved = function isResolved() {
+    return this.then.stateManager.state === states.resolved;
+  };
+
+  Promise.prototype.isRejected = function isRejected() {
+    return this.then.stateManager.state === states.resolved;
+  };
+
 
   /**
    * Interface to play nice with libraries like when and q.
