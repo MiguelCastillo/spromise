@@ -9,6 +9,6 @@ deploy:
   bucket: hoistedjs
   local-dir: dist
   upload-dir: "assets/js"
-  acl: ''
+  acl: public_read
   on:
     repo: MiguelCastillo/spromise
