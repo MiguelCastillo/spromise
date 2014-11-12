@@ -388,3 +388,4 @@ The reason spromise was left non compliant for this particular item is to faithf
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 </pre>
+
