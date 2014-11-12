@@ -2,13 +2,29 @@ language: node_js
 node_js:
 - '0.10'
 deploy:
-  provider: s3
-  access_key_id: AKIAJGGTPSBAMBLGK7EA
-  secret_access_key:
-    secure: ckdjNymE3a90FB5kXbzan3RVlzH4frnjfQP5W+mzsFdDKGMsrRFOOkRkm7sdvJzOO/NlBEWvdAYUMXFs/aTUzX/InJnnH+wMeLCHovYOw4FUIzMh7Z7gxPI2hWClY+r55fG78ykl+xG4GHT70L7eN3anhqlTY3ZNPtXCZB1YmVU=
-  bucket: hoistedjs
-  local-dir: dist
-  upload-dir: "assets/js"
-  acl: public_read
-  on:
-    repo: MiguelCastillo/spromise
+  - provider: releases
+    api_key:
+      secure: e2AB+ei6ElEPHhRg+Xc91NzpgZCNFaF4lNSkuLgRzCIt1Ww9cqq/UL7r3WQN4yaph8HVzaPuK9pj9rs+eVFej6FMa59dwyaCNhXLt/lCX4V9DisWkCilYgBk7eZXwEzms2LjSvkkvTmmt3DgpYTG5g4Ar60/bIK4fUhyVPXci1s=
+    file:
+      - "dist/spromise.js"
+      - "dist/spromise-debug.js"
+      - "dist/spromise-lib.js"
+      - "dist/spromise-lib-debug.js"
+    skip_cleanup: true
+    on:
+      repo: MiguelCastillo/spromise
+      tags: true
+      all_branches: true
+
+  - provider: s3
+    access_key_id: AKIAJGGTPSBAMBLGK7EA
+    secret_access_key:
+      secure: ckdjNymE3a90FB5kXbzan3RVlzH4frnjfQP5W+mzsFdDKGMsrRFOOkRkm7sdvJzOO/NlBEWvdAYUMXFs/aTUzX/InJnnH+wMeLCHovYOw4FUIzMh7Z7gxPI2hWClY+r55fG78ykl+xG4GHT70L7eN3anhqlTY3ZNPtXCZB1YmVU=
+    bucket: hoistedjs
+    local-dir: dist
+    upload-dir: "assets/js"
+    acl: public_read
+    on:
+      repo: MiguelCastillo/spromise
+      tags: true
+      all_branches: true
