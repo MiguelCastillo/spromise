@@ -3,12 +3,12 @@ node_js:
 - '0.10'
 deploy:
   provider: s3
-  access_key_id: AKIAI3OWM547AIXU2OJQ
+  access_key_id: AKIAJGGTPSBAMBLGK7EA
   secret_access_key:
-    secure: R2q2l/FGnJRcNz0Fxo464xQ/B/gH9Y/MKOpjShb31wOhr2XlxEkUnjccs9ga5KzLRNn0b1hbt9tUIz+NtD/CuawgF7H+cF+Q6KuLrKqeTT2029I8cN83UfA7hhpbYKUr563C85xAChz3J2lSug3olKi9Jzrzur/Q0X5t9OlbP4U=
+    secure: ckdjNymE3a90FB5kXbzan3RVlzH4frnjfQP5W+mzsFdDKGMsrRFOOkRkm7sdvJzOO/NlBEWvdAYUMXFs/aTUzX/InJnnH+wMeLCHovYOw4FUIzMh7Z7gxPI2hWClY+r55fG78ykl+xG4GHT70L7eN3anhqlTY3ZNPtXCZB1YmVU=
   bucket: hoistedjs
   local-dir: dist
   upload-dir: "assets/js"
-  acl: !ruby/string:HighLine::String public_read
+  acl: ''
   on:
     repo: MiguelCastillo/spromise
