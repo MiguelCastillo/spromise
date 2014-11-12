@@ -321,12 +321,12 @@ $ npm install spromise
 ## Downloads
 
 General purpose UMD (Browser, Node):
-* <a href="dist/spromise.js">dist/spromise.js</a> - minified
-* <a href="dist/spromise-debug.js">dist/spromise-debug.js</a>
+* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise.js">spromise.js</a> - minified
+* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-debug.js">spromise-debug.js</a>
 
 For inline inclusion in your AMD code:
-* <a href="dist/spromise-lib.js">dist/spromise-lib.js</a> - minified
-* <a href="dist/spromise-lib-debug.js">dist/spromise-lib-debug.js</a>
+* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-lib.js">spromise-lib.js</a> - minified
+* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-lib-debug.js">spromise-lib-debug.js</a>
 
 ## Build
 
