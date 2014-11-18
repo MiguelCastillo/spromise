@@ -1,6 +1,6 @@
 {
   "name": "spromise",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "license": "MIT",
   "main": "dist/spromise.js",
   "author": "Miguel Castillo <manchagnu@gmail.com>",
@@ -8,6 +8,7 @@
   "description": "Small Promise",
   "keywords": [
     "promise",
+    "a plus",
     "a+ promise",
     "jquery promise",
     "$ promise",
