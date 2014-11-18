@@ -118,6 +118,9 @@ define('src/promise',[
       state: this.state
     };
 
+    // Make sure we have a proper promise reference
+    target.promise.promise = target.promise;
+
     // Interface to allow to post pone calling the resolver as long as its not needed
     if (typeof(resolver) === "function") {
       resolver.call(target, target.resolve, target.reject);
