@@ -502,11 +502,11 @@ define('src/promise',[
   
 
   var states = {
-    "pending": 0,
-    "always": 1,
+    "pending":  0,
+    "always":   1,
     "resolved": 2,
     "rejected": 3,
-    "notify": 4
+    "notify":   4
   };
 
   var strStates = [
@@ -532,41 +532,38 @@ define('src/promise',[
       stateManager = new StateManager();
     }
 
-    function then(onResolved, onRejected) {
+    target.then = function then(onResolved, onRejected) {
       return stateManager.then(onResolved, onRejected);
-    }
+    };
 
-    // Setup a way to verify an spromise object
-    then.constructor  = Promise;
-    then.stateManager = stateManager;
-
-    function resolve() {
+    target.resolve = function resolve() {
       stateManager.transition(states.resolved, this, arguments);
       return target;
-    }
+    };
 
-    function reject() {
+    target.reject = function reject() {
       stateManager.transition(states.rejected, this, arguments);
       return target;
-    }
-
-    target.resolve = resolve;
-    target.reject  = reject;
-    target.then    = then;
+    };
 
     // Read only access point for the promise.
     target.promise = {
-      then: then,
-      always: this.always,
-      done: this.done,
-      catch: this.fail,
-      fail: this.fail,
-      notify: this.notify,
-      state: this.state
+      then:   target.then,
+      always: target.always,
+      done:   target.done,
+      catch:  target.fail,
+      fail:   target.fail,
+      notify: target.notify,
+      state:  target.state
     };
 
     // Make sure we have a proper promise reference
     target.promise.promise = target.promise;
+
+    // Tuck away the state manager to allow fast promise resolutions and quick way to
+    // check if the promise is an instance of spromise.
+    target.then.constructor  = Promise;
+    target.then.stateManager = stateManager;
 
     // Interface to allow to post pone calling the resolver as long as its not needed
     if (typeof(resolver) === "function") {
@@ -574,8 +571,7 @@ define('src/promise',[
     }
   }
 
-
-  Promise.prototype.delay = function(ms) {
+  Promise.prototype.delay = function delay(ms) {
     var _self = this;
     return new Promise(function(resolve, reject) {
       _self.then(function() {
@@ -654,7 +650,7 @@ define('src/promise',[
    * @returns {Promise}
    */
   Promise.resolve = Promise.thenable = function (value) {
-    if (value instanceof Promise) {
+    if (value instanceof(Promise) === true) {
       return value;
     }
 
@@ -704,6 +700,7 @@ define('src/promise',[
    * with the callback based on that.
    */
   StateManager.prototype.enqueue = function (state, cb, sync) {
+    var _self = this;
     var _state = this.state;
 
     if (!_state) {
@@ -716,20 +713,20 @@ define('src/promise',[
     // If not pending, then lets execute the callback
     else if (_state === state || states.always === state) {
       if (sync) {
-        cb.apply(this.context, this.value);
+        cb.apply(_self.context, _self.value);
       }
       else {
-        async(cb.apply.bind(cb, this.context, this.value));
+        async(function() {cb.apply(_self.context, _self.value);});
       }
     }
 
     // Do proper notify events
     else if (states.notify === state) {
       if (sync) {
-        cb.call(this.context, this.state, this.value);
+        cb.call(_self.context, _self.state, _self.value);
       }
       else {
-        async(cb.call.bind(cb, this.context, this.state, this.value));
+        async(function() {cb.call(_self.context, _self.state, _self.value);});
       }
     }
   };
@@ -767,17 +764,28 @@ define('src/promise',[
 
 
   StateManager.prototype.then = function(onResolved, onRejected) {
-    // Make sure onResolved and onRejected are correct
+    // Make sure onResolved and onRejected are functions or null otherwise
     onResolved = typeof(onResolved) === "function" ? onResolved : null;
     onRejected = typeof(onRejected) === "function" ? onRejected : null;
 
+    // Shortcut:
+    // If there are no onResolved or onRejected callbacks and the promise
+    // is already resolved, we just return a new promise and copy the state
     if ((!onResolved && this.state === states.resolved) ||
         (!onRejected && this.state === states.rejected)) {
       return new Promise(null, this);
     }
 
-    var resolution = new Resolution();
-    this.enqueue(states.notify, (onResolved || onRejected) ? resolution.resolve(onResolved, onRejected) : resolution.notify());
+    // Hand off between p1 and resolution logic for p2
+    var resolution = new Resolution(new Promise());
+
+    if (onResolved || onRejected) {
+      this.enqueue(states.notify, resolution.resolve(onResolved, onRejected));
+    }
+    else {
+      this.enqueue(states.notify, resolution.notify());
+    }
+
     return resolution.promise;
   };
 
@@ -786,91 +794,98 @@ define('src/promise',[
    * Thenable resolution
    */
   function Resolution(promise) {
-    this.promise = promise || new Promise();
+    this.promise = promise;
   }
 
 
+  /**
+   * Resolve is used when an onResolved/onRejected callbacks are provided, which
+   * need to be called with the the value of the promise once it is resolved.
+   */
   Resolution.prototype.resolve = function(onResolved, onRejected) {
-    var _self = this;
+    var resolution = this;
     return function resolve(state, value) {
-      var handler = (state === states.resolved ? (onResolved || onRejected) : (onRejected || onResolved));
+      var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
 
       try {
-        // Try/catch block in case calling the handler throws an exception
-        _self.context = this;
-        _self.finalize(state, [handler.apply(this, value)]);
+        // Try catch in case calling the handler throws an exception
+        resolution.finalize(state, this, [handler.apply(this, value)]);
       }
       catch(ex) {
-        _self.promise.reject.call(_self.context, ex);
-      }
-    };
-  };
-
-
-  // Notify when a promise has change state.
-  Resolution.prototype.notify = function () {
-    var _self = this;
-    return function notify(state, value) {
-      try {
-        _self.context = this;
-        _self.finalize(state, value);
-      }
-      catch (ex) {
-        _self.promise.reject.call(_self.context, ex);
-      }
-    };
-  };
-
-
-  // Promise.chain DRYs onresolved and onrejected operations.  Handler is onResolved or onRejected
-  // This chain is partcularly used when dealing with external promises where we just just have to
-  // resolve the result
-  Resolution.prototype.chain = function (state) {
-    var _self = this;
-    return function chain() {
-      try {
-        // Handler can only be called once!
-        if (!_self.resolved) {
-          _self.resolved = true;
-          _self.context  = this;
-          _self.finalize(state, arguments);
-        }
-      }
-      catch (ex) {
-        _self.promise.reject.call(_self.context, ex);
+        resolution.promise.reject.call(this, ex);
       }
     };
   };
 
 
   /**
-   * Process the output from a promise resolutions.
+   * Notify is used when adopting the state of a promise
+   */
+  Resolution.prototype.notify = function() {
+    var resolution = this;
+    return function notify(state, value) {
+      resolution.finalize(state, this, value);
+    };
+  };
+
+
+  /**
+   * Chain DRYs resolvePromise and rejectPromise.
+   * This chain is used when interoperating with in other promise implementations
+   */
+  Resolution.prototype.chain = function(state) {
+    var resolution = this;
+    return function chain() {
+      if (!resolution.resolved) {
+        resolution.resolved = true;
+        resolution.finalize(state, this, arguments);
+      }
+    };
+  };
+
+
+  /**
+   * Conveniece try/catch wrapper for the resolution finalizing step
+   */
+  Resolution.prototype.finalize = function(state, context, value) {
+    try {
+      this._finalize(state, context, value);
+    }
+    catch (ex) {
+      this.promise.reject.call(context, ex);
+    }
+  };
+
+
+  /**
+   * Promise resolution procedure
+   *
    * @param {states} state - Is the state of the promise resolution (resolved/rejected)
+   * @param {context} context - Is that context used when calling resolved/rejected
    * @param {array} data - Is value of the resolved promise
    */
-  Resolution.prototype.finalize = function (state, data) {
-    var input   = data[0];
-    var then    = (input && input.then);
+  Resolution.prototype._finalize = function (state, context, data) {
     var promise = this.promise;
-    var context = this.context;
-    var resolution, thenableType;
+    var input   = data[0];
+    var then    = input && input.then;
+    var thenType, resolution;
 
-    // 2.3.1
-    if (input === this.promise) {
+    // 2.3.1 https://promisesaplus.com/#point-48
+    if (input === promise) {
       throw new TypeError("Resolution input must not be the promise being resolved");
     }
 
-    // 2.3.2
-    // Shortcut if the incoming promise is an instance of spromise
+    // 2.3.2 https://promisesaplus.com/#point-49
+    // if the incoming promise is an instance of spromise, we adopt its state
     if (then && then.constructor === Promise) {
       then.stateManager.enqueue(states.notify, this.notify(), true);
       return;
     }
 
-    // 2.3.3
+    // 2.3.3 https://promisesaplus.com/#point-53
     // If thenable is function or object, then try to resolve using that.
-    thenableType = typeof (then) === "function" ? typeof (input) : null;
-    if (thenableType === "function" || thenableType === "object") {
+    thenType = then && typeof(then) === "function" && typeof(input);
+    if (thenType === "function" || thenType === "object") {
       try {
         resolution = new Resolution(promise);
         then.call(input, resolution.chain(states.resolved), resolution.chain(states.rejected));
