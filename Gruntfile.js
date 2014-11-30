@@ -37,7 +37,7 @@ module.exports = function(grunt) {
         options: {
           "paths": {
           },
-          name: "lib/almond/almond",
+          name: "src/samdy",
           include: ["src/spromise"],
           out: "dist/spromise-debug.js",
           optimize: "none",
@@ -53,7 +53,7 @@ module.exports = function(grunt) {
         options: {
           "paths": {
           },
-          name: "lib/almond/almond",
+          name: "src/samdy",
           include: ["src/spromise"],
           out: "dist/spromise.js",
           optimize: "uglify",
@@ -103,5 +103,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask("default", ["requirejs"]);
   grunt.registerTask("build", ["requirejs"]);
-  grunt.registerTask("test", ["default", "connect:test", "mocha:test"]);
+  grunt.registerTask("test", ["connect:test", "mocha:test"]);
+  grunt.registerTask("server", ["connect:keepalive"]);
 };

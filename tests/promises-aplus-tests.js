@@ -1,5 +1,5 @@
 var promisesAplusTests = require("promises-aplus-tests"),
-    spromise = require("../dist/spromise");
+    spromise = require("../dist/spromise-debug");
 
 // Adapter so that promise tests can run
 function adapter() {

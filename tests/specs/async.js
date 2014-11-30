@@ -1,4 +1,4 @@
-define(["src/Async", "src/Promise"], function(async, Promise) {
+define(["src/async", "src/promise"], function(async, Promise) {
 
   describe("async suite:", function() {
 

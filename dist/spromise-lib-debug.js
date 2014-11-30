@@ -552,7 +552,7 @@ define('src/when',[
   */
   function When() {
     var context = this, args = arguments;
-    return Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       All.call(context, args).then(function(results) {
         resolve.apply(context, results);
       },
