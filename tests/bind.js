@@ -1,5 +1,6 @@
 /**
  * Function bind polyfill
+ * https://github.com/ariya/phantomjs/issues/10522
  */
 
 if (!Function.prototype.bind) {
@@ -12,7 +13,7 @@ if (!Function.prototype.bind) {
     }
 
     return function () {
-      return fn.apply(context, args);
+      return fn.apply(context, [].concat(args, Array.prototype.slice.call(arguments)));
     };
   };
 }
