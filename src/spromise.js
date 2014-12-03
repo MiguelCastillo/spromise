@@ -8,11 +8,12 @@ define([
   "src/promise",
   "src/async",
   "src/when",
-  "src/all"
-], function(promise, async, when, all) {
-  promise.async  = async;
-  promise.when = when;
-  promise.all = all;
-  return promise;
+  "src/all",
+  "src/race"
+], function(Promise, Async, When, All, Race) {
+  Promise.async = Async;
+  Promise.when  = When;
+  Promise.all   = All;
+  Promise.race  = Race;
+  return Promise;
 });
-

@@ -571,17 +571,56 @@ define('src/when',[
  * Licensed under MIT
  */
 
+define('src/race',["src/promise"], function(Promise) {
+  
+
+  function Race(iterable) {
+    if (!iterable) {
+      return Promise.resolve();
+    }
+
+    return new Promise(function(resolve, reject) {
+      var i, length, _done = false;
+      for (i = 0, length = iterable.length; i < length; i++) {
+        iterable[i].then(_resolve, _reject);
+      }
+
+      function _resolve() {
+        if (!_done) {
+          _done = true;
+          resolve.apply(this, arguments);
+        }
+      }
+
+      function _reject() {
+        if (!_done) {
+          _done = true;
+          reject.apply(this, arguments);
+        }
+      }
+    });
+  }
+
+  return Race;
+});
+
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
 
 define('src/spromise',[
   "src/promise",
   "src/async",
   "src/when",
-  "src/all"
-], function(promise, async, when, all) {
-  promise.async  = async;
-  promise.when = when;
-  promise.all = all;
-  return promise;
+  "src/all",
+  "src/race"
+], function(Promise, Async, When, All, Race) {
+  Promise.async = Async;
+  Promise.when  = When;
+  Promise.all   = All;
+  Promise.race  = Race;
+  return Promise;
 });
-
 

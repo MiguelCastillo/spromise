@@ -13,7 +13,7 @@ if (!Function.prototype.bind) {
     }
 
     return function () {
-      return fn.apply(context, [].concat(args, Array.prototype.slice.call(arguments)));
+      return fn.apply(context, args.concat(Array.prototype.slice.call(arguments)));
     };
   };
 }
