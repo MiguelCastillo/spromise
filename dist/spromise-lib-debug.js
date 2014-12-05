@@ -10,9 +10,9 @@
  * Licensed under MIT
  */
 
-
-define('src/async',[],function() {
-  var _self = this;
+var root = this;
+define('src/async',['require','exports','module'],function(require, exports, module) {
+  var _self = root;
   var nextTick;
 
   /**
@@ -40,7 +40,7 @@ define('src/async',[],function() {
     _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };
 
-  return Async;
+  module.exports = Async;
 });
 
 /**
@@ -48,11 +48,10 @@ define('src/async',[],function() {
  * Licensed under MIT
  */
 
-
-define('src/promise',[
-  "src/async"
-], function (async) {
+define('src/promise',['require','exports','module','src/async'],function(require, exports, module) {
   
+
+  var Async = require("src/async");
 
   var states = {
     "pending":  0,
@@ -128,7 +127,7 @@ define('src/promise',[
     var _self = this;
     return new Promise(function(resolve, reject) {
       _self.then(function() {
-        async.delay(resolve.bind(this), ms, arguments);
+        Async.delay(resolve.bind(this), ms, arguments);
       }, reject.bind(this));
     });
   };
@@ -228,7 +227,7 @@ define('src/promise',[
   Promise.delay = function delay(ms) {
     var args = Array.prototype.slice(arguments, 1);
     return new Promise(function(resolve) {
-      async.delay(resolve.bind(this), ms, args);
+      Async.delay(resolve.bind(this), ms, args);
     });
   };
 
@@ -269,7 +268,7 @@ define('src/promise',[
         cb.apply(_self.context, _self.value);
       }
       else {
-        async(function() {cb.apply(_self.context, _self.value);});
+        Async(function() {cb.apply(_self.context, _self.value);});
       }
     }
 
@@ -279,7 +278,7 @@ define('src/promise',[
         cb.call(_self.context, _self.state, _self.value);
       }
       else {
-        async(function() {cb.call(_self.context, _self.state, _self.value);});
+        Async(function() {cb.call(_self.context, _self.state, _self.value);});
       }
     }
   };
@@ -460,7 +459,7 @@ define('src/promise',[
 
   // Expose enums for the states
   Promise.states = states;
-  return Promise;
+  module.exports = Promise;
 });
 
 /**
@@ -468,12 +467,11 @@ define('src/promise',[
  * Licensed under MIT
  */
 
-
-define('src/all',[
-  "src/promise",
-  "src/async"
-], function(Promise, Async) {
+define('src/all',['require','exports','module','src/promise','src/async'],function(require, exports, module) {
   
+
+  var Promise = require("src/promise"),
+      Async   = require("src/async");
 
   function _result(input, args, context) {
     if (typeof(input) === "function") {
@@ -531,7 +529,7 @@ define('src/all',[
     return promise;
   }
 
-  return All;
+  module.exports = All;
 });
 
 
@@ -540,16 +538,15 @@ define('src/all',[
  * Licensed under MIT
  */
 
-
-define('src/when',[
-  "src/promise",
-  "src/all"
-], function(Promise, All) {
+define('src/when',['require','exports','module','src/promise','src/all'],function(require, exports, module) {
   
 
+  var Promise = require("src/promise"),
+      All     = require("src/all");
+
   /**
-  * Interface to allow multiple promises to be synchronized
-  */
+   * Interface to allow multiple promises to be synchronized
+   */
   function When() {
     var context = this, args = arguments;
     return new Promise(function(resolve, reject) {
@@ -562,7 +559,7 @@ define('src/when',[
     });
   }
 
-  return When;
+  module.exports = When;
 });
 
 
@@ -571,8 +568,10 @@ define('src/when',[
  * Licensed under MIT
  */
 
-define('src/race',["src/promise"], function(Promise) {
+define('src/race',['require','exports','module','src/promise'],function(require, exports, module) {
   
+
+  var Promise = require("src/promise");
 
   function Race(iterable) {
     if (!iterable) {
@@ -601,7 +600,7 @@ define('src/race',["src/promise"], function(Promise) {
     });
   }
 
-  return Race;
+  module.exports = Race;
 });
 
 /**
@@ -609,18 +608,15 @@ define('src/race',["src/promise"], function(Promise) {
  * Licensed under MIT
  */
 
+define('src/spromise',['require','exports','module','src/promise','src/async','src/when','src/all','src/race'],function(require, exports, module) {
+  
 
-define('src/spromise',[
-  "src/promise",
-  "src/async",
-  "src/when",
-  "src/all",
-  "src/race"
-], function(Promise, Async, When, All, Race) {
-  Promise.async = Async;
-  Promise.when  = When;
-  Promise.all   = All;
-  Promise.race  = Race;
-  return Promise;
+  var Promise  = require("src/promise");
+  Promise.aync = require("src/async");
+  Promise.when = require("src/when");
+  Promise.all  = require("src/all");
+  Promise.race = require("src/race");
+
+  module.exports = Promise;
 });
 

@@ -15,7 +15,7 @@ define([
     "tests/specs/async",
     "tests/specs/promise",
     "tests/specs/when",
-    "tests/specs/build",
-    "tests/specs/race"
+    "tests/specs/race",
+    "tests/specs/build"
   ], mocha.run);
 });

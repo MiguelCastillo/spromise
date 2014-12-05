@@ -3,11 +3,10 @@
  * Licensed under MIT
  */
 
-
-define([
-  "src/async"
-], function (async) {
+define(function(require, exports, module) {
   "use strict";
+
+  var Async = require("src/async");
 
   var states = {
     "pending":  0,
@@ -83,7 +82,7 @@ define([
     var _self = this;
     return new Promise(function(resolve, reject) {
       _self.then(function() {
-        async.delay(resolve.bind(this), ms, arguments);
+        Async.delay(resolve.bind(this), ms, arguments);
       }, reject.bind(this));
     });
   };
@@ -183,7 +182,7 @@ define([
   Promise.delay = function delay(ms) {
     var args = Array.prototype.slice(arguments, 1);
     return new Promise(function(resolve) {
-      async.delay(resolve.bind(this), ms, args);
+      Async.delay(resolve.bind(this), ms, args);
     });
   };
 
@@ -224,7 +223,7 @@ define([
         cb.apply(_self.context, _self.value);
       }
       else {
-        async(function() {cb.apply(_self.context, _self.value);});
+        Async(function() {cb.apply(_self.context, _self.value);});
       }
     }
 
@@ -234,7 +233,7 @@ define([
         cb.call(_self.context, _self.state, _self.value);
       }
       else {
-        async(function() {cb.call(_self.context, _self.state, _self.value);});
+        Async(function() {cb.call(_self.context, _self.state, _self.value);});
       }
     }
   };
@@ -415,5 +414,5 @@ define([
 
   // Expose enums for the states
   Promise.states = states;
-  return Promise;
+  module.exports = Promise;
 });

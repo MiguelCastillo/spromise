@@ -6,8 +6,7 @@
  */
 
 
-define([
-], function() {
+define(function(require, exports, module) {
   "use strict";
 
   function Timer(start) {
@@ -16,7 +15,6 @@ define([
     }
   }
 
-
   Timer.units = {
     msec: 1,
     secs: 1000,
@@ -24,16 +22,13 @@ define([
     hours: 1000 * 60 * 60
   };
 
-
   Timer.prototype.start = function() {
     this._start = Date.now();
   };
 
-
   Timer.prototype.end = function() {
     this._end = Date.now();
   };
-
 
   Timer.prototype.elapsed = function(unit) {
     this.end();
@@ -45,6 +40,6 @@ define([
     return (this._end - this._start)/unit;
   };
 
-  return Timer;
+  module.exports = Timer;
 });
 

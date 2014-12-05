@@ -1,6 +1,5 @@
 var define, require;
 (function() {
-
   var root = this;
   var modules = {};
 
@@ -9,7 +8,7 @@ var define, require;
    */
   function load(mod) {
     if (typeof(mod.factory) === "function") {
-      return _require(mod.deps, mod.factory);
+      return require(mod.deps, mod.factory);
     }
     return mod.factory;
   }
@@ -45,11 +44,11 @@ var define, require;
   /**
    * Interface to get a dependency and resolve any unresolved dependencies.
    */
-  function _require(deps, factory) {
-    var name, result, _module = {};
-    _module.require = _require;
-    _module.exports = {};
-    _module.module  = {};
+  require = function require(deps, factory) {
+    var name, result, _module = {}, _exports = {};
+    _module.require = require;
+    _module.exports = _exports;
+    _module.module  = {exports: _exports};
 
     if (typeof(deps) === "string") {
       name = deps;
@@ -66,20 +65,18 @@ var define, require;
     }
 
     result = factory.apply(root, deps);
-    return result === (void 0) ? _module.exports : result;
-  }
+    return result === (void 0) ? _module.module.exports : result;
+  };
 
   /**
    * Interface to register a module.  Only names defines can be used.
    */
-  function _define(name, deps, factory) {
+  define = function define(name, deps, factory) {
     modules[name] = {
       name: name,
       deps: deps,
       factory: factory
     };
-  }
+  };
 
-  define  = _define;
-  require = _require;
 }).call(this);

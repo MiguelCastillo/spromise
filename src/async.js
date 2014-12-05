@@ -3,9 +3,9 @@
  * Licensed under MIT
  */
 
-
-define(function() {
-  var _self = this;
+var root = this;
+define(function(require, exports, module) {
+  var _self = root;
   var nextTick;
 
   /**
@@ -33,5 +33,5 @@ define(function() {
     _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };
 
-  return Async;
+  module.exports = Async;
 });

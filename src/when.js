@@ -3,16 +3,15 @@
  * Licensed under MIT
  */
 
-
-define([
-  "src/promise",
-  "src/all"
-], function(Promise, All) {
+define(function(require, exports, module) {
   "use strict";
 
+  var Promise = require("src/promise"),
+      All     = require("src/all");
+
   /**
-  * Interface to allow multiple promises to be synchronized
-  */
+   * Interface to allow multiple promises to be synchronized
+   */
   function When() {
     var context = this, args = arguments;
     return new Promise(function(resolve, reject) {
@@ -25,6 +24,6 @@ define([
     });
   }
 
-  return When;
+  module.exports = When;
 });
 

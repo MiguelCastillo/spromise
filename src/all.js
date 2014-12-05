@@ -3,12 +3,11 @@
  * Licensed under MIT
  */
 
-
-define([
-  "src/promise",
-  "src/async"
-], function(Promise, Async) {
+define(function(require, exports, module) {
   "use strict";
+
+  var Promise = require("src/promise"),
+      Async   = require("src/async");
 
   function _result(input, args, context) {
     if (typeof(input) === "function") {
@@ -66,6 +65,6 @@ define([
     return promise;
   }
 
-  return All;
+  module.exports = All;
 });
 

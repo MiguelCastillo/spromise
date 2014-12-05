@@ -3,8 +3,10 @@
  * Licensed under MIT
  */
 
-define(["src/promise"], function(Promise) {
+define(function(require, exports, module) {
   "use strict";
+
+  var Promise = require("src/promise");
 
   function Race(iterable) {
     if (!iterable) {
@@ -33,5 +35,5 @@ define(["src/promise"], function(Promise) {
     });
   }
 
-  return Race;
+  module.exports = Race;
 });
