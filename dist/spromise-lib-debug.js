@@ -12,6 +12,8 @@
 
 var root = this;
 define('src/async',['require','exports','module'],function(require, exports, module) {
+  
+
   var _self = root;
   var nextTick;
 
@@ -202,12 +204,13 @@ define('src/promise',['require','exports','module','src/async'],function(require
    * @returns {Promise}
    */
   Promise.resolve = Promise.thenable = function (value) {
-    if (value instanceof(Promise) === true) {
-      return value;
-    }
-
-    if (value && typeof(value.then) === "function") {
-      return new Promise(value.then);
+    if (value) {
+      if (value instanceof(Promise) === true) {
+        return value;
+      }
+      else if (typeof(value.then) === "function") {
+        return new Promise(value.then);
+      }
     }
 
     return new Promise(null, new StateManager({

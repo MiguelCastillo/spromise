@@ -5,6 +5,8 @@
 
 var root = this;
 define(function(require, exports, module) {
+  "use strict";
+
   var _self = root;
   var nextTick;
 
