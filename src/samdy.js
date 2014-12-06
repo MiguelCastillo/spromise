@@ -47,7 +47,7 @@ var define, require;
   }
 
   /**
-   * Interface to get a dependency and resolve any unresolved dependencies.
+   * Interface to retrieve a module and resolve any unresolved dependencies.
    */
   require = function require(deps, factory) {
     var name, result, rem = {};
