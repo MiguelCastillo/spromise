@@ -36,8 +36,6 @@ define('src/async',['require','exports','module'],function(require, exports, mod
     nextTick(cb);
   }
 
-  /**
-   */
   Async.delay = function(callback, timeout, args) {
     _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };

@@ -1,7 +1,12 @@
+/**
+ * spromise Copyright (c) 2014 Miguel Castillo.
+ * Licensed under MIT
+ */
+
 var define, require;
 (function() {
-  var root = this;
-  var modules = {};
+  var root = this,
+      cache = {};
 
   /**
    * Load the module by calling its factory with the appropriate dependencies, if at all possible
@@ -16,18 +21,18 @@ var define, require;
   /**
    * Resolve dependencies
    */
-  function resolve(deps, _module) {
+  function resolve(deps, rem) {
     var i, length, dep, mod, result = [];
 
     for (i = 0, length = deps.length; i < length; i++) {
       dep = deps[i];
-      mod = modules[dep] || _module[dep];
+      mod = cache[dep] || rem[dep];
 
       if (!mod) {
         throw new TypeError("Module " + dep + " has not yet been loaded");
       }
 
-      if (modules[dep]) {
+      if (cache[dep]) {
         if (!mod.hasOwnProperty("code")) {
           mod.code = load(mod);
         }
@@ -45,34 +50,35 @@ var define, require;
    * Interface to get a dependency and resolve any unresolved dependencies.
    */
   require = function require(deps, factory) {
-    var name, result, _module = {}, _exports = {};
-    _module.require = require;
-    _module.exports = _exports;
-    _module.module  = {exports: _exports};
+    var name, result, rem = {};
+    rem.require = require;
+    rem.exports = {};
+    rem.module  = {exports: rem.exports};
 
     if (typeof(deps) === "string") {
       name = deps;
       deps = [deps];
     }
 
-    // Resolve all dependencies
     if (deps.length) {
-      deps = resolve(deps.slice(0), _module);
+      deps = resolve(deps.slice(0), rem);
     }
 
-    if (typeof(factory) !== "function") {
-      return name ? modules[name].code : factory;
+    if (typeof(factory) === "function") {
+      result = factory.apply(root, deps);
+    }
+    else {
+      result = cache[name] ? cache[name].code : factory;
     }
 
-    result = factory.apply(root, deps);
-    return result === (void 0) ? _module.module.exports : result;
+    return result === (void 0) ? rem.module.exports : result;
   };
 
   /**
-   * Interface to register a module.  Only names defines can be used.
+   * Interface to register a module.  Only named module can be registered.
    */
   define = function define(name, deps, factory) {
-    modules[name] = {
+    cache[name] = {
       name: name,
       deps: deps,
       factory: factory
