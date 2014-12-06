@@ -29,8 +29,6 @@ define(function(require, exports, module) {
     nextTick(cb);
   }
 
-  /**
-   */
   Async.delay = function(callback, timeout, args) {
     _self.setTimeout(callback.apply.bind(callback, this, args || []), timeout);
   };

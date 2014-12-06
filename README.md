@@ -321,12 +321,12 @@ $ npm install spromise
 ## Downloads
 
 General purpose UMD (Browser, Node):
-* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise.js">spromise.js</a> - minified
-* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-debug.js">spromise-debug.js</a>
+* [spromise.js](https://github.com/MiguelCastillo/spromise/releases/download/v0.8.0/spromise.js) - minified
+* [spromise-debug.js](https://github.com/MiguelCastillo/spromise/releases/download/v0.8.0/spromise-debug.js)
 
 For inline inclusion in your AMD code:
-* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-lib.js">spromise-lib.js</a> - minified
-* <a href="https://github.com/MiguelCastillo/spromise/releases/download/v0.7.1-release/spromise-lib-debug.js">spromise-lib-debug.js</a>
+* [spromise-lib.js](https://github.com/MiguelCastillo/spromise/releases/download/v0.8.0/spromise-lib.js) - minified
+* [spromise-lib-debug.js](https://github.com/MiguelCastillo/spromise/releases/download/v0.8.0/spromise-lib-debug.js)
 
 ## Build
 
@@ -388,4 +388,3 @@ The reason spromise was left non compliant for this particular item is to faithf
       at null.<anonymous> (/Users/mcastillo/Projects/promises-tests/node_modules/mocha/lib/runnable.js:165:14)
       at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)
 </pre>
-
