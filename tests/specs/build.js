@@ -1,4 +1,5 @@
-define(["dist/spromise-debug"], function(Promise) {
+define(function(require, exports, module) {
+  var Promise = require("dist/spromise-debug");
 
   describe("Build suite test promise", function() {
     var result, promise1;

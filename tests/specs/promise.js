@@ -1,4 +1,7 @@
-define(["src/promise", "tests/timer"], function(Promise, Timer) {
+define(function(require, exports, module) {
+  var Promise = require("src/promise"),
+      Timer   = require("tests/timer");
+
 
   describe("Promises Suite", function() {
 

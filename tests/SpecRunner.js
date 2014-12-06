@@ -1,7 +1,6 @@
-define([
-  "jquery",
-  "chai"
-], function($, chai) {
+define(function(require, exports, module) {
+  var $    = require("jquery"),
+      chai = require("chai");
 
   window.$      = $;
   window.chai   = chai;
