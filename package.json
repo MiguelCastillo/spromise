@@ -4,6 +4,9 @@
   "license": "MIT",
   "main": "dist/spromise.js",
   "author": "Miguel Castillo <manchagnu@gmail.com>",
+  "contributors": [
+    {"name" : "Mark Simulacrum", "email" : "mark.simulacrum@gmail.com", "url" : "https://github.com/Mark-Simulacrum"}
+  ],
   "title": "spromise",
   "description": "Small Promise",
   "keywords": [
