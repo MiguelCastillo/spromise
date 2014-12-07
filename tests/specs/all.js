@@ -1,4 +1,6 @@
-define(["src/promise", "src/all"], function(promise, all) {
+define(function (require, exports, module) {
+  var promise = require("src/promise"),
+      all     = require("src/all");
 
   describe("All", function() {
 

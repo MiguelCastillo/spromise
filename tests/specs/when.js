@@ -1,4 +1,6 @@
-define(["src/promise", "src/when"], function(promise, when) {
+define(function(require, exports, module) {
+  var promise = require("src/promise"),
+      when    = require("src/when");
 
   describe("When", function() {
 
