@@ -7,13 +7,13 @@ module.exports = function(grunt) {
     connect: {
       test: {
         options: {
-          port: 8000,
+          port: 8052,
           hostname: 'localhost'
         }
       },
       keepalive: {
         options: {
-          port: 8000,
+          port: 8050,
           host: "*",
           keepalive: true
         }
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
           reporter: "Spec",
           run: false,
           timeout: 10000,
-          urls: ["http://localhost:8000/tests/SpecRunner.html"]
+          urls: ["http://localhost:8052/tests/SpecRunner.html"]
         }
       }
     },

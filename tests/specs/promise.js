@@ -350,7 +350,9 @@ define(function(require, exports, module) {
         })
         .then(function(x) {
           expect(x instanceof TypeError).to.equal(true);
-        },function(ex) {
+        })
+        .catch(function(ex) {
+          expect(ex).to.be.an("object");
           expect(ex.message).to.equal("First exception");
           result.resolve();
         });
