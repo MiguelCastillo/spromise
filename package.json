@@ -40,7 +40,7 @@
   },
   "scripts": {
     "prepublish": "bower install && grunt build --verbose",
-    "test": "node tests/promises-aplus-tests.js"
+    "test": "node tests/promises-aplus-tests.js && grunt test"
   },
   "directories": {
     "test": "tests"
