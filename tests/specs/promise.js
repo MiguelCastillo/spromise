@@ -2,6 +2,8 @@ define(function(require, exports, module) {
   var Promise = require("src/promise"),
       Timer   = require("tests/timer");
 
+  // Disable debug traces in unit tests.
+  Promise.debug = false;
 
   describe("Promises Suite", function() {
 
