@@ -352,7 +352,7 @@ define(function(require, exports, module) {
           expect(x instanceof TypeError).to.equal(true);
         })
         .fail(function(ex) {
-          expect(ex).to.be.an('object');
+          expect(ex).to.be.an('undefined');
           result.resolve();
         });
 
