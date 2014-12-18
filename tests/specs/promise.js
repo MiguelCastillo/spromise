@@ -2,6 +2,8 @@ define(function(require, exports, module) {
   var Promise = require("src/promise"),
       Timer   = require("tests/timer");
 
+  // Disable debug traces in unit tests.
+  Promise.debug = false;
 
   describe("Promises Suite", function() {
 
@@ -350,8 +352,9 @@ define(function(require, exports, module) {
         })
         .then(function(x) {
           expect(x instanceof TypeError).to.equal(true);
-        },function(ex) {
-          expect(ex.message).to.equal("First exception");
+        })
+        .fail(function(ex) {
+          expect(ex).to.be.an('undefined');
           result.resolve();
         });
 
