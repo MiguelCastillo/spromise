@@ -257,6 +257,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
             value = value === (void 0) ? [] : [value];
           }
           catch(ex) {
+            printDebug(ex);
             return reject.call(this, ex);
           }
         }
@@ -369,13 +370,27 @@ define('src/promise',['require','exports','module','src/async'],function(require
     taskRunner: function(queue) {
       return function taskRunner() {
         while(queue.length) {
-          queue[0]();
+          try {
+            queue[0]();
+          }
+          catch(ex) {
+            printDebug(ex);
+          }
           queue.shift();
         }
       };
     }
   };
-  
+
+  function printDebug(ex) {
+    if (Factory.debug) {
+      console.error(ex);
+      if (ex && ex.stack) {
+        console.log(ex.stack);
+      }
+    }
+  }
+
   /**
    * Public interface to create promises
    */
@@ -448,6 +463,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
 
   // Expose enums for the states
   Factory.states = states;
+  Factory.debug  = true;
   module.exports = Factory;
 });
 

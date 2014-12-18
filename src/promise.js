@@ -210,6 +210,7 @@ define(function(require, exports, module) {
             value = value === (void 0) ? [] : [value];
           }
           catch(ex) {
+            printDebug(ex);
             return reject.call(this, ex);
           }
         }
@@ -322,13 +323,27 @@ define(function(require, exports, module) {
     taskRunner: function(queue) {
       return function taskRunner() {
         while(queue.length) {
-          queue[0]();
+          try {
+            queue[0]();
+          }
+          catch(ex) {
+            printDebug(ex);
+          }
           queue.shift();
         }
       };
     }
   };
-  
+
+  function printDebug(ex) {
+    if (Factory.debug) {
+      console.error(ex);
+      if (ex && ex.stack) {
+        console.log(ex.stack);
+      }
+    }
+  }
+
   /**
    * Public interface to create promises
    */
@@ -401,5 +416,6 @@ define(function(require, exports, module) {
 
   // Expose enums for the states
   Factory.states = states;
+  Factory.debug  = true;
   module.exports = Factory;
 });
