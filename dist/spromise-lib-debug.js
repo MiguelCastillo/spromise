@@ -239,8 +239,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
     }
 
     return new Promise(function(resolve, reject) {
-      var promise    = this,
-          hasHandler = !!(onResolved || onRejected);
+      var promise = this;
 
       // Run the notification task async if there is a handler or promise1 has
       // not yet been resolved.  Otherwise, run the task sync.
@@ -248,32 +247,28 @@ define('src/promise',['require','exports','module','src/async'],function(require
 
       // Callback when the promise is ready
       function NotifyAction(state, value) {
-        if (hasHandler) {
-          var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
-
-          // Try catch in case calling the handler throws an exception
-          try {
-            value = handler.apply(this, value);
-            value = value === (void 0) ? [] : [value];
-          }
-          catch(ex) {
-            printDebug(ex);
-            return reject.call(this, ex);
-          }
+        var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
+        if (handler) {
+          value = StateManager.runHandler(handler, value, this, reject);
         }
 
-        if (value.length) {
-          var resolution = new Resolution({promise: promise});
-          resolution.finalize(state, value, this);
-        }
-        else if (state === states.resolved) {
-          resolve.call(this);
-        }
-        else {
-          reject.call(this);
-        }
+        (new Resolution({promise: promise})).finalize(state, value, this);
       }
     });
+  };
+
+
+  StateManager.runHandler = function(handler, value, context, reject) {
+    // Try catch in case calling the handler throws an exception
+    try {
+      value = handler.apply(context, value);
+    }
+    catch(ex) {
+      printDebug(ex);
+      return reject.call(context, ex);
+    }
+
+    return value === undefined ? [] : [value];
   };
 
 
@@ -284,82 +279,90 @@ define('src/promise',['require','exports','module','src/async'],function(require
     this.promise = options.promise;
   }
 
-
-  /**
-   * Chain DRYs resolvePromise and rejectPromise.
-   * This chain is used when interoperating with in other promise implementations
-   */
-  Resolution.prototype.chain = function(state) {
-    var resolution = this;
-    return function chain() {
-      if (!resolution.resolved) {
-        resolution.resolved = true;
-        resolution.finalize(state, arguments, this);
-      }
-    };
-  };
-
-
   /**
    * Promise resolution procedure
    *
    * @param {states} state - Is the state of the promise resolution (resolved/rejected)
+   * @param {array} value - Is value of the resolved promise
    * @param {context} context - Is that context used when calling resolved/rejected
-   * @param {array} data - Is value of the resolved promise
    */
   Resolution.prototype.finalize = function(state, value, context) {
-    var _self = this;
-    var promise = this.promise,
-        input   = value[0];
+    var resolution = this,
+        promise    = this.promise,
+        input, pending;
 
-    try {
+    if (value.length) {
+      input = value[0];
+
       // 2.3.1 https://promisesaplus.com/#point-48
       if (input === promise) {
-        throw new TypeError("Resolution input must not be the promise being resolved");
+        pending = promise.reject.call(context, new TypeError("Resolution input must not be the promise being resolved"));
       }
 
       // 2.3.2 https://promisesaplus.com/#point-49
       // if the incoming promise is an instance of spromise, we adopt its state
-      if (input && input.constructor === Promise) {
-        return input.notify(function NotifyDelegate(state, value) {
-          _self.finalize(state, value, this);
+      else if (input && input.constructor === Promise) {
+        pending = input.notify(function NotifyDelegate(state, value) {
+          resolution.finalize(state, value, this);
         });
       }
 
       // 2.3.3 https://promisesaplus.com/#point-53
-      // If thenable is function or object, then try to resolve using that.
-      var then     = input && input.then,  // Reading `.then` could throw
-          thenType = then && typeof(then) === "function" && typeof(input);
-
-      // If we have a thennable, then we chain the resolution of the promise to it
-      if (then && (thenType === "function" || thenType === "object")) {
-        var resolution = new Resolution(this);
-        try {
-          return then.call(input, resolution.chain(states.resolved), resolution.chain(states.rejected));
-        }
-        catch (ex) {
-          if (!resolution.resolved) {
-            promise.reject.call(context, ex);
-          }
-        }
-      }
-
-      // 2.3.4 https://promisesaplus.com/#point-64
-      // If x is not an object or function, fulfill promise with x
-      else {
-        if (state === states.resolved) {
-          promise.resolve.apply(context, value);
-        }
-        else {
-          promise.reject.apply(context, value);
+      // Otherwise, if x is an object or function
+      else if (input !== undefined && input !== null) {
+        switch(typeof(input)) {
+          case "object":
+          case "function":
+            pending = this.runThenable(input, context);
         }
       }
     }
-    catch (ex) {
-      promise.reject.call(context, ex);
+
+    // 2.3.4 https://promisesaplus.com/#point-64
+    // If x is not an object or function, fulfill promise with x.
+    if (!pending) {
+      if (state === states.resolved) {
+        promise.resolve.apply(context, value);
+      }
+      else {
+        promise.reject.apply(context, value);
+      }
     }
   };
 
+  /**
+   * Run thenable.
+   */
+  Resolution.prototype.runThenable = function(input, context) {
+    var resolution = this,
+        resolved   = false;
+    try {
+      var then = input.then;  // Reading `.then` could throw
+      if (typeof(then) === "function") {
+        then.call(input, function resolvePromise() {
+          if (!resolved) { resolved = true;
+            resolution.finalize(states.resolved, arguments, this);
+          }
+        }, function rejectPromise() {
+          if (!resolved) { resolved = true;
+            resolution.promise.reject.apply(this, arguments);
+          }
+        });
+        return true;
+      }
+    }
+    catch (ex) {
+      if (!resolved) {
+        resolution.promise.reject.call(context, ex);
+      }
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * Task manager to handle queuing up async tasks in an optimal manner
+   */
   var TaskManager = {
     _asyncQueue: [],
     asyncTask: function(task) {
@@ -433,7 +436,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
    */
   Factory.resolve = Factory.thenable = function (value) {
     if (value) {
-      if (value instanceof(Promise) === true) {
+      if (value.constructor === Promise) {
         return value;
       }
       else if (typeof(value.then) === "function") {
