@@ -572,7 +572,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
 
   // Expose enums for the states
   Factory.states = states;
-  Factory.debug  = typeof(console) !== 'undefined';
+  Factory.debug  = false;
   module.exports = Factory;
 });
 
