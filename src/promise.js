@@ -419,6 +419,6 @@ define(function(require, exports, module) {
 
   // Expose enums for the states
   Factory.states = states;
-  Factory.debug  = true;
+  Factory.debug  = typeof(console) !== 'undefined';
   module.exports = Factory;
 });
