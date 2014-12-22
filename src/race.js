@@ -22,14 +22,18 @@ define(function(require, exports, module) {
       function _resolve() {
         if (!_done) {
           _done = true;
+          /*jshint -W040 */
           resolve.apply(this, arguments);
+          /*jshint +W040 */
         }
       }
 
       function _reject() {
         if (!_done) {
           _done = true;
+          /*jshint -W040 */
           reject.apply(this, arguments);
+          /*jshint +W040 */
         }
       }
     });

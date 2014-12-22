@@ -1,6 +1,8 @@
 //
 // http://24ways.org/2013/grunt-is-not-weird-and-hard/
 //
+
+/* jshint node:true */
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
@@ -93,10 +95,22 @@ module.exports = function(grunt) {
           }
         }
       }
+    },
+    jshint: {
+      all: [
+        "Gruntfile.js",
+        "src/**/*.js",
+        "tests/**/*.js"
+      ],
+      options: {
+        reporter: require("jshint-stylish"),
+        jshintrc: true
+      },
     }
   });
 
 
+  grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-requirejs");
   grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-mocha");
@@ -104,5 +118,6 @@ module.exports = function(grunt) {
   grunt.registerTask("default", ["requirejs"]);
   grunt.registerTask("build", ["requirejs"]);
   grunt.registerTask("test", ["connect:test", "mocha:test"]);
+  grunt.registerTask("lint", ["jshint"]);
   grunt.registerTask("server", ["connect:keepalive"]);
 };

@@ -1,4 +1,5 @@
-define(function(require, exports, module) {
+/* global mocha */
+define(function(require/*, exports, module*/) {
   var $    = require("jquery"),
       chai = require("chai");
 

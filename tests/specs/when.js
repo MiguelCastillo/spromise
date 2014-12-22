@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function(require/*, exports, module*/) {
   var promise = require("src/promise"),
       when    = require("src/when");
 
@@ -70,10 +70,13 @@ define(function(require, exports, module) {
       var deferred1 = promise.resolve("resolve promise");
       var result    = promise.defer();
 
-      return when(deferred1, 3.14).then(function(result1, result2) {
+      when(deferred1, 3.14).then(function(result1, result2) {
         expect(result1).to.equal("resolve promise");
         expect(result2).to.equal(3.14);
+        result.resolve();
       });
+
+      return result;
     });
 
 
