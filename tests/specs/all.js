@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function (require/*, exports, module*/) {
   var promise = require("src/promise"),
       all     = require("src/all");
 
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       var deferred2 = promise.reject("reject promise2");
       var result    = promise.defer();
 
-      all([deferred1, deferred2]).then(function(reason) {
+      all([deferred1, deferred2]).then(function(/*reason*/) {
         expect("Failure was expected").to.equal(true);
         result.resolve();
       }, function(reason) {

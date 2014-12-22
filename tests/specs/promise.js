@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function(require/*, exports, module*/) {
   var Promise = require("src/promise"),
       Timer   = require("tests/timer");
 

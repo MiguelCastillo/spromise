@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function(require/*, exports, module*/) {
   var Race    = require("src/race"),
       Promise = require("src/promise");
 

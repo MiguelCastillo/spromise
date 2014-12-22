@@ -7,7 +7,7 @@ define(function(require, exports, module) {
   "use strict";
 
   var Promise = require("src/promise"),
-      Async   = require("src/async");
+      async   = require("src/async");
 
   function _result(input, args, context) {
     if (typeof(input) === "function") {
@@ -61,7 +61,7 @@ define(function(require, exports, module) {
     }
 
     // Process the promises and callbacks
-    Async(processQueue);
+    async(processQueue);
     return promise;
   }
 
