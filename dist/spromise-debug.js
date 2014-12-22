@@ -208,13 +208,9 @@ define('src/promise',['require','exports','module','src/async'],function(require
       constructor : Promise // Helper to detect spromise instances
     };
 
-    // Make sure we have a proper promise reference
     target.promise.promise = target.promise;
-
-    // Let's make the state manager available for now.
     target.then.stateManager = stateManager;
 
-    // Interface to allow to post pone calling the resolver as long as its not needed
     if (resolver) {
       resolver.call(target, target.resolve, target.reject);
     }
@@ -288,19 +284,16 @@ define('src/promise',['require','exports','module','src/async'],function(require
       (this.queue || (this.queue = [])).push(TaskAction);
     }
     else {
-      // If the promise has already been resolved and all its queue has
-      // been processed, then we need to schedule the new task for processing
-      // ASAP by putting in the asyncQueue
+      // If the promise has already been resolved and its queue has been processed, then
+      // we need to schedule the new task for processing ASAP by putting in the asyncQueue
       TaskManager.asyncTask(TaskAction);
     }
 
     var stateManager = this;
     function TaskAction() {
-      // If not pending, then lets execute the callback
       if (stateManager.state === state || states.always === state) {
         cb.apply(stateManager.context, stateManager.value);
       }
-      // Do proper notify events
       else if (states.notify === state) {
         cb.call(stateManager.context, stateManager.state, stateManager.value);
       }
@@ -344,22 +337,17 @@ define('src/promise',['require','exports','module','src/async'],function(require
       return new Promise(null, stateManager);
     }
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function resolver(resolve, reject) {
       var promise = this;
 
-      // Run the notification task async if there is a handler or promise1 has
-      // not yet been resolved.  Otherwise, run the task sync.
-      stateManager.enqueue(states.notify, NotifyAction);
-
-      // Callback when the promise is ready
-      function NotifyAction(state, value) {
+      stateManager.enqueue(states.notify, function NotifyAction(state, value) {
         var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
         if (handler) {
           value = StateManager.runHandler(handler, value, this, reject);
         }
 
         (new Resolution({promise: promise})).finalize(state, value, this);
-      }
+      });
     });
   };
 
@@ -373,7 +361,6 @@ define('src/promise',['require','exports','module','src/async'],function(require
       printDebug(ex);
       return reject.call(context, ex);
     }
-
     return value === undefined ? [] : [value];
   };
 
@@ -439,13 +426,16 @@ define('src/promise',['require','exports','module','src/async'],function(require
   /**
    * Run thenable.
    */
-  Resolution.prototype.runThenable = function(input, context) {
+  Resolution.prototype.runThenable = function(thenable, context) {
     var resolution = this,
         resolved   = false;
+
     try {
-      var then = input.then;  // Reading `.then` could throw
+      // 2.3.3.1 https://promisesaplus.com/#point-54
+      var then = thenable.then;  // Reading `.then` could throw
       if (typeof(then) === "function") {
-        then.call(input, function resolvePromise() {
+        // 2.3.3.3 https://promisesaplus.com/#point-56
+        then.call(thenable, function resolvePromise() {
           if (!resolved) { resolved = true;
             resolution.finalize(states.resolved, arguments, this);
           }
@@ -454,6 +444,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
             resolution.promise.reject.apply(this, arguments);
           }
         });
+
         return true;
       }
     }
@@ -461,8 +452,10 @@ define('src/promise',['require','exports','module','src/async'],function(require
       if (!resolved) {
         resolution.promise.reject.call(context, ex);
       }
+
       return true;
     }
+
     return false;
   };
 
@@ -477,7 +470,7 @@ define('src/promise',['require','exports','module','src/async'],function(require
       }
     },
     taskRunner: function(queue) {
-      return function taskRunner() {
+      return function runTasks() {
         while(queue.length) {
           try {
             queue[0]();
