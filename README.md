@@ -4,6 +4,41 @@ spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?bran
 spromise (Small Promise), is an implementation of the promise <a href="https://promisesaplus.com/">A+ spec</a>.  It is designed to be lightweight, performant, and per spec, interoperable with other promise implementations such as jQuery's <a href="http://api.jquery.com/category/deferred-object/">deferred</a>.
 
 
+* [API](#api)
+  * [Static methods](#static-methods)
+    * [spromise as a constructor](#spromise-as-a-constructor)
+    * [spromise.defer](#spromisedefer)
+    * [spromise.resolve](#spromiseresolve)
+    * [spromise.reject](#spromisereject)
+    * [spromise.when](#spromisewhen)
+    * [spromise.all](#spromiseall)
+  * [Instance methods](#instance-methods)
+    * [then](#then)
+    * [done](#done)
+    * [fail and catch](#fail-and-catch)
+    * [always](#always)
+    * [resolve](#resolve)
+    * [reject](#reject)
+    * [delay](#delay)
+    * [state](#state)
+    * [isPending](#ispending)
+    * [isResolved](#isresolved)
+    * [isRejected](#isrejected)
+  * [Instance Properties](#instance-properties)
+    * [promise](#promise)
+* [Install](#install)
+    * [bower](#bower)
+    * [npm](#npm)
+* [Downloads](#downloads)
+* [Build](#build)
+* [Tests](#tests)
+    * [Unit tests](#unit-tests)
+    * [Compliance unit tests:](#compliance-unit-tests)
+* [Compliance notes](#compliance-notes)
+
+<!-- toc stop -->
+
+
 ## API
 
 ### Static methods
