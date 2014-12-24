@@ -164,7 +164,7 @@ define(function(require, exports, module) {
     var queue = this.queue;
     if (queue) {
       this.queue = null;
-      TaskManager.asyncTask(TaskManager.taskRunner(queue));
+      TaskManager.asyncQueue(queue);
     }
   };
 
@@ -184,30 +184,32 @@ define(function(require, exports, module) {
       return new Promise(null, stateManager);
     }
 
-    return new Promise(function resolver(resolve, reject) {
-      var promise = this;
+    var promise = new Promise();
+    stateManager.enqueue(states.notify, function NotifyAction(state, value) {
+      var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
+      if (handler) {
+        value = StateManager.runHandler(state, value, this, promise, handler);
+      }
 
-      stateManager.enqueue(states.notify, function NotifyAction(state, value) {
-        var handler = (state === states.resolved) ? (onResolved || onRejected) : (onRejected || onResolved);
-        if (handler) {
-          value = StateManager.runHandler(handler, value, this, reject);
-        }
-
+      if (value !== false) {
         (new Resolution({promise: promise})).finalize(state, value, this);
-      });
+      }
     });
+    return promise;
   };
 
 
-  StateManager.runHandler = function(handler, value, context, reject) {
+  StateManager.runHandler = function(state, value, context, promise, handler) {
     // Try catch in case calling the handler throws an exception
     try {
       value = handler.apply(context, value);
     }
     catch(ex) {
       printDebug(ex);
-      return reject.call(context, ex);
+      promise.reject.call(context, ex);
+      return false;
     }
+
     return value === undefined ? [] : [value];
   };
 
@@ -316,18 +318,30 @@ define(function(require, exports, module) {
         async(TaskManager.taskRunner(TaskManager._asyncQueue));
       }
     },
+    asyncQueue: function(queue) {
+      if (queue.length === 1) {
+        TaskManager.asyncTask(queue[0]);
+      }
+      else {
+        TaskManager.asyncTask(TaskManager.taskRunner(queue));
+      }
+    },
     taskRunner: function(queue) {
       return function runTasks() {
-        while(queue.length) {
-          try {
-            queue[0]();
-          }
-          catch(ex) {
-            printDebug(ex);
-          }
+        var task;
+        while ((task = queue[0])) {
+          TaskManager._runTask(task);
           queue.shift();
         }
       };
+    },
+    _runTask: function(task) {
+      try {
+        task();
+      }
+      catch(ex) {
+        printDebug(ex);
+      }
     }
   };
 
