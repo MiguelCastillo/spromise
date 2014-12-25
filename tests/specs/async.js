@@ -165,7 +165,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[2]).to.equal("test");
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]));
+          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
         });
       });
 
