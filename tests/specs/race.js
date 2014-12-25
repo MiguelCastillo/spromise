@@ -41,7 +41,7 @@ define(function(require/*, exports, module*/) {
 
         it("then race is resolve with only one parameter", function() {
           return Race([p1, p2]).done(function() {
-            expect(Array.prototype.slice.call(arguments).length).to.equal(1);
+            expect(arguments.length).to.equal(1);
           });
         });
 
@@ -63,7 +63,7 @@ define(function(require/*, exports, module*/) {
         it("then race is resolve with only one parameter", function() {
           return Promise(function(resolve) {
             Race([p1, p2]).fail(function() {
-              expect(Array.prototype.slice.call(arguments).length).to.equal(1);
+              expect(arguments.length).to.equal(1);
               resolve();
             });
           });
