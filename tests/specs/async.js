@@ -97,7 +97,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(0);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this), 1);
+          async.delay(cb.apply.bind(cb, this), 0);
         });
       });
     });
@@ -110,7 +110,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(1);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello world"]), 1);
+          async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
         });
       });
 
@@ -120,7 +120,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal("hello world");
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello world"]), 1);
+          async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
         });
       });
 
@@ -130,7 +130,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal(1);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, [1]), 1);
+          async.delay(cb.apply.bind(cb, this, [1]), 0);
         });
       });
 
@@ -140,7 +140,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal('1');
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ['1']), 1);
+          async.delay(cb.apply.bind(cb, this, ['1']), 0);
         });
       });
     });
@@ -153,7 +153,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(3);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 1);
+          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
         });
       });
 
@@ -165,7 +165,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[2]).to.equal("test");
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]));
+          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
         });
       });
 
