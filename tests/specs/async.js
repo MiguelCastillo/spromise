@@ -97,7 +97,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(0);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this), 0);
+          async.delay(cb, 0);
         });
       });
     });
@@ -110,7 +110,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(1);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
+          async.delay(cb, 0, ["hello world"]);
         });
       });
 
@@ -120,7 +120,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal("hello world");
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
+          async.delay(cb, 0, ["hello world"]);
         });
       });
 
@@ -130,7 +130,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal(1);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, [1]), 0);
+          async.delay(cb, 0, [1]);
         });
       });
 
@@ -140,7 +140,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments[0]).to.equal('1');
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ['1']), 0);
+          async.delay(cb, 0, ['1']);
         });
       });
     });
@@ -153,7 +153,7 @@ define(function(require/*, exports, module*/) {
             expect(arguments.length).to.equal(3);
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
+          async.delay(cb, 0, ["hello", "world", "test"]);
         });
       });
 
@@ -165,12 +165,26 @@ define(function(require/*, exports, module*/) {
             expect(arguments[2]).to.equal("test");
             resolve();
           }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
+          async.delay(cb, 0, ["hello", "world", "test"]);
         });
       });
 
     });
 
+
+    describe("When calling async.delay with apply.bind", function () {
+      it("then bound arguments are not changed", function () {
+        return new Promise(function(resolve) {
+          function cb() {
+            expect(arguments[0]).to.equal("hello");
+            expect(arguments[1]).to.equal("world");
+            expect(arguments[2]).to.equal("test");
+            resolve();
+          }
+          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0, ["nope", "nope", "nope"]);
+        });
+      });
+    });
   });
 
 });
