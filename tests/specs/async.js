@@ -90,101 +90,169 @@ define(function(require/*, exports, module*/) {
 
   describe("async.delay suite:", function() {
 
-    describe("When calling async.delay with no arguments", function() {
-      it("then arguments.length is 0", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments.length).to.equal(0);
-            resolve();
-          }
-          async.delay(cb, 0);
+    describe("When calling async.delay without apply.bind", function () {
+      describe("When calling async.delay with no arguments", function() {
+        it("then arguments.length is 0", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(0);
+              resolve();
+            }
+            async.delay(cb, 0);
+          });
+        });
+      });
+
+
+      describe("When calling async.delay with 1 argument", function() {
+        it("then arguments.length is 1", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(1);
+              resolve();
+            }
+            async.delay(cb, 0, ["hello world"]);
+          });
+        });
+
+        it("then arguments is 'hello world'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal("hello world");
+              resolve();
+            }
+            async.delay(cb, 0, ["hello world"]);
+          });
+        });
+
+        it("then arguments is 1", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal(1);
+              resolve();
+            }
+            async.delay(cb, 0, [1]);
+          });
+        });
+
+        it("then arguments is '1'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal('1');
+              resolve();
+            }
+            async.delay(cb, 0, ['1']);
+          });
+        });
+      });
+
+
+      describe("When calling async.delay with 3 arguments", function() {
+        it("then arguments.length is 3", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(3);
+              resolve();
+            }
+            async.delay(cb, 0, ["hello", "world", "test"]);
+          });
+        });
+
+        it("then arguments is 'hello world test'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal("hello");
+              expect(arguments[1]).to.equal("world");
+              expect(arguments[2]).to.equal("test");
+              resolve();
+            }
+            async.delay(cb, 0, ["hello", "world", "test"]);
+          });
         });
       });
     });
-
-
-    describe("When calling async.delay with 1 argument", function() {
-      it("then arguments.length is 1", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments.length).to.equal(1);
-            resolve();
-          }
-          async.delay(cb, 0, ["hello world"]);
-        });
-      });
-
-      it("then arguments is 'hello world'", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments[0]).to.equal("hello world");
-            resolve();
-          }
-          async.delay(cb, 0, ["hello world"]);
-        });
-      });
-
-      it("then arguments is 1", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments[0]).to.equal(1);
-            resolve();
-          }
-          async.delay(cb, 0, [1]);
-        });
-      });
-
-      it("then arguments is '1'", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments[0]).to.equal('1');
-            resolve();
-          }
-          async.delay(cb, 0, ['1']);
-        });
-      });
-    });
-
-
-    describe("When calling async.delay with 3 arguments", function() {
-      it("then arguments.length is 3", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments.length).to.equal(3);
-            resolve();
-          }
-          async.delay(cb, 0, ["hello", "world", "test"]);
-        });
-      });
-
-      it("then arguments is 'hello world test'", function() {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments[0]).to.equal("hello");
-            expect(arguments[1]).to.equal("world");
-            expect(arguments[2]).to.equal("test");
-            resolve();
-          }
-          async.delay(cb, 0, ["hello", "world", "test"]);
-        });
-      });
-
-    });
-
 
     describe("When calling async.delay with apply.bind", function () {
-      it("then bound arguments are not changed", function () {
-        return new Promise(function(resolve) {
-          function cb() {
-            expect(arguments[0]).to.equal("hello");
-            expect(arguments[1]).to.equal("world");
-            expect(arguments[2]).to.equal("test");
-            resolve();
-          }
-          async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0, ["nope", "nope", "nope"]);
+
+      describe("When calling async.delay with no arguments", function() {
+        it("then arguments.length is 0", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(0);
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this), 0);
+          });
+        });
+      });
+
+
+      describe("When calling async.delay with 1 argument", function() {
+        it("then arguments.length is 1", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(1);
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
+          });
+        });
+
+        it("then arguments is 'hello world'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal("hello world");
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, ["hello world"]), 0);
+          });
+        });
+
+        it("then arguments is 1", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal(1);
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, [1]), 0);
+          });
+        });
+
+        it("then arguments is '1'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal('1');
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, ['1']), 0);
+          });
+        });
+      });
+
+
+      describe("When calling async.delay with 3 arguments", function() {
+        it("then arguments.length is 3", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments.length).to.equal(3);
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
+          });
+        });
+
+        it("then arguments is 'hello world test'", function() {
+          return new Promise(function(resolve) {
+            function cb() {
+              expect(arguments[0]).to.equal("hello");
+              expect(arguments[1]).to.equal("world");
+              expect(arguments[2]).to.equal("test");
+              resolve();
+            }
+            async.delay(cb.apply.bind(cb, this, ["hello", "world", "test"]), 0);
+          });
         });
       });
     });
   });
-
 });
