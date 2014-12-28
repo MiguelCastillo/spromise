@@ -17,7 +17,8 @@ module.exports = function(grunt) {
         options: {
           port: 8050,
           host: "*",
-          keepalive: true
+          keepalive: true,
+          livereload: true
         }
       }
 
@@ -106,6 +107,20 @@ module.exports = function(grunt) {
         reporter: require("jshint-stylish"),
         jshintrc: true
       },
+    },
+    watch: {
+      tests: {
+        files: ['tests/**/*', 'src/**/*.js'],
+        options: {
+          livereload: true
+        },
+      }
+    },
+    concurrent: {
+      testServer: ['watch-tests', 'connect:keepalive'],
+      options: {
+        logConcurrentOutput: true
+      }
     }
   });
 
@@ -113,6 +128,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-requirejs");
   grunt.loadNpmTasks("grunt-contrib-connect");
+  grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-concurrent");
   grunt.loadNpmTasks("grunt-mocha");
 
   grunt.registerTask("default", ["requirejs"]);
@@ -120,4 +137,6 @@ module.exports = function(grunt) {
   grunt.registerTask("test", ["connect:test", "mocha:test"]);
   grunt.registerTask("lint", ["jshint"]);
   grunt.registerTask("server", ["connect:keepalive"]);
+  grunt.registerTask("watch-tests", ["watch:tests"]);
+  grunt.registerTask("server-test-watcher", ["concurrent:testServer"]);
 };
