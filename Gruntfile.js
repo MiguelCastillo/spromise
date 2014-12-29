@@ -142,5 +142,5 @@ module.exports = function(grunt) {
   grunt.registerTask("lint", ["jshint"]);
   grunt.registerTask("server", ["connect:keepalive"]);
   grunt.registerTask("watch-tests", ["watch:tests"]);
-  grunt.registerTask("server-test-watcher", ["concurrent:testServer"]);
+  grunt.registerTask("livereload-tests", ["concurrent:testServer"]);
 };
