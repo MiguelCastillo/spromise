@@ -21,7 +21,7 @@ module.exports = function(grunt) {
           livereload: true,
           open: {
             target: 'http://localhost:8050/tests/SpecRunner.html',
-            appName: 'xdg-open',
+            appName: 'google-chrome',
             callback: function() {} // App that will be called with the target url to open the browser.
           }
         }
@@ -141,6 +141,5 @@ module.exports = function(grunt) {
   grunt.registerTask("test", ["connect:test", "mocha:test"]);
   grunt.registerTask("lint", ["jshint"]);
   grunt.registerTask("server", ["connect:keepalive"]);
-  grunt.registerTask("watch-tests", ["watch:tests"]);
   grunt.registerTask("livereload-tests", ["concurrent:testServer"]);
 };
