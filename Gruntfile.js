@@ -19,11 +19,7 @@ module.exports = function(grunt) {
           host: "*",
           keepalive: true,
           livereload: true,
-          open: {
-            target: 'http://localhost:8050/tests/SpecRunner.html',
-            appName: 'google-chrome',
-            callback: function() {} // App that will be called with the target url to open the browser.
-          }
+          open: 'http://localhost:8050/tests/SpecRunner.html'
         }
       }
     },
