@@ -121,7 +121,7 @@ module.exports = function(grunt) {
       }
     },
     concurrent: {
-      testServer: ['watch-tests', 'connect:keepalive'],
+      testServer: ['watch:tests', 'connect:keepalive'],
       options: {
         logConcurrentOutput: true
       }
