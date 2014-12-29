@@ -18,10 +18,14 @@ module.exports = function(grunt) {
           port: 8050,
           host: "*",
           keepalive: true,
-          livereload: true
+          livereload: true,
+          open: {
+            target: 'http://localhost:8050/tests/SpecRunner.html',
+            appName: 'xdg-open',
+            callback: function() {} // App that will be called with the target url to open the browser.
+          }
         }
       }
-
     },
     mocha: {
       test: {
