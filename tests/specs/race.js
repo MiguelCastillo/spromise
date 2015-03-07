@@ -1,6 +1,6 @@
 define(function(require/*, exports, module*/) {
-  var Race    = require("src/race"),
-      Promise = require("src/promise");
+  var Promise = require("spromise"),
+      Race    = Promise.race;
 
   describe("Race Suite", function() {
 

@@ -3,10 +3,10 @@
  * Licensed under MIT
  */
 
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
-  var async = require("src/async");
+  var async = require("./async");
 
   var states = {
     "pending"  : 0,
@@ -428,4 +428,4 @@ define(function(require, exports, module) {
   Factory.states = states;
   Factory.debug  = false;
   module.exports = Factory;
-});
+}());

@@ -7,9 +7,8 @@ deploy:
       secure: e2AB+ei6ElEPHhRg+Xc91NzpgZCNFaF4lNSkuLgRzCIt1Ww9cqq/UL7r3WQN4yaph8HVzaPuK9pj9rs+eVFej6FMa59dwyaCNhXLt/lCX4V9DisWkCilYgBk7eZXwEzms2LjSvkkvTmmt3DgpYTG5g4Ar60/bIK4fUhyVPXci1s=
     file:
       - "dist/spromise.js"
-      - "dist/spromise-debug.js"
-      - "dist/spromise-lib.js"
-      - "dist/spromise-lib-debug.js"
+      - "dist/spromise.min.js"
+      - "dist/spromise.min.js.map"
     skip_cleanup: true
     on:
       repo: MiguelCastillo/spromise

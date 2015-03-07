@@ -23,6 +23,7 @@ module.exports = function(grunt) {
         }
       }
     },
+
     mocha: {
       test: {
         options: {
@@ -35,79 +36,42 @@ module.exports = function(grunt) {
         }
       }
     },
-    requirejs: {
-      compile: {
+
+    browserify: {
+      'build': {
+        files: {
+          'dist/spromise.js': ['src/spromise.js']
+        },
         options: {
-          "paths": {
-          },
-          name: "src/samdy",
-          include: ["src/spromise"],
-          out: "dist/spromise-debug.js",
-          optimize: "none",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false,
-          wrap: {
-            startFile: ["buildinfo/license.frag", "buildinfo/module-start.frag"],
-            endFile: "buildinfo/module-end.frag"
-          }
-        }
-      },
-      minify: {
-        options: {
-          "paths": {
-          },
-          name: "src/samdy",
-          include: ["src/spromise"],
-          out: "dist/spromise.js",
-          optimize: "uglify",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false,
-          wrap: {
-            startFile: ["buildinfo/license.frag", "buildinfo/module-start.frag"],
-            endFile: "buildinfo/module-end.frag"
-          }
-        }
-      },
-      lib: {
-        options: {
-          "paths": {
-          },
-          include: ["src/spromise"],
-          out: "dist/spromise-lib-debug.js",
-          optimize: "none",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false,
-          wrap: {
-            startFile: ["buildinfo/license.frag"],
-          }
-        }
-      },
-      libmin: {
-        options: {
-          "paths": {
-          },
-          include: ["src/spromise"],
-          out: "dist/spromise-lib.js",
-          optimize: "uglify",
-          preserveLicenseComments: true,
-          skipModuleInsertion: false,
-          wrap: {
-            startFile: ["buildinfo/license.frag"]
+          browserifyOptions: {
+            'detectGlobals': false,
+            'standalone': 'spromise'
           }
         }
       }
     },
-    jshint: {
-      all: [
-        "Gruntfile.js",
-        "src/**/*.js",
-        "tests/**/*.js"
-      ],
-      options: {
-        reporter: require("jshint-stylish"),
-        jshintrc: true
-      },
+
+    uglify: {
+      'build': {
+        options: {
+          sourceMap: true
+        },
+        files: {
+          'dist/spromise.min.js': ['dist/spromise.js']
+        }
+      }
     },
+
+    jshint: {
+      all: {
+        options: {
+          jshintrc: true,
+          reporter: require('jshint-stylish')
+        },
+        src: ['src/**/*.js', 'test/**/*.js', '*.js']
+      }
+    },
+
     watch: {
       tests: {
         files: ['tests/**/*', 'src/**/*.js'],
@@ -116,26 +80,29 @@ module.exports = function(grunt) {
         },
       }
     },
+
     concurrent: {
-      testServer: ['watch:tests', 'connect:keepalive'],
-      options: {
-        logConcurrentOutput: true
+      test: {
+        tasks: ['connect:keepalive', 'watch:tests'],
+        options: {
+          logConcurrentOutput: true
+        }
       }
     }
   });
 
 
   grunt.loadNpmTasks("grunt-contrib-jshint");
-  grunt.loadNpmTasks("grunt-contrib-requirejs");
+  grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-browserify");
   grunt.loadNpmTasks("grunt-concurrent");
   grunt.loadNpmTasks("grunt-mocha");
 
-  grunt.registerTask("default", ["requirejs"]);
-  grunt.registerTask("build", ["requirejs"]);
+  grunt.registerTask("default", ["build"]);
+  grunt.registerTask("build", ["jshint", "browserify:build", "uglify:build"]);
   grunt.registerTask("test", ["connect:test", "mocha:test"]);
-  grunt.registerTask("lint", ["jshint"]);
-  grunt.registerTask("server", ["connect:keepalive"]);
-  grunt.registerTask("livereload-tests", ["concurrent:testServer"]);
+  grunt.registerTask("serve", ["connect:keepalive"]);
+  grunt.registerTask("dev", ["concurrent:test"]);
 };

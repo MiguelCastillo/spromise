@@ -3,10 +3,10 @@
  * Licensed under MIT
  */
 
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
-  var Promise = require("src/promise");
+  var Promise = require("./promise");
 
   function Race(iterable) {
     if (!iterable) {
@@ -40,4 +40,4 @@ define(function(require, exports, module) {
   }
 
   module.exports = Race;
-});
+}());

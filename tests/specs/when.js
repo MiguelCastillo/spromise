@@ -1,6 +1,6 @@
 define(function(require/*, exports, module*/) {
-  var promise = require("src/promise"),
-      when    = require("src/when");
+  var Promise = require("spromise"),
+      when    = Promise.when;
 
   describe("When", function() {
 
@@ -30,30 +30,30 @@ define(function(require/*, exports, module*/) {
 
 
     it("promise string", function() {
-      var promise1 = promise.resolve("string");
+      var promise1 = Promise.resolve("string");
       return when(promise1).done(function(response) {
         expect(response).to.equal("string");
       });
     });
 
     it("promise undefined", function() {
-      var promise1 = promise.resolve((void 0));
+      var promise1 = Promise.resolve((void 0));
       return when(promise1).done(function(response) {
         expect(response).to.equal(undefined);
       });
     });
 
     it("promise Number", function() {
-      var promise1 = promise.resolve(3.14);
+      var promise1 = Promise.resolve(3.14);
       return when(promise1).done(function(response) {
         expect(response).to.equal(3.14);
       });
     });
 
     it("two promises, one pending one rejected", function() {
-      var deferred1 = promise.defer();
-      var deferred2 = promise.reject("reject promise2");
-      var result    = promise.defer();
+      var deferred1 = Promise.defer();
+      var deferred2 = Promise.reject("reject promise2");
+      var result    = Promise.defer();
 
       when(deferred1, deferred2).then(function() {
         expect("Failure was expected").to.equal(true);
@@ -67,8 +67,8 @@ define(function(require/*, exports, module*/) {
     });
 
     it("two promises, one resolved one Number", function() {
-      var deferred1 = promise.resolve("resolve promise");
-      var result    = promise.defer();
+      var deferred1 = Promise.resolve("resolve promise");
+      var result    = Promise.defer();
 
       when(deferred1, 3.14).then(function(result1, result2) {
         expect(result1).to.equal("resolve promise");
@@ -81,7 +81,7 @@ define(function(require/*, exports, module*/) {
 
 
     it("with multiple arguments", function() {
-      var promise1 = new promise();
+      var promise1 = Promise.defer();
 
       when(promise1).done(function(result) {
         var _actor = result[0];

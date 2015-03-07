@@ -4,7 +4,7 @@
  */
 
 /*global process, setImmediate*/
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
   var nextTick;
@@ -36,4 +36,4 @@ define(function(require, exports, module) {
 
   Async.nextTick = nextTick;
   module.exports = Async;
-});
+}());

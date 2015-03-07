@@ -1,5 +1,5 @@
 define(function(require/*, exports, module*/) {
-  var Promise = require("src/promise"),
+  var Promise = require("spromise"),
       Timer   = require("tests/timer");
 
   // Disable debug traces in unit tests.
