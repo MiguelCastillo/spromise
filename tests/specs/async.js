@@ -1,6 +1,6 @@
 define(function(require/*, exports, module*/) {
-  var async   = require("src/async"),
-      Promise = require("src/promise");
+  var Promise = require("spromise"),
+      async   = Promise.async;
 
   describe("async suite:", function() {
 

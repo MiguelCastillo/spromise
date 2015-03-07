@@ -3,11 +3,11 @@
  * Licensed under MIT
  */
 
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
-  var Promise = require("src/promise"),
-      All     = require("src/all");
+  var Promise = require("./promise"),
+      All     = require("./all");
 
   /**
    * Interface to allow multiple promises to be synchronized
@@ -25,5 +25,4 @@ define(function(require, exports, module) {
   }
 
   module.exports = When;
-});
-
+}());

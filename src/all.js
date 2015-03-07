@@ -3,11 +3,11 @@
  * Licensed under MIT
  */
 
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
-  var Promise = require("src/promise"),
-      async   = require("src/async");
+  var Promise = require("./promise"),
+      async   = require("./async");
 
   function _result(input, args, context) {
     if (typeof(input) === "function") {
@@ -66,5 +66,5 @@ define(function(require, exports, module) {
   }
 
   module.exports = All;
-});
+}());
 

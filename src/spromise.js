@@ -3,14 +3,14 @@
  * Licensed under MIT
  */
 
-define(function(require, exports, module) {
+(function() {
   "use strict";
 
-  var Promise  = require("src/promise");
-  Promise.aync = require("src/async");
-  Promise.when = require("src/when");
-  Promise.all  = require("src/all");
-  Promise.race = require("src/race");
+  var Promise   = require("./promise");
+  Promise.async = require("./async");
+  Promise.when  = require("./when");
+  Promise.all   = require("./all");
+  Promise.race  = require("./race");
 
   module.exports = Promise;
-});
+}());

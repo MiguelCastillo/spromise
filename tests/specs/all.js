@@ -1,6 +1,6 @@
 define(function (require/*, exports, module*/) {
-  var promise = require("src/promise"),
-      all     = require("src/all");
+  var Promise = require("spromise"),
+      all     = Promise.all;
 
   describe("All", function() {
 
@@ -12,7 +12,7 @@ define(function (require/*, exports, module*/) {
     });
 
     it("single promise, resolved", function() {
-      var deferred = promise.resolve("resolved promise");
+      var deferred = Promise.resolve("resolved promise");
 
       return all([deferred]).then(function(result) {
         expect(result.length).to.equal(1);
@@ -21,8 +21,8 @@ define(function (require/*, exports, module*/) {
     });
 
     it("two promises, both resolved", function() {
-      var deferred1 = promise.resolve("resolved promise1");
-      var deferred2 = promise.resolve("resolved promise2");
+      var deferred1 = Promise.resolve("resolved promise1");
+      var deferred2 = Promise.resolve("resolved promise2");
 
       return all([deferred1, deferred2]).then(function(result) {
         expect(result.length).to.equal(2);
@@ -32,9 +32,9 @@ define(function (require/*, exports, module*/) {
     });
 
     it("two promises, one unresolved one rejected", function() {
-      var deferred1 = promise.defer();
-      var deferred2 = promise.reject("reject promise2");
-      var result    = promise.defer();
+      var deferred1 = Promise.defer();
+      var deferred2 = Promise.reject("reject promise2");
+      var result    = Promise.defer();
 
       all([deferred1, deferred2]).then(function(/*reason*/) {
         expect("Failure was expected").to.equal(true);
@@ -48,7 +48,7 @@ define(function (require/*, exports, module*/) {
     });
 
     it("two promises, one resolved one Number", function() {
-      var deferred1 = promise.resolve("resolve promise");
+      var deferred1 = Promise.resolve("resolve promise");
 
       return all([deferred1, 3.14]).then(function(result) {
         expect(result[0]).to.equal("resolve promise");
