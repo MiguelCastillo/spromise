@@ -23,7 +23,6 @@ module.exports = function(grunt) {
         }
       }
     },
-
     mocha: {
       test: {
         options: {
@@ -36,7 +35,6 @@ module.exports = function(grunt) {
         }
       }
     },
-
     browserify: {
       'build': {
         files: {
@@ -50,7 +48,6 @@ module.exports = function(grunt) {
         }
       }
     },
-
     uglify: {
       'build': {
         options: {
@@ -61,7 +58,6 @@ module.exports = function(grunt) {
         }
       }
     },
-
     jshint: {
       all: {
         options: {
@@ -71,7 +67,6 @@ module.exports = function(grunt) {
         src: ['src/**/*.js', 'test/**/*.js', '*.js']
       }
     },
-
     watch: {
       tests: {
         files: ['tests/**/*', 'src/**/*.js'],
@@ -80,13 +75,19 @@ module.exports = function(grunt) {
         },
       }
     },
-
     concurrent: {
       test: {
         tasks: ['connect:keepalive', 'watch:tests'],
         options: {
           logConcurrentOutput: true
         }
+      }
+    },
+    release: {
+      options: {
+        tagName: 'v<%= version %>',
+        tagMessage: 'Version <%= version %>',
+        commitMessage: 'Release v<%= version %>'
       }
     }
   });
@@ -97,6 +98,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-browserify");
+  grunt.loadNpmTasks("grunt-release");
   grunt.loadNpmTasks("grunt-concurrent");
   grunt.loadNpmTasks("grunt-mocha");
 
