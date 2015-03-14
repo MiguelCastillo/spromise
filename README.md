@@ -7,7 +7,7 @@ spromise (Small Promise), is an implementation of the promise <a href="https://p
 
 * [API](#api)
   * [Static methods](#static-methods)
-    * [spromise as a constructor](#spromise-as-a-constructor)
+    * [spromise constructor](#spromise-constructor)
     * [spromise.defer](#spromisedefer)
     * [spromise.resolve](#spromiseresolve)
     * [spromise.reject](#spromisereject)
@@ -42,11 +42,13 @@ spromise (Small Promise), is an implementation of the promise <a href="https://p
 
 ### Static methods
 
-#### spromise as a constructor
+#### spromise constructor
 Creates a promise instance.  It can take in a function as its single optional parameter, which is called when the promise is created.  The callback function receives two parameters, a function to fulfill the promise and a function to reject the promise.
 
-Resolve a promise
+##### Resolve a promise
 ``` javascript
+var spromise = require("spromise");
+
 // Resolve
 spromise(function(resolve, reject){
   resolve("Yes, we are resolving this");
@@ -57,8 +59,10 @@ spromise(function(resolve, reject){
 });
 ```
 
-Reject a promise
+##### Reject a promise
 ``` javascript
+var spromise = require("spromise");
+
 // Reject
 spromise(function(resolve, reject){
   reject("booo");
@@ -88,7 +92,9 @@ promise.resolve("Deferred");
 ```
 
 #### spromise.resolve
-Returns a promise instance.  If the input is an instance of spromise, then that's returned as is. If the input is a thenable object or function, a new promise is returned with the current/future value of the thenable. And if the value is anything else, then a new promise that is already fulfilled with the value(s) is returned.
+The primary purpose for this method is to return promise instances. If the input is a promise instance, then that's returned as is. If the input is a thenable object or function, a new promise is returned with the current/future value of the thenable. And if the value is anything else, then a new promise that is already fulfilled with the value(s) is returned.
+
+> This essentially replaces promise cast
 
 - returns a promise
 
@@ -120,7 +126,8 @@ creates and returns a promise. <code>when</code> takes in N arguments that contr
 
 - returns a `new` promise
 
-<p>Synchronizing multiple $.ajax request</p>
+##### Synchronizing multiple $.ajax request
+
 ``` javascript
 spromise.when($.ajax("json/array.json"), $.ajax("json/object.json")).done(function($array, $object) {
   // Will print the XHR objects $array and $object
@@ -133,7 +140,8 @@ similar to `when` except that the input parameters are in the form of a single a
 
 - returns a `new` promise
 
-<p>Synchronizing multiple $.ajax request</p>
+##### Synchronizing multiple $.ajax request
+
 ``` javascript
 spromise.all([$.ajax("json/array.json"), $.ajax("json/object.json")]).done(function(result) {
   // Will print the XHR objects $array and $object
@@ -205,7 +213,7 @@ promise.done(function(data1, data2) {
 #### fail and catch
 method takes a callback as its only parameter that gets called when the promise is rejected. If the promise is rejected with a reason(s), that will then get passed in as parameter(s) to the callback.
 
-- Note: fail and catch are exactly the same methods, and they both exist to provide alternatives for folks used to one vs the other.
+> Note: fail and catch are exactly the same methods, and they both exist to provide alternatives for folks used to one vs the other.
 
 - returns promise (itself)
 
@@ -394,7 +402,7 @@ $ npm test
 With the exception of 2.2.5, which states that onFullfilled/onRejected must not be called with "this", all tests for compliance pass.<br>
 The reason spromise was left non compliant for this particular item is to faithfully handle "context" configured in jQuery ajax requests.
 
-* NOTE: The spec makes use of `fulfilled`, which is the exact same thing as `resolved` in spromise. The different names exists because it seems more consistent that if you call `resolve` to transition a promise to the `resolved` state, that the state is `resolved` and not `fulfilled`.  In spromise's documention both are used simply for better readability.
+> NOTE: The spec makes use of `fulfilled`, which is the exact same thing as `resolved` in spromise. The different names exists because it seems more consistent that if you call `resolve` to transition a promise to the `resolved` state, that the state is `resolved` and not `fulfilled`.  In spromise's documention both are used simply for better readability.
 
 ##### Test results:
 
