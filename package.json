@@ -1,6 +1,6 @@
 {
   "name": "spromise",
-  "version": "0.9.3",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "src/spromise.js",
   "author": "Miguel Castillo <manchagnu@gmail.com>",
