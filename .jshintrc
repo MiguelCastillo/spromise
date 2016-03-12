@@ -10,6 +10,7 @@
     "module": true,
     "$": true,
     "window": true,
+    "global": true,
     "_": true,
     "setTimeout": true,
     "setInterval": true
