@@ -9,13 +9,6 @@
   var Promise = require("./promise"),
       async   = require("./async");
 
-  function _result(input, args, context) {
-    if (typeof(input) === "function") {
-      return input.apply(context, args||[]);
-    }
-    return input;
-  }
-
   function All(values) {
     values = values || [];
 
@@ -54,7 +47,7 @@
           item.then(resolve(i), promise.reject);
         }
         else {
-          resolutions[i] = _result(item);
+          resolutions[i] = item;
           checkPending();
         }
       }
