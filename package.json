@@ -35,19 +35,19 @@
   },
   "devDependencies": {
     "bower": "^1.7.7",
-    "grunt": "~0.4.5",
-    "grunt-cli": "~0.1.13",
+    "grunt": "~1.0.1",
+    "grunt-cli": "~1.2.0",
     "grunt-concurrent": "^2.2.1",
     "grunt-contrib-connect": "~1.0.0",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-requirejs": "~1.0.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-mocha": "~0.4.15",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-mocha": "~1.0.4",
     "jshint-stylish": "^2.1.0",
     "promises-aplus-tests": "",
-    "grunt-browserify": "~5.0.0",
-    "grunt-contrib-uglify": "~1.0.0",
-    "grunt-release": "~0.13.0"
+    "grunt-browserify": "~5.2.0",
+    "grunt-contrib-uglify": "~3.2.1",
+    "grunt-release": "~0.14.0"
   },
   "scripts": {
     "prepublish": "bower install && grunt build --verbose",
