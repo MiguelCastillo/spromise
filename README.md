@@ -1,6 +1,8 @@
 spromise [![Build Status](https://travis-ci.org/MiguelCastillo/spromise.png?branch=master)](https://travis-ci.org/MiguelCastillo/spromise)
 =========
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/MiguelCastillo/spromise.svg)](https://greenkeeper.io/)
+
 spromise (Small Promise), is an implementation of the promise <a href="https://promisesaplus.com/">A+ spec</a>.  It is designed to be lightweight, performant, and per spec, interoperable with other promise implementations such as jQuery's <a href="http://api.jquery.com/category/deferred-object/">deferred</a>.
 
 ## Table of Contents
